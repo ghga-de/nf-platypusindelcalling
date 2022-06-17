@@ -17,7 +17,7 @@
 
 ## Introduction
 
-<!-- TODO nf-core: Write a 1-2 sentence summary of what data the pipeline is for and what it does -->
+!!! NOT A WORKING PIPELINE, WORK IN PROGRESS !!!
 
 **nf-core/platypusindelcalling** is a bioinformatics best-practice analysis pipeline for indel calling pipeline.
 
