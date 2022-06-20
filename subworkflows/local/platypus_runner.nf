@@ -4,9 +4,8 @@
 
 params.options = [:]
 
-include { PLATYPUS             } from '../../modules/local/platypus.nf'             addParams( options: params.options )
-//include { BGZIP_TABIX          } from '../../modules/local/bgzip_tabix'          addParams( options: params.options )
-//include { BCFTOOLS_FILTER      } from '../../modules/local/bcftools_filter'      addParams( options: params.options )
+include { PLATYPUS                   } from '../../modules/local/platypus.nf'                                 addParams( options: params.options )
+include {  TABIX_BGZIPTABIX          } from '../../modules/local/tabix_bgziptabix.nf'          addParams( options: params.options )
 
 workflow PLATYPUS_RUNNER {
     take:
@@ -14,14 +13,28 @@ workflow PLATYPUS_RUNNER {
 
     main:
 
+    if (params.reference) { ref = Channel.fromPath(params.reference, checkIfExists: true) } else { ref = Channel.empty() }
+    if (params.reference) { ref_fai = Channel.fromPath(params.reference +'.fai', checkIfExists: true) } else { ref = Channel.empty() }
+
+
     PLATYPUS (
-        sample_ch, params.reference, params.reference+'.fai'
-)
-    ch_platypus_vcf_to_filter = PLATYPUS.out.platypus_vcf
+    sample_ch, ref, ref_fai
+    )
+    ch_platypus_log = PLATYPUS.out.platypus_log
     platypus_version = PLATYPUS.out.versions
 
-    emit:
-    ch_platypus_vcf_to_filter
-    platypus_version
+// TODO: CHECK IF VCF FILES CORRUPTED!! This is in indelcalling.sh  it would be different for with or withoutcontrol cases
 
+    TABIX_BGZIPTABIX (
+    PLATYPUS.out.platypus_vcf
+    )
+    ch_platypus_vcf_to_filter_gz = TABIX_BGZIPTABIX.out.gz_tbi
+    bgzip_version = TABIX_BGZIPTABIX.out.versions
+
+
+    emit:
+    ch_platypus_vcf_to_filter_gz
+    ch_platypus_log
+    platypus_version
+    bgzip_version
 }
