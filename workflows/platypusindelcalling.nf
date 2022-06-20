@@ -25,7 +25,20 @@ INDEL CALLING WITH PLATYPUS - O D F Z - N F   P I P E L I N E
 
 """
 
+
+// REFERENCE FILE DIRECTORIES, I NEED TO FIND A WAY TO READ THEM FROM OUTSIDE
 params.reference='/Users/kubranarci/Desktop/Workflows/data_test/REF/17.fasta'
+params.k_genome='/Users/kubranarci/Desktop/Workflows/data_test/References/ALL.wgs.phase1_integrated_calls.20101123.indels_plain.vcf.gz'
+params.dbsnp_indel='/Users/kubranarci/Desktop/Workflows/data_test/References/00-All.INDEL.vcf.gz'
+params.dbsnp_snv='/Users/kubranarci/Desktop/Workflows/data_test/References/00-All.SNV.vcf.gz'
+params.exac_file='/Users/kubranarci/Desktop/Workflows/data_test/References/ExAC_nonTCGA.r0.3.1.sites.vep.vcf.gz'
+params.evs_file='/Users/kubranarci/Desktop/Workflows/data_test/References/ESP6500SI-V2-SSA137.updatedProteinHgvs.ALL.snps_indels.vcf.gz'
+params.local_control_wgs='/Users/kubranarci/Desktop/Workflows/data_test/References/ExclusionList_2019_HIPO-PCAWG_MP_PL_WGS.INDELs.AFgt1.vcf.gz'
+params.local_control_wes='/Users/kubranarci/Desktop/Workflows/data_test/References/ExclusionList_2019_H021_MP_PL_WES.INDELs.AFgt1.vcf.gz'
+params.exome_capture_kit_bed_file='/Users/kubranarci/Desktop/Workflows/data_test/References/Agilent5withUTRs_plain.bed.gz'
+params.genome_bed_file='/Users/kubranarci/Desktop/Workflows/data_test/References/GencodeV19_Exons_plain.bed.gz'
+params.gnomed_genomes='/Users/kubranarci/Desktop/Workflows/data_test/References/gnomad.genomes.r2.1.sites.SNV-INDEL.vcf.gz'
+params.gnomed_exomes='/Users/kubranarci/Desktop/Workflows/data_test/References/gnomad.exomes.r2.1.sites.SNV-INDEL.vcf.gz'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -45,8 +58,9 @@ ch_multiqc_custom_config = params.multiqc_config ? Channel.fromPath(params.multi
 //
 // SUBWORKFLOW: Consisting of a mix of local and nf-core/modules
 //
-include { INPUT_CHECK } from '../subworkflows/local/input_check'
+include { INPUT_CHECK }   from '../subworkflows/local/input_check'
 include {PLATYPUS_RUNNER} from '../subworkflows/local/platypus_runner'
+include {PLATYPUSINDELANNOTATION} from '../subworkflows/local/platypusindelannotation'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -72,6 +86,7 @@ def multiqc_report = []
 workflow PLATYPUSINDELCALLING {
 
     ch_versions = Channel.empty()
+    ch_logs = Channel.empty()
 
 
 //     SUBWORKFLOW: Read in samplesheet, validate and stage input files
@@ -83,8 +98,7 @@ workflow PLATYPUSINDELCALLING {
 //    ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
 
 
-//  TODO: I need to check if there is control file here
-    flag_iscontrol= true
+//  TODO: I need to check if there is control file here, for no control there will be a different subworkflow!!
 
 //
 
@@ -92,19 +106,24 @@ workflow PLATYPUSINDELCALLING {
     // SUBWORKFLOW: PLATYPUS
     //
 
-    chann=INPUT_CHECK.out.ch_sample
-    chann.view()
-
     PLATYPUS_RUNNER(
-        INPUT_CHECK.out.ch_sample
+    INPUT_CHECK.out.ch_sample
     )
 
-//    vcf_ch=PLATYPUS_RUNNER.out.ch_platypus_vcf_to_filter
-//    ch_versions = ch_versions.mix(PLATYPUS_RUNNER.out.versions)
+    vcf_ch = PLATYPUS_RUNNER.out.ch_platypus_vcf_to_filter_gz
+    ch_logs = ch_logs.mix(PLATYPUS_RUNNER.out.ch_platypus_log)
+    ch_versions = ch_versions.mix(PLATYPUS_RUNNER.out.platypus_version)
+    ch_versions= ch_versions.mix(PLATYPUS_RUNNER.out.bgzip_version)
+
+    vcf_ch.view()
+
+    //SUBWORKFLOW: INDEL_ANNOTATION
+    PLATYPUSINDELANNOTATION(
+    vcf_ch
+    )
 
     //
     // MODULE: MultiQC
-    //
     workflow_summary    = WorkflowPlatypusindelcalling.paramsSummaryMultiqc(workflow, summary_params)
     ch_workflow_summary = Channel.value(workflow_summary)
 
