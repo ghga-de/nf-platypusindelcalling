@@ -8,35 +8,38 @@ process PLATYPUS {
         'shub://IARCbioinfo/platypus-nf' :
         'iarcbioinfo/platypus-nf' }"
 
-    publishDir '${params.outdir}' , mode: 'copy', pattern: '*.vcf'
+    publishDir params.outdir+'/platypus' , mode: 'copy'
 
 
     input:
-    tuple val(sample), path(tumor), path(tumor_bai), path(control), path(control_bai)
+    tuple val(sample), file(tumor), file(tumor_bai), file(control),  file(control_bai)
     path(ref)
     path(ref_fai)
 
     output:
-    tuple val(sample), path('*platypus.vcf')                      , emit: platypus_vcf
-    path  "versions.yml"                                          , emit: versions
+    tuple val(sample), path('*.platypus.vcf')                      , emit: platypus_vcf
+    tuple val(sample), path('*.platypus.log')                      , emit: platypus_log
+    path  "versions.yml"                                           , emit: versions
+
+    when:
+    task.ext.when == null || task.ext.when
 
     script:
 
-    def opt_options = "--badReadsThreshold=0 --qdThreshold=0 --rmsmqThreshold=20 --hapScoreThreshold=10 --scThreshold=0.99"
+    def opt_options = " --genIndels=1 --genSNPs=0 --verbosity=1 --bufferSize=100000 --maxReads=5000000 --minFlank=0"
     def options_arg = "${params.optimized}" == "" ? "${params.options}" : "${opt_options}"
     def out_vcf = "${sample}.platypus.vcf"
+    def out_log = "${sample}.platypus.log"
+
 
     """
-
     platypus callVariants \\
     --nCPU=${params.max_cpus}  \\
-    --bamFiles=${tumor} \\
-    --output='file.vcf' \\
-    --refFile=${ref} \\
+    --bamFiles=$tumor,$control \\
+    --output=$out_vcf \\
+    --refFile=$ref \\
+    --logFileName=$out_log \\
     $options_arg
-
-    sed 's/^##FORMAT=<ID=NV,Number=.,/##FORMAT=<ID=NV,Number=A,/1g' file.vcf | sed 's/^##FORMAT=<ID=NR,Number=.,/##FORMAT=<ID=NR,Number=A,/1g' | sed 's/^##INFO=<ID=FR,Number=.,/##INFO=<ID=FR,Number=A,/1g' > $out_vcf
-    rm 'file.vcf'
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
