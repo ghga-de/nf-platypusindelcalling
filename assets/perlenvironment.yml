@@ -1,0 +1,11 @@
+name: perlenvironment
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+  - bioconda-legacy
+
+dependencies:
+  - perl-json-create=0.24=pl5.22.0_0
+  - perl-threaded=5.22.0=10
+  - perl=5.22.0.1=0
