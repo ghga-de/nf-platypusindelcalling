@@ -25,9 +25,8 @@ INDEL CALLING WITH PLATYPUS - O D F Z - N F   P I P E L I N E
 
 """
 
-
-// REFERENCE FILE DIRECTORIES, I NEED TO FIND A WAY TO READ THEM FROM OUTSIDE
 params.reference='/Users/kubranarci/Desktop/Workflows/data_test/REF/17.fasta'
+
 params.k_genome='/Users/kubranarci/Desktop/Workflows/data_test/References/ALL.wgs.phase1_integrated_calls.20101123.indels_plain.vcf.gz'
 params.dbsnp_indel='/Users/kubranarci/Desktop/Workflows/data_test/References/00-All.INDEL.vcf.gz'
 params.dbsnp_snv='/Users/kubranarci/Desktop/Workflows/data_test/References/00-All.SNV.vcf.gz'
@@ -36,7 +35,7 @@ params.evs_file='/Users/kubranarci/Desktop/Workflows/data_test/References/ESP650
 params.local_control_wgs='/Users/kubranarci/Desktop/Workflows/data_test/References/ExclusionList_2019_HIPO-PCAWG_MP_PL_WGS.INDELs.AFgt1.vcf.gz'
 params.local_control_wes='/Users/kubranarci/Desktop/Workflows/data_test/References/ExclusionList_2019_H021_MP_PL_WES.INDELs.AFgt1.vcf.gz'
 params.exome_capture_kit_bed_file='/Users/kubranarci/Desktop/Workflows/data_test/References/Agilent5withUTRs_plain.bed.gz'
-params.genome_bed_file='/Users/kubranarci/Desktop/Workflows/data_test/References/GencodeV19_Exons_plain.bed.gz'
+params.genome_bed_file='/Users/kubranarci/Desktop/Workflows/data_test/References/Agilent5withUTRs_plain.bed.gz'
 params.gnomed_genomes='/Users/kubranarci/Desktop/Workflows/data_test/References/gnomad.genomes.r2.1.sites.SNV-INDEL.vcf.gz'
 params.gnomed_exomes='/Users/kubranarci/Desktop/Workflows/data_test/References/gnomad.exomes.r2.1.sites.SNV-INDEL.vcf.gz'
 
@@ -92,9 +91,7 @@ workflow PLATYPUSINDELCALLING {
 //     SUBWORKFLOW: Read in samplesheet, validate and stage input files
 //      TODO: validate files and check if control exists
 
-    INPUT_CHECK (
-        ch_input
-    )
+    INPUT_CHECK (ch_input)
 //    ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
 
 
@@ -106,9 +103,7 @@ workflow PLATYPUSINDELCALLING {
     // SUBWORKFLOW: PLATYPUS
     //
 
-    PLATYPUS_RUNNER(
-    INPUT_CHECK.out.ch_sample
-    )
+    PLATYPUS_RUNNER(INPUT_CHECK.out.ch_sample)
 
     vcf_ch = PLATYPUS_RUNNER.out.ch_platypus_vcf_to_filter_gz
     ch_logs = ch_logs.mix(PLATYPUS_RUNNER.out.ch_platypus_log)
@@ -117,12 +112,11 @@ workflow PLATYPUSINDELCALLING {
 
     vcf_ch.view()
 
-    //SUBWORKFLOW: INDEL_ANNOTATION
-    PLATYPUSINDELANNOTATION(
-    vcf_ch
-    )
 
-    //
+//    SUBWORKFLOW: INDEL_ANNOTATION
+    PLATYPUSINDELANNOTATION(vcf_ch)
+
+
     // MODULE: MultiQC
     workflow_summary    = WorkflowPlatypusindelcalling.paramsSummaryMultiqc(workflow, summary_params)
     ch_workflow_summary = Channel.value(workflow_summary)
