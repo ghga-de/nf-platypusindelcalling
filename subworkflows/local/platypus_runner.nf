@@ -13,12 +13,10 @@ workflow PLATYPUS_RUNNER {
 
     main:
 
-    if (params.reference) { ref = Channel.fromPath(params.reference, checkIfExists: true) } else { ref = Channel.empty() }
-    if (params.reference) { ref_fai = Channel.fromPath(params.reference +'.fai', checkIfExists: true) } else { ref = Channel.empty() }
-
+    if (params.reference) { ref = Channel.fromPath([params.reference,params.reference +'.fai'], checkIfExists: true).collect() } else { ref = Channel.empty() }
 
     PLATYPUS (
-    sample_ch, ref, ref_fai
+    sample_ch, ref
     )
     ch_platypus_log = PLATYPUS.out.platypus_log
     platypus_version = PLATYPUS.out.versions
