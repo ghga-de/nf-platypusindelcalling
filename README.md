@@ -1,4 +1,3 @@
-# ![nf-core/platypusindelcalling](docs/images/nf-core-platypusindelcalling_logo_light.png#gh-light-mode-only) ![nf-core/platypusindelcalling](docs/images/nf-core-platypusindelcalling_logo_dark.png#gh-dark-mode-only)
 
 [![GitHub Actions CI Status](https://github.com/nf-core/platypusindelcalling/workflows/nf-core%20CI/badge.svg)](https://github.com/nf-core/platypusindelcalling/actions?query=workflow%3A%22nf-core+CI%22)
 [![GitHub Actions Linting Status](https://github.com/nf-core/platypusindelcalling/workflows/nf-core%20linting/badge.svg)](https://github.com/nf-core/platypusindelcalling/actions?query=workflow%3A%22nf-core+linting%22)
@@ -17,9 +16,9 @@
 
 ## Introduction
 
-!!! NOT A WORKING PIPELINE, WORK IN PROGRESS !!!
+<!-- TODO nf-core: Write a 1-2 sentence summary of what data the pipeline is for and what it does -->
 
-**nf-core/platypusindelcalling** is a bioinformatics best-practice analysis pipeline for indel calling pipeline.
+**nf-core/platypusindelcalling** is a bioinformatics best-practice analysis pipeline for platypus based indel calling pipeline. The workflow is based on DKFZ - ODCF OTP Indel Calling Pipeline
 
 The pipeline is built using [Nextflow](https://www.nextflow.io), a workflow tool to run tasks across multiple compute infrastructures in a very portable manner. It uses Docker/Singularity containers making installation trivial and results highly reproducible. The [Nextflow DSL2](https://www.nextflow.io/docs/latest/dsl2.html) implementation of this pipeline uses one container per process which makes it much easier to maintain and update software dependencies. Where possible, these processes have been submitted to and installed from [nf-core/modules](https://github.com/nf-core/modules) in order to make them available to all nf-core pipelines, and to everyone within the Nextflow community!
 
@@ -31,8 +30,14 @@ On release, automated continuous integration tests run the pipeline on a full-si
 
 <!-- TODO nf-core: Fill in short bullet-pointed list of the default steps in the pipeline -->
 
-1. Read QC ([`FastQC`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/))
-2. Present QC for raw reads ([`MultiQC`](http://multiqc.info/))
+1. Platypus ([`Platypus`](https://www.well.ox.ac.uk/research/research-groups/lunter-group/lunter-group/platypus-a-haplotype-based-variant-caller-for-next-generation-sequence-data))
+2. Annotation using several databases like Gnomed, dbsnp..
+3. ANNOVAR (["ANNOVAR"](https://annovar.openbioinformatics.org/en/latest/))
+4. INDEL Deep Annotation
+5. Filtering
+6. Checks Sample Swap
+7. Canopy Based Clustering
+8. Bias Filter
 
 ## Quick Start
 
