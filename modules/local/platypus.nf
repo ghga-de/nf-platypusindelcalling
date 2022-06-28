@@ -5,16 +5,15 @@ process PLATYPUS {
 
     conda     (params.enable_conda ? "$baseDir/assets/environment.yml" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'shub://IARCbioinfo/platypus-nf' :
-        'iarcbioinfo/platypus-nf' }"
+        '' :
+        'kubran/platypus:0.8.1.1-3' }"
 
     publishDir params.outdir+'/platypus' , mode: 'copy'
 
 
     input:
     tuple val(sample), file(tumor), file(tumor_bai), file(control),  file(control_bai)
-    path(ref)
-    path(ref_fai)
+    tuple path(ref), path(ref_fai)
 
     output:
     tuple val(sample), path('*.platypus.vcf')                      , emit: platypus_vcf
