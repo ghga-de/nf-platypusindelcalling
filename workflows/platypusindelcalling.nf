@@ -20,24 +20,12 @@ if (params.input) { ch_input = file(params.input) } else { exit 1, 'Input sample
 
 // TODO: Write a pretty log here
 log.info """\
-INDEL CALLING WITH PLATYPUS - O D F Z - N F   P I P E L I N E
+DKFZ-ODCF/IndelCallingWorkflow: A Platypus-based workflow for indel calling
 ===================================
 
 """
 
-params.reference='/Users/kubranarci/Desktop/Workflows/data_test/REF/17.fasta'
 
-params.k_genome='/Users/kubranarci/Desktop/Workflows/data_test/References/ALL.wgs.phase1_integrated_calls.20101123.indels_plain.vcf.gz'
-params.dbsnp_indel='/Users/kubranarci/Desktop/Workflows/data_test/References/00-All.INDEL.vcf.gz'
-params.dbsnp_snv='/Users/kubranarci/Desktop/Workflows/data_test/References/00-All.SNV.vcf.gz'
-params.exac_file='/Users/kubranarci/Desktop/Workflows/data_test/References/ExAC_nonTCGA.r0.3.1.sites.vep.vcf.gz'
-params.evs_file='/Users/kubranarci/Desktop/Workflows/data_test/References/ESP6500SI-V2-SSA137.updatedProteinHgvs.ALL.snps_indels.vcf.gz'
-params.local_control_wgs='/Users/kubranarci/Desktop/Workflows/data_test/References/ExclusionList_2019_HIPO-PCAWG_MP_PL_WGS.INDELs.AFgt1.vcf.gz'
-params.local_control_wes='/Users/kubranarci/Desktop/Workflows/data_test/References/ExclusionList_2019_H021_MP_PL_WES.INDELs.AFgt1.vcf.gz'
-params.exome_capture_kit_bed_file='/Users/kubranarci/Desktop/Workflows/data_test/References/Agilent5withUTRs_plain.bed.gz'
-params.genome_bed_file='/Users/kubranarci/Desktop/Workflows/data_test/References/Agilent5withUTRs_plain.bed.gz'
-params.gnomed_genomes='/Users/kubranarci/Desktop/Workflows/data_test/References/gnomad.genomes.r2.1.sites.SNV-INDEL.vcf.gz'
-params.gnomed_exomes='/Users/kubranarci/Desktop/Workflows/data_test/References/gnomad.exomes.r2.1.sites.SNV-INDEL.vcf.gz'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -57,8 +45,8 @@ ch_multiqc_custom_config = params.multiqc_config ? Channel.fromPath(params.multi
 //
 // SUBWORKFLOW: Consisting of a mix of local and nf-core/modules
 //
-include { INPUT_CHECK }   from '../subworkflows/local/input_check'
-include {PLATYPUS_RUNNER} from '../subworkflows/local/platypus_runner'
+include { INPUT_CHECK }           from '../subworkflows/local/input_check'
+include {PLATYPUS_RUNNER}         from '../subworkflows/local/platypus_runner'
 include {PLATYPUSINDELANNOTATION} from '../subworkflows/local/platypusindelannotation'
 
 /*
@@ -112,9 +100,11 @@ workflow PLATYPUSINDELCALLING {
 
     vcf_ch.view()
 
-
 //    SUBWORKFLOW: INDEL_ANNOTATION
     PLATYPUSINDELANNOTATION(vcf_ch)
+
+    ch_versions= ch_versions.mix(PLATYPUSINDELANNOTATION.out.perl_version)
+//    ch_versions=ch_versions.mix(PLATYPUSINDELANNOTATION.out.annovar_version)
 
 
     // MODULE: MultiQC
