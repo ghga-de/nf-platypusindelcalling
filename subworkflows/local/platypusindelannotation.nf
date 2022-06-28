@@ -4,7 +4,8 @@
 
 params.options = [:]
 
-include { ANNOTATE_VCF                  } from '../../modules/local/annotate_vcf.nf'                                 addParams( options: params.options )
+include { ANNOTATE_VCF         } from '../../modules/local/annotate_vcf.nf'              addParams( options: params.options )
+include { ANNOVAR              } from '../../modules/local/annovar.nf'                   addParams( options: params.options )
 
 workflow PLATYPUSINDELANNOTATION {
     take:
@@ -24,11 +25,24 @@ workflow PLATYPUSINDELANNOTATION {
 //exomecapturekitbedfile= file(params.exome_capture_kit_bed_file)
 //genemodelbedfile      = file(params.genome_bed_file)
 
+// RUN annotate_vcf.pl
     ANNOTATE_VCF (
     vcf_ch, kgenome, dbsnpindel, dbsnpsnv, exac, evs, localcontrolwgs, localcontrolwes, gnomedgenomes, gnomedexomes
 )
     ch_forannovar = ANNOTATE_VCF.out.forannovar
-    perl_version = ANNOTATE_VCF.out.versions
+    ch_vcf        = ANNOTATE_VCF.out.unziped_vcf
+    perl_version  = ANNOTATE_VCF.out.versions
+
+// RUN ANNOVAR and sub-scripts
+
+    if (params.table_folder) { annodb = Channel.fromPath(params.table_folder, checkIfExists: true) } else { annodb = Channel.empty() }
+
+    ANNOVAR(
+    ch_forannovar, ch_vcf, annodb
+    )
+//    annovar_version=ANNOVAR.out.versions
+
+
 
 emit:
 ch_forannovar
