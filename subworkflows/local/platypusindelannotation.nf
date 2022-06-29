@@ -6,6 +6,11 @@ params.options = [:]
 
 include { ANNOTATE_VCF         } from '../../modules/local/annotate_vcf.nf'              addParams( options: params.options )
 include { ANNOVAR              } from '../../modules/local/annovar.nf'                   addParams( options: params.options )
+include { CREATEPIPES          } from '../../modules/local/createpipes.nf'               addParams( options: params.options )
+include { CONFIDENCEANNOTATION } from '../../modules/local/confidenceannotation.nf'       addParams( options: params.options )
+
+
+
 
 workflow PLATYPUSINDELANNOTATION {
     take:
@@ -22,13 +27,19 @@ workflow PLATYPUSINDELANNOTATION {
     if (params.gnomed_genomes) { gnomedgenomes = Channel.fromPath([params.gnomed_genomes, params.gnomed_genomes + '.tbi'], checkIfExists: true).collect() } else { gnomedgenomes = Channel.empty() }
     if (params.gnomed_exomes) { gnomedexomes = Channel.fromPath([params.gnomed_exomes, params.gnomed_exomes + '.tbi'], checkIfExists: true).collect() } else { gnomedexomes = Channel.empty() }
 
-//exomecapturekitbedfile= file(params.exome_capture_kit_bed_file)
-//genemodelbedfile      = file(params.genome_bed_file)
+    if (params.repeat_masker) { repeatmasker = Channel.fromPath([params.repeat_masker, params.repeat_masker + '.tbi'], checkIfExists: true).collect() } else { repeatmasker = Channel.empty() }
+    if (params.dac_blacklist) { dacblacklist = Channel.fromPath([params.dac_blacklist, params.dac_blacklist + '.tbi'], checkIfExists: true).collect() } else { dacblacklist = Channel.empty() }
+    if (params.duke_excluded) { dukeexcluded = Channel.fromPath([params.duke_excluded, params.duke_excluded + '.tbi'], checkIfExists: true).collect() } else { dukeexcluded = Channel.empty() }
+    if (params.hiseq_depth) { hiseqdepth = Channel.fromPath([params.hiseq_depth, params.hiseq_depth + '.tbi'], checkIfExists: true).collect() } else { hiseqdepth = Channel.empty() }
+    if (params.self_chain) { selfchain = Channel.fromPath([params.self_chain, params.self_chain + '.tbi'], checkIfExists: true).collect() } else { selfchain = Channel.empty() }
+    if (params.mapability_file) { mapability = Channel.fromPath([params.mapability_file, params.mapability_file + '.tbi'], checkIfExists: true).collect() } else { mapability = Channel.empty() }
+    if (params.simple_tandemrepeats) { simpletandemrepeats = Channel.fromPath([params.simple_tandemrepeats, params.simple_tandemrepeats + '.tbi'], checkIfExists: true).collect() } else { simpletandemrepeats = Channel.empty() }
+
 
 // RUN annotate_vcf.pl
     ANNOTATE_VCF (
     vcf_ch, kgenome, dbsnpindel, dbsnpsnv, exac, evs, localcontrolwgs, localcontrolwes, gnomedgenomes, gnomedexomes
-)
+    )
     ch_forannovar = ANNOTATE_VCF.out.forannovar
     ch_vcf        = ANNOTATE_VCF.out.unziped_vcf
     perl_version  = ANNOTATE_VCF.out.versions
@@ -40,11 +51,23 @@ workflow PLATYPUSINDELANNOTATION {
     ANNOVAR(
     ch_forannovar, ch_vcf, annodb
     )
+    ch_log = ANNOVAR.out.log
 //    annovar_version=ANNOVAR.out.versions
 
+// RUN CREATEPIPES (annotate_vcf.pl)
+
+    CREATEPIPES(
+    ANNOVAR.out.vcf, repeatmasker, dacblacklist, dukeexcluded, hiseqdepth, selfchain, mapability, simpletandemrepeats
+    )
+
+//    CONFIDENCEANNOTATION(
+
+//    CREATEPIPES.out.vcf
+//    )
 
 
 emit:
 ch_forannovar
+//ch_vcf
 perl_version
 }
