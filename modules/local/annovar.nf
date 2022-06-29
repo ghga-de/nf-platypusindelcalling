@@ -22,12 +22,12 @@ process ANNOVAR {
 
 
     output:
-    tuple val(sample), path('*.temp.vcf')                   , emit: vcf
-    tuple val(sample), path('*.log')                        , emit: logs
-    tuple val(sample), path('*_genomicSuperDups')           , emit: segdup
-    tuple val(sample), path('*_cytoBand')                   , emit: cytobad
-    tuple val(sample), path('*variant_function')            , emit: variant_function
-    tuple val(sample), path('*exonic_variant_function')     , emit: exonic_variant_function
+    tuple val(sample), path('*.temp.vcf.gz'), path('*.temp.vcf.gz.tbi')   , emit: vcf
+    tuple val(sample), path('*.log')                                      , emit: log
+    tuple val(sample), path('*_genomicSuperDups')                         , emit: segdup
+    tuple val(sample), path('*_cytoBand')                                 , emit: cytobad
+    tuple val(sample), path('*variant_function')                          , emit: variant_function
+    tuple val(sample), path('*exonic_variant_function')                   , emit: exonic_variant_function
 //    path  "versions.yml"                                                    , emit: versions
 
     when:
@@ -37,15 +37,15 @@ process ANNOVAR {
 
     def variant_function ="${sample}.ForAnnovar.bed.variant_function"
     def variant_exon="${sample}.ForAnnovar.bed.exonic_variant_function"
-    def annovar_path = '/opt/conda/envs/INDELCALLING'
     def tempname = "${sample}.temp.vcf"
+    def tempnamegz = "${sample}.temp.vcf.gz"
     def av_segdup =  "${sample}.${params.buildver}_genomicSuperDups"
     def av_cytoband = "${sample}.${params.buildver}_cytoband"
 
     """
-    perl $annovar_path/annotate_variation.pl --buildver=${params.buildver} -dbtype ${params.dbtype} $annovar_bed $annovar_table
-    perl $annovar_path/annotate_variation.pl --buildver=${params.buildver} -regionanno -dbtype segdup --outfile=$sample $annovar_bed $annovar_table
-    perl $annovar_path/annotate_variation.pl --buildver=${params.buildver} -regionanno -dbtype band --outfile=$sample $annovar_bed $annovar_table
+    perl ${params.annovar_path}/annotate_variation.pl --buildver=${params.buildver} -dbtype ${params.dbtype} $annovar_bed $annovar_table
+    perl ${params.annovar_path}/annotate_variation.pl --buildver=${params.buildver} -regionanno -dbtype segdup --outfile=$sample $annovar_bed $annovar_table
+    perl ${params.annovar_path}/annotate_variation.pl --buildver=${params.buildver} -regionanno -dbtype band --outfile=$sample $annovar_bed $annovar_table
 
     processAnnovarOutput.pl $variant_function $variant_exon > newcol.tsv
 
@@ -56,10 +56,7 @@ process ANNOVAR {
     newCols2vcf.pl --vcfFile="-" --newColFile=$av_cytoband --newColHeader=${params.cytobandcol} --chrPrefix=${params.chr_prefix} --chrSuffix=${params.chr_suffix} \\
         --reportColumns="1" --bChrPosEnd="2,7,8" > $tempname
 
-//    createpipes.pl $tempname PARAMETER_FILE $annovar_path/annotate_variation.pl INDEL_RELIABILITY  tabix`
-
-
-
-
-"""
+    bgzip -c $tempname > $tempnamegz
+    tabix $tempnamegz
+    """
 }
