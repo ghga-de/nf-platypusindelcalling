@@ -10,11 +10,10 @@ include { CREATEPIPES          } from '../../modules/local/createpipes.nf'      
 include { CONFIDENCEANNOTATION } from '../../modules/local/confidenceannotation.nf'       addParams( options: params.options )
 
 
-
-
 workflow PLATYPUSINDELANNOTATION {
     take:
     vcf_ch
+    sample_ch
 
     main:
     if (params.k_genome) { kgenome = Channel.fromPath([params.k_genome,params.k_genome +'.tbi'], checkIfExists: true).collect() } else { kgenome = Channel.empty() }
@@ -60,10 +59,9 @@ workflow PLATYPUSINDELANNOTATION {
     ANNOVAR.out.vcf, repeatmasker, dacblacklist, dukeexcluded, hiseqdepth, selfchain, mapability, simpletandemrepeats
     )
 
-//    CONFIDENCEANNOTATION(
-
-//    CREATEPIPES.out.vcf
-//    )
+    CONFIDENCEANNOTATION(
+    CREATEPIPES.out.vcf, sample_ch
+    )
 
 
 emit:
