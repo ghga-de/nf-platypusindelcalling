@@ -34,7 +34,7 @@ process PLATYPUS {
     """
     platypus callVariants \\
     --nCPU=${params.max_cpus}  \\
-    --bamFiles=$tumor,$control \\
+    --bamFiles=$control,$tumor \\
     --output=$out_vcf \\
     --refFile=$ref \\
     --logFileName=$out_log \\
