@@ -8,7 +8,7 @@ process ANNOVAR {
     conda     (params.enable_conda ? "$baseDir/assets/perlenvironment.yml" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
     '' :
-    'kubran/indelcalling_perl:v4' }"
+    'kubran/indelcalling_perl:v1' }"
 
 //conda wont work here, database files are embeded inside the docker file
 //'noelnamai/annovar:4.18' is also a docker from https://github.com/noelnamai/aws-mutation-calling/blob/master/main.nf
