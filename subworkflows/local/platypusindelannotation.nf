@@ -60,10 +60,12 @@ workflow PLATYPUSINDELANNOTATION {
     CONFIDENCEANNOTATION(
     CREATEPIPES.out.vcf, sample_ch
     )
-    vcf_ch   = CONFIDENCEANNOTATION.out.vcf
+    vcf_ch = CONFIDENCEANNOTATION.out.vcf
+    conf_vcf_ch   = CONFIDENCEANNOTATION.out.vcf_conf
     versions = versions.mix(CONFIDENCEANNOTATION.out.versions)
 
 emit:
+conf_vcf_ch
 vcf_ch
 versions
 }
