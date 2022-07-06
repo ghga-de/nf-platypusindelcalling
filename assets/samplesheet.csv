@@ -1,3 +1,3 @@
 sample,tumor,control
-merged1,../data_test/BAM/merged_T.bam,../data_test/BAM/merged_N.bam
-merged2,../data_test/BAM/merged_T.bam,../data_test/BAM/merged_N.bam
+merged,../data_test/BAM/merged-tumor.bam,../data_test/BAM/merged-normal.bam
+NA06984,../data_test/BAM/NA06984_T.bam,

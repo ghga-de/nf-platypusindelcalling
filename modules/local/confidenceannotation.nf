@@ -12,27 +12,55 @@ process CONFIDENCEANNOTATION {
 
     input:
     tuple val(sample), file(vcfgz), file(vcf_tbi)
-    tuple val(sample), file(tumor), file(tumor_bai), file(control),  file(control_bai)
+    tuple val(sample), file(tumor), file(tumor_bai), file(control), file(control_bai), val(iscontrol)
 
     output:
     tuple val(sample), path('*.conf.vcf.gz'),  path('*.conf.vcf.gz.tbi')   , emit: vcf
-//    path  "versions.yml"                                                  , emit: versions
+    path  "versions.yml"                                                   , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
 
     script:
-    def temp_vcf = "${sample}.annotated.vcf"
-    def out_vcf =  "${sample}.conf.vcf"
+    def temp_vcf =   "${sample}.annotated.vcf"
+    def out_vcf =    "${sample}.conf.vcf"
     def out_vcfgz =  "${sample}.conf.vcf.gz"
-// if there is no control you will do something else here
-    """
-    samtools view -H $control | grep '^@RG' | sed "s/.*SM:\\([^\\t]*\\).*/\\1/g" | uniq > controlname.txt
-    samtools view -H $tumor | grep '^@RG' | sed "s/.*SM:\\([^\\t]*\\).*/\\1/g" | uniq > tumorname.txt
-    confidenceAnnotation_Indels.py --infile=$vcfgz --controlColName='HCC1143BL' --tumorColName='HCC1143' ${params.confidence_opts_indel} | \\
-    tee $temp_vcf | cut -f 1-11 > $out_vcf
 
-    bgzip -c $out_vcf > $out_vcfgz
-    tabix $out_vcfgz
-    """
+    if (iscontrol == 1)
+    {
+        """
+        samtools view -H $control | grep '^@RG' | sed "s/.*SM:\\([^\\t]*\\).*/\\1/g" | uniq > controlname.txt
+        samtools view -H $tumor | grep '^@RG' | sed "s/.*SM:\\([^\\t]*\\).*/\\1/g" | uniq > tumorname.txt
+        confidenceAnnotation_Indels.py --infile=$vcfgz --controlColName=\$(cat controlname.txt) --tumorColName=\$(cat tumorname.txt) \\
+        ${params.confidence_opts_indel} | tee $vcfgz.baseName | cut -f 1-11 > $out_vcf
+
+        bgzip -c $out_vcf > $out_vcfgz
+        tabix $out_vcfgz
+
+        cat <<-END_VERSIONS > versions.yml
+        "${task.process}":
+        python: \$(echo \$(python --version 2>&1) | sed 's/^.*python //; s/Using.*\$//')
+        samtools: \$(echo \$(samtools --version 2>&1) | sed 's/^.*samtools //; s/Using.*\$//')
+        tabix: \$(echo \$(tabix -h 2>&1) | sed 's/^.*tabix //; s/Using.*\$//')
+        END_VERSIONS
+
+        """
+    }
+    else {
+        """
+        samtools view -H $tumor | grep '^@RG' | sed "s/.*SM:\\([^\\t]*\\).*/\\1/g" | uniq > tumorname.txt
+        confidenceAnnotation_Indels.py --infile=$vcfgz --nocontrol --tumorColName=\$(cat tumorname.txt) \\
+        ${params.confidence_opts_indel} | tee $temp_vcf | cut -f 1-11 > $out_vcf
+
+        bgzip -c $out_vcf > $out_vcfgz
+        tabix $out_vcfgz
+
+        cat <<-END_VERSIONS > versions.yml
+        "${task.process}":
+        python: \$(echo \$(python --version 2>&1) | sed 's/^.*python //; s/Using.*\$//')
+        samtools: \$(echo \$(samtools --version 2>&1) | sed 's/^.*samtools //; s/Using.*\$//')
+        tabix: \$(echo \$(tabix -h 2>&1) | sed 's/^.*tabix //; s/Using.*\$//')
+        END_VERSIONS
+        """
+    }
 }

@@ -4,10 +4,10 @@
 
 params.options = [:]
 
-include { ANNOTATE_VCF         } from '../../modules/local/annotate_vcf.nf'              addParams( options: params.options )
-include { ANNOVAR              } from '../../modules/local/annovar.nf'                   addParams( options: params.options )
-include { CREATEPIPES          } from '../../modules/local/createpipes.nf'               addParams( options: params.options )
-include { CONFIDENCEANNOTATION } from '../../modules/local/confidenceannotation.nf'       addParams( options: params.options )
+include { ANNOTATE_VCF         } from '../../modules/local/annotate_vcf.nf'           addParams( options: params.options )
+include { ANNOVAR              } from '../../modules/local/annovar.nf'                addParams( options: params.options )
+include { CREATEPIPES          } from '../../modules/local/createpipes.nf'            addParams( options: params.options )
+include { CONFIDENCEANNOTATION } from '../../modules/local/confidenceannotation.nf'   addParams( options: params.options )
 
 
 workflow PLATYPUSINDELANNOTATION {
@@ -16,6 +16,7 @@ workflow PLATYPUSINDELANNOTATION {
     sample_ch
 
     main:
+
     if (params.k_genome) { kgenome = Channel.fromPath([params.k_genome,params.k_genome +'.tbi'], checkIfExists: true).collect() } else { kgenome = Channel.empty() }
     if (params.dbsnp_indel) { dbsnpindel = Channel.fromPath([params.dbsnp_indel, params.dbsnp_indel + '.tbi'], checkIfExists: true).collect() } else { dbsnpindel = Channel.empty() }
     if (params.dbsnp_snv) { dbsnpsnv = Channel.fromPath([params.dbsnp_snv,params.dbsnp_snv +'.tbi' ], checkIfExists: true).collect() } else { dbsnpsnv = Channel.empty() }
@@ -33,39 +34,36 @@ workflow PLATYPUSINDELANNOTATION {
     if (params.self_chain) { selfchain = Channel.fromPath([params.self_chain, params.self_chain + '.tbi'], checkIfExists: true).collect() } else { selfchain = Channel.empty() }
     if (params.mapability_file) { mapability = Channel.fromPath([params.mapability_file, params.mapability_file + '.tbi'], checkIfExists: true).collect() } else { mapability = Channel.empty() }
     if (params.simple_tandemrepeats) { simpletandemrepeats = Channel.fromPath([params.simple_tandemrepeats, params.simple_tandemrepeats + '.tbi'], checkIfExists: true).collect() } else { simpletandemrepeats = Channel.empty() }
+    if (params.table_folder) { annodb = Channel.fromPath(params.table_folder, checkIfExists: true) } else { annodb = Channel.empty() }
 
-
-// RUN annotate_vcf.pl
+    versions=Channel.empty()
+    // RUN annotate_vcf.pl
     ANNOTATE_VCF (
     vcf_ch, kgenome, dbsnpindel, dbsnpsnv, exac, evs, localcontrolwgs, localcontrolwes, gnomedgenomes, gnomedexomes
     )
-    ch_forannovar = ANNOTATE_VCF.out.forannovar
-    ch_vcf        = ANNOTATE_VCF.out.unziped_vcf
-    perl_version  = ANNOTATE_VCF.out.versions
+    ch_vcf    = ANNOTATE_VCF.out.unziped_vcf
+    versions  = versions.mix(ANNOTATE_VCF.out.versions)
 
-// RUN ANNOVAR and sub-scripts
-
-    if (params.table_folder) { annodb = Channel.fromPath(params.table_folder, checkIfExists: true) } else { annodb = Channel.empty() }
-
+    // RUN ANNOVAR and sub-scripts
     ANNOVAR(
-    ch_forannovar, ch_vcf, annodb
+    ANNOTATE_VCF.out.forannovar, ch_vcf, annodb
     )
-    ch_log = ANNOVAR.out.log
-//    annovar_version=ANNOVAR.out.versions
+    ch_log   = ANNOVAR.out.log
+    versions = versions.mix(ANNOVAR.out.versions)
 
-// RUN CREATEPIPES (annotate_vcf.pl)
-
+    // RUN CREATEPIPES (annotate_vcf.pl)
     CREATEPIPES(
     ANNOVAR.out.vcf, repeatmasker, dacblacklist, dukeexcluded, hiseqdepth, selfchain, mapability, simpletandemrepeats
     )
+    versions = versions.mix(CREATEPIPES.out.versions)
 
     CONFIDENCEANNOTATION(
     CREATEPIPES.out.vcf, sample_ch
     )
-
+    vcf_ch   = CONFIDENCEANNOTATION.out.vcf
+    versions = versions.mix(CONFIDENCEANNOTATION.out.versions)
 
 emit:
-ch_forannovar
-//ch_vcf
-perl_version
+vcf_ch
+versions
 }
