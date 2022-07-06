@@ -105,6 +105,7 @@ workflow PLATYPUSINDELCALLING {
 
     ch_versions= ch_versions.mix(PLATYPUSINDELANNOTATION.out.versions)
     vcf_ch=PLATYPUSINDELANNOTATION.out.vcf_ch
+    conf_vcf=PLATYPUSINDELANNOTATION.out.conf_vcf_ch
 
 //SUBWORKFLOW: FILTER VCF
 
