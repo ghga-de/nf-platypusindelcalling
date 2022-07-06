@@ -4,22 +4,16 @@
 
 params.options = [:]
 
-include { ANNOTATE_VCF as ANNOTATE_VCF1    } from '../../modules/local/annotate_vcf.nf'                       addParams( options: params.options )
-include { ANNOVAR as ANNOVAR1              } from '../../modules/local/annovar.nf'                            addParams( options: params.options )
-include { CREATEPIPES as CREATEPIPES1      } from '../../modules/local/createpipes.nf'                        addParams( options: params.options )
-include { ANNOTATE_VCF as ANNOTATE_VCF2    } from '../../modules/local/annotate_vcf.nf'                       addParams( options: params.options )
-include { ANNOVAR as ANNOVAR2              } from '../../modules/local/annovar.nf'                            addParams( options: params.options )
-include { CREATEPIPES as CREATEPIPES2      } from '../../modules/local/createpipes.nf'                        addParams( options: params.options )
-include { CONFIDENCEANNOTATION_WITHCONTROL } from '../../modules/local/confidenceannotation_withcontrol.nf'   addParams( options: params.options )
-include { CONFIDENCEANNOTATION_NOCONTROL   } from '../../modules/local/confidenceannotation_nocontrol.nf'     addParams( options: params.options )
+include { ANNOTATE_VCF         } from '../../modules/local/annotate_vcf.nf'           addParams( options: params.options )
+include { ANNOVAR              } from '../../modules/local/annovar.nf'                addParams( options: params.options )
+include { CREATEPIPES          } from '../../modules/local/createpipes.nf'            addParams( options: params.options )
+include { CONFIDENCEANNOTATION } from '../../modules/local/confidenceannotation.nf'   addParams( options: params.options )
 
 
 workflow PLATYPUSINDELANNOTATION {
     take:
-    vcf_ch_withcontrol
-    vcf_ch_nocontrol
-    sample_withcontrol
-    sample_nocontrol
+    vcf_ch
+    sample_ch
 
     main:
 
@@ -42,72 +36,34 @@ workflow PLATYPUSINDELANNOTATION {
     if (params.simple_tandemrepeats) { simpletandemrepeats = Channel.fromPath([params.simple_tandemrepeats, params.simple_tandemrepeats + '.tbi'], checkIfExists: true).collect() } else { simpletandemrepeats = Channel.empty() }
     if (params.table_folder) { annodb = Channel.fromPath(params.table_folder, checkIfExists: true) } else { annodb = Channel.empty() }
 
-
-    withcontrol_vcf_ch = Channel.empty()
-    nocontrol_vcf_ch = Channel.empty()
-    perl_version = Channel.empty()
-
-
-///// PIPELINE RUN WITH CONTROL SAMPLES /////
-
-    if (vcf_ch_withcontrol){
+    versions=Channel.empty()
     // RUN annotate_vcf.pl
-        ANNOTATE_VCF1 (
-        vcf_ch_withcontrol, kgenome, dbsnpindel, dbsnpsnv, exac, evs, localcontrolwgs, localcontrolwes, gnomedgenomes, gnomedexomes
-        )
-        ch_forannovar = ANNOTATE_VCF1.out.forannovar
-        ch_vcf        = ANNOTATE_VCF1.out.unziped_vcf
-        perl_version  = ANNOTATE_VCF1.out.versions
+    ANNOTATE_VCF (
+    vcf_ch, kgenome, dbsnpindel, dbsnpsnv, exac, evs, localcontrolwgs, localcontrolwes, gnomedgenomes, gnomedexomes
+    )
+    ch_vcf    = ANNOTATE_VCF.out.unziped_vcf
+    versions  = versions.mix(ANNOTATE_VCF.out.versions)
 
     // RUN ANNOVAR and sub-scripts
-        ANNOVAR1(
-        ch_forannovar, ch_vcf, annodb
-        )
-        ch_log = ANNOVAR1.out.log
-    //    annovar_version=ANNOVAR.out.versions
+    ANNOVAR(
+    ANNOTATE_VCF.out.forannovar, ch_vcf, annodb
+    )
+    ch_log   = ANNOVAR.out.log
+    versions = versions.mix(ANNOVAR.out.versions)
 
     // RUN CREATEPIPES (annotate_vcf.pl)
-        CREATEPIPES1(
-        ANNOVAR1.out.vcf, repeatmasker, dacblacklist, dukeexcluded, hiseqdepth, selfchain, mapability, simpletandemrepeats
-        )
+    CREATEPIPES(
+    ANNOVAR.out.vcf, repeatmasker, dacblacklist, dukeexcluded, hiseqdepth, selfchain, mapability, simpletandemrepeats
+    )
+    versions = versions.mix(CREATEPIPES.out.versions)
 
-        CONFIDENCEANNOTATION_WITHCONTROL(
-        CREATEPIPES1.out.vcf, sample_withcontrol
-        )
-        withcontrol_vcf_ch =CONFIDENCEANNOTATION_WITHCONTROL.out.vcf
-    }
-
-///// PIPELINE RUN WITH NO CONTROL SAMPLES /////
-    if (vcf_ch_nocontrol){
-        // RUN annotate_vcf.pl
-        ANNOTATE_VCF2 (
-        vcf_ch_nocontrol, kgenome, dbsnpindel, dbsnpsnv, exac, evs, localcontrolwgs, localcontrolwes, gnomedgenomes, gnomedexomes
-        )
-        ch_forannovar = ANNOTATE_VCF2.out.forannovar
-        ch_vcf        = ANNOTATE_VCF2.out.unziped_vcf
-        perl_version  = ANNOTATE_VCF2.out.versions
-
-        // RUN ANNOVAR and sub-scripts
-        ANNOVAR2(
-        ch_forannovar, ch_vcf, annodb
-        )
-        ch_log = ANNOVAR2.out.log
-        //    annovar_version=ANNOVAR.out.versions
-
-        // RUN CREATEPIPES (annotate_vcf.pl)
-        CREATEPIPES2(
-        ANNOVAR2.out.vcf, repeatmasker, dacblacklist, dukeexcluded, hiseqdepth, selfchain, mapability, simpletandemrepeats
-        )
-        CONFIDENCEANNOTATION_NOCONTROL(
-        CREATEPIPES2.out.vcf, sample_nocontrol
-        )
-
-        nocontrol_vcf_ch=CONFIDENCEANNOTATION_NOCONTROL.out.vcf
-    }
-
+    CONFIDENCEANNOTATION(
+    CREATEPIPES.out.vcf, sample_ch
+    )
+    vcf_ch   = CONFIDENCEANNOTATION.out.vcf
+    versions = versions.mix(CONFIDENCEANNOTATION.out.versions)
 
 emit:
-withcontrol_vcf_ch
-nocontrol_vcf_ch
-perl_version
+vcf_ch
+versions
 }

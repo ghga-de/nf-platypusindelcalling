@@ -16,7 +16,7 @@ workflow FILTER_VCF {
 
     // RUN vcf_filter_bycrit.pl ONLY IF THERE IS NO CONTROL!
     FILTER_BY_CRIT(
-    vcf_ch
+    vcf_ch, sample_ch
     )
 
     emit:
