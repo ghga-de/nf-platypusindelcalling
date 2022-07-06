@@ -12,6 +12,7 @@ process FILTER_BY_CRIT {
 
     input:
     tuple val(sample), file(vcfgz), file(vcf_tbi)
+    tuple val(sample), file(tumor), file(tumor_bai), file(control), file(control_bai), val(iscontrol)
 
     output:
      tuple val(sample), path('*_postFiltered.vcf.gz'),  path('*_postFiltered.vcf.gz.tbi')   , emit: vcf
@@ -33,9 +34,19 @@ process FILTER_BY_CRIT {
     filter_values = filter_values + " LocalControlAF_WGS AF ${params.crit_localcontrol_maxmaf}"
     filter_values = filter_values + " LocalControlAF_WES AF ${params.crit_recurrance}"
     filter_values = filter_values + " ???RECURRENCE_COL . ${params.crit_recuurenve}"
-    """
-    vcf_filter_by_crit.py $vcfgz $out_vcf $filter_values
-    bgzip -c $out_vcf > $out_vcfgz
-    tabix $out_vcfgz
-    """
+
+    if (iscontrol == 1) {
+        """
+        mv $vcfgz $out_vcfgz
+        tabix $out_vcfgz
+        """
+    }
+    else {
+        """
+        vcf_filter_by_crit.py $vcfgz $out_vcf $filter_values
+        bgzip -c $out_vcf > $out_vcfgz
+        tabix $out_vcfgz
+        """
+    }
+
 }

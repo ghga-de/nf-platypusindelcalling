@@ -26,7 +26,7 @@ process CREATEPIPES {
 
     output:
     tuple val(sample), path('*.annotated.vcf.gz'), path('*.annotated.vcf.gz.tbi')   , emit: vcf
-     //    path  "versions.yml"                                                    , emit: versions
+    path  "versions.yml"                                                            , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -47,5 +47,11 @@ process CREATEPIPES {
 
     bgzip -c $tempname > $tempnamegz
     tabix $tempnamegz
+
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+    perl: \$(echo \$(perl --version 2>&1) | sed 's/^.*perl //; s/Using.*\$//')
+    tabix: \$(echo \$(tabix -h 2>&1) | sed 's/^.*tabix //; s/Using.*\$//')
+    END_VERSIONS
     """
 }
