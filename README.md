@@ -1,4 +1,3 @@
-# ![nf-core/platypusindelcalling](docs/images/nf-core-platypusindelcalling_logo_light.png#gh-light-mode-only) ![nf-core/platypusindelcalling](docs/images/nf-core-platypusindelcalling_logo_dark.png#gh-dark-mode-only)
 
 [![GitHub Actions CI Status](https://github.com/nf-core/platypusindelcalling/workflows/nf-core%20CI/badge.svg)](https://github.com/nf-core/platypusindelcalling/actions?query=workflow%3A%22nf-core+CI%22)
 [![GitHub Actions Linting Status](https://github.com/nf-core/platypusindelcalling/workflows/nf-core%20linting/badge.svg)](https://github.com/nf-core/platypusindelcalling/actions?query=workflow%3A%22nf-core+linting%22)
