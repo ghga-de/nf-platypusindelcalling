@@ -1,6 +1,6 @@
 
 process PLATYPUS {
-    tag "$sample"
+    tag "$meta.id"
     label 'process_low'
 
     conda     (params.enable_conda ? "$baseDir/assets/environment.yml" : null)
@@ -12,13 +12,13 @@ process PLATYPUS {
 
 
     input:
-    tuple val(sample), file(tumor), file(tumor_bai), file(control),  file(control_bai), val(iscontrol)
+    tuple val(meta), path(tumor), path(control)
     tuple path(ref), path(ref_fai)
 
     output:
-    tuple val(sample), path('*.platypus.vcf')                     , emit: vcf
-    tuple val(sample), path('*.platypus.log')                      , emit: platypus_log
-    path  "versions.yml"                                                       , emit: versions
+    tuple val(meta), path('*.platypus.vcf')                     , emit: vcf
+    tuple val(meta), path('*.platypus.log')                     , emit: platypus_log
+    path  "versions.yml"                                        , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -27,16 +27,16 @@ script:
 
     def opt_options = " --genIndels=1 --genSNPs=0 --verbosity=1 --bufferSize=100000 --maxReads=5000000 --minFlank=0"
     def options_arg = "${params.optimized}" == "" ? "${params.options}" : "${opt_options}"
-    def out_vcf = "${sample}.platypus.vcf"
-    def out_log = "${sample}.platypus.log"
+    def out_vcf     = "${meta.id}.platypus.vcf"
+    def out_log     = "${meta.id}.platypus.log"
 
 
-    if (iscontrol == 1)
+    if (meta.iscontrol == 1)
         {
         """
         platypus callVariants \\
         --nCPU=${params.max_cpus}  \\
-        --bamFiles=$control,$tumor \\
+        --bamFiles=$control[0],$tumor[0] \\
         --output=$out_vcf \\
         --refFile=$ref \\
         --logFileName=$out_log \\
@@ -54,7 +54,7 @@ script:
         """
         platypus callVariants \\
         --nCPU=${params.max_cpus}  \\
-        --bamFiles=$tumor \\
+        --bamFiles=$tumor[0] \\
         --output=$out_vcf \\
         --refFile=$ref \\
         --logFileName=$out_log \\

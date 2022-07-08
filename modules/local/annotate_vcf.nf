@@ -1,6 +1,6 @@
 
 process ANNOTATE_VCF {
-    tag "$sample"
+    tag "$meta.id"
     label 'process_low'
 
     conda     (params.enable_conda ? "$baseDir/assets/perlenvironment.yml" : null)
@@ -11,7 +11,7 @@ process ANNOTATE_VCF {
     publishDir params.outdir+'/annotate' , mode: 'copy'
 
     input:
-    tuple val(sample), file(vcf), file(vcf_tbi)
+    tuple val(meta), file(vcf), file(vcf_tbi)
     tuple path(kgenome), path(kgenome_i)
     tuple path(dbsnpindel), path(dbsnpindel_i)
     tuple path(dbsnpsnv), path(dbsnpsnv_i)
@@ -23,22 +23,24 @@ process ANNOTATE_VCF {
     tuple path(gnomedexomes), path(gnomedexomes_i)
 
     output:
-    tuple val(sample), path('*.ForAnnovar.bed')                    , emit: forannovar
-    tuple val(sample), path('*.vcf')                               , emit: unziped_vcf
-    path  "versions.yml"                                           , emit: versions
+    tuple val(meta), path('*.ForAnnovar.bed')                    , emit: forannovar
+    tuple val(meta), path('*.vcf')                               , emit: unziped_vcf
+    path  "versions.yml"                                         , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
 
     script:
-    def for_annovar = "${sample}.ForAnnovar.bed"
-    def temp_name = "${sample}.tmp"
-    def out_vcf =  "${sample}.vcf"
+    def for_annovar = "${meta.id}.ForAnnovar.bed"
+    def temp_name   = "${meta.id}.tmp"
+    def out_vcf     = "${meta.id}.vcf"
 
     """
     zcat < $vcf | \\
-    annotate_vcf.pl -a - -b $dbsnpindel --columnName='DBSNP' --reportMatchType --bAdditionalColumn=2 --reportBFeatCoord --padding=10 --minOverlapFraction=0.7 --maxBorderDistanceSum=20 --maxNrOfMatches=5 | \\
-    annotate_vcf.pl -a - -b $kgenome --columnName='1K_GENOMES' --reportMatchType --bAdditionalColumn=2 --reportBFeatCoord --padding=10 --minOverlapFraction=0.7 --maxBorderDistanceSum=20 --maxNrOfMatches=5 | \\
+    annotate_vcf.pl -a - -b $dbsnpindel --columnName='DBSNP' --reportMatchType --bAdditionalColumn=2 --reportBFeatCoord  \\
+        --padding=${params.padding} --minOverlapFraction=${params.minoverlapfraction} --maxBorderDistanceSum=${params.maxborderdist} --maxNrOfMatches=${params.maxmatches} | \\
+    annotate_vcf.pl -a - -b $kgenome --columnName='1K_GENOMES' --reportMatchType --bAdditionalColumn=2 --reportBFeatCoord  \\
+        --padding=${params.padding} --minOverlapFraction=${params.minoverlapfraction} --maxBorderDistanceSum=${params.maxborderdist} --maxNrOfMatches=${params.maxmatches} | \\
     annotate_vcf.pl -a - -b $exac --columnName='ExAC' --bFileType vcf --reportLevel 4 --reportMatchType | \\
     annotate_vcf.pl -a - -b $evs --columnName='EVS' --bFileType vcf --reportLevel 4 --reportMatchType | \\
     annotate_vcf.pl -a - -b $gnomedexomes --columnName='GNOMAD_EXOMES' --bFileType vcf --reportLevel 4 --reportMatchType| \\

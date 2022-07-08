@@ -1,32 +1,35 @@
 // samtools view will be used to get sample names
 process CHECK_IF_CORRUPTED {
-    tag "$sample"
+    tag "$meta.id"
     label 'process_low'
 
     conda (params.enable_conda ? "bioconda::samtools=1.15.1" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
     '' :
     'kubran/perl_annotate:v0' }"
-    publishDir params.outdir+'/curropted' , mode: 'copy'
+    publishDir params.outdir+'/currupted' , mode: 'copy'
+
     input:
-    tuple val(sample), file(file)
-    val(extraVCFColumn)
+    tuple val(meta), file(vcf), file(vcf_tbi)
 
     output:
-    path("corrupted.txt")                  , emit: corrupted
+ //   path("corrupted.txt")                  , emit: corrupted
 
     when:
     task.ext.when == null || task.ext.when
 
     script:
-    def args = task.ext.args ?: ''
-    """
-    grep -v "^#" ${file} | cut -f ${extraVCFColumn} | sort | uniq | grep -v "^\$" | wc -l > corrupted.txt
+    def args = task.ext.args?: ''
 
-    if [[ \$(cat corrupted.txt) -gt 0 ]]
-    then
-        echo "VCF is corrupted"
-
-    """
-
+// If there is no control (iscontrol=1), isNoControlWorkflow arg is false
+    if (meta.iscontrol == 1){
+        """
+        corrupted.sh -i $vcf -c false
+        """
+    }
+    else {
+        """
+        corrupted.sh -i $vcf -c true
+        """
+    }
 }

@@ -1,7 +1,7 @@
 // PROCESS ANNOVAR table_annovar with UCSC files
 
 process CREATEPIPES {
-    tag "$sample"
+    tag "$meta.id"
     label 'process_low'
 
     conda     (params.enable_conda ? "$baseDir/assets/perlenvironment.yml" : null)
@@ -15,7 +15,7 @@ process CREATEPIPES {
     publishDir params.outdir+'/createpipes' , mode: 'copy'
 
     input:
-    tuple val(sample), file(ch_vcf), file(ch_vcf_i)
+    tuple val(meta), file(ch_vcf), file(ch_vcf_i)
     tuple path(repeatmasker), path(repeatmasker_i)
     tuple path(dacblacklist), path(dacblacklist_i)
     tuple path(dukeexcluded), path(dukeexcluded_i)
@@ -25,16 +25,16 @@ process CREATEPIPES {
     tuple path(simpletandemrepeats), path(simpletandemrepeats_i)
 
     output:
-    tuple val(sample), path('*.annotated.vcf.gz'), path('*.annotated.vcf.gz.tbi')   , emit: vcf
-    path  "versions.yml"                                                            , emit: versions
+    tuple val(meta), path('*.annotated.vcf.gz'), path('*.annotated.vcf.gz.tbi')   , emit: vcf
+    path  "versions.yml"                                                          , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
 
     script:
 
-    def tempname = "${sample}.annotated.vcf"
-    def tempnamegz = "${sample}.annotated.vcf.gz"
+    def tempname   = "${meta.id}.annotated.vcf"
+    def tempnamegz = "${meta.id}.annotated.vcf.gz"
     """
     zcat < $ch_vcf | \\
     annotate_vcf.pl -a - -b $repeatmasker --bFileType=bed --columnName='REPEAT_MASKER' | \\

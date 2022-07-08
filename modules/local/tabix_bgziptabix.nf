@@ -1,5 +1,5 @@
 process TABIX_BGZIPTABIX {
-    tag "$sample"
+    tag "$meta.id"
     label 'process_medium'
 
     conda (params.enable_conda ? 'bioconda::tabix=1.11' : null)
@@ -9,17 +9,17 @@ process TABIX_BGZIPTABIX {
 
     publishDir params.outdir+'/platypus' , mode: 'copy'
     input:
-    tuple val(sample), path(input)
+    tuple val(meta), path(input)
 
     output:
-    tuple val(sample), path("*.vcf.gz"), path("*vcf.gz.tbi"), emit: gz_tbi
-    path  "versions.yml" ,                                  emit: versions
+    tuple val(meta), path("*.vcf.gz"), path("*vcf.gz.tbi")  , emit: gz_tbi
+    path  "versions.yml"                                    , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
 
     script:
-    def args = task.ext.args ?: ''
+    def args  = task.ext.args ?: ''
     def args2 = task.ext.args2 ?: ''
     """
     bgzip  --threads ${task.cpus} -c $args $input > ${input}.gz
