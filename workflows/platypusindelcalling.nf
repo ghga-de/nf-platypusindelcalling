@@ -9,10 +9,22 @@ def summary_params = NfcoreSchema.paramsSummaryMap(workflow, params)
 // Validate input parameters
 WorkflowPlatypusindelcalling.initialise(params, log)
 
-// TODO nf-core: Add all file path parameters for the pipeline to the list below
 // Check input path parameters to see if they exist
-def checkPathParamList = [ params.input, params.multiqc_config ]
+def checkPathParamList = [ params.input, params.multiqc_config, params.reference]
+def checkPathParamList_annotation = [params.k_genome, params.dbsnp_indel, params.dbsnp_snv,params.exac_file, params.evs_file,
+                                     params.local_control_wgs, params.local_control_wes, params.gnomed_genomes, params.gnomed_exomes,
+                                     params.table_folder, params.annovar_path]
+
+def checkPathParamList_deepanno= [params.repeat_masker, params.dac_blacklist, params.duke_excluded, params.hiseq_depth,
+                                  params.self_chain, params.mapability_file, params.simple_tandemrepeats]
 for (param in checkPathParamList) { if (param) { file(param, checkIfExists: true) } }
+
+if (params.runIndelAnnotation){
+    for (param in checkPathParamList_annotation) { if (param) { file(param, checkIfExists: true) } }
+    if (params.runIndelDeepAnnotation){
+        for (param in checkPathParamList_deepanno) { if (param) { file(param, checkIfExists: true) } }
+    }
+}
 
 // Check mandatory parameters
 if (params.input) { ch_input = file(params.input) } else { exit 1, 'Input samplesheet not specified!' }
@@ -76,15 +88,16 @@ workflow PLATYPUSINDELCALLING {
     ch_versions = Channel.empty()
     ch_logs = Channel.empty()
 
+//TODO: PREPARE GENOME AND ANNOTATION FILES WITH AWS !!!!
 
 //     SUBWORKFLOW: Read in samplesheet, validate and stage input files
-//      TODO: validate files and check if control exists
 
     INPUT_CHECK (
         ch_input
         )
 
     sample_ch = INPUT_CHECK.out.ch_sample
+    sample_ch.view()
     ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
 
     //
@@ -93,24 +106,28 @@ workflow PLATYPUSINDELCALLING {
 
     PLATYPUS_RUNNER(sample_ch)
 
-    vcf_ch =      PLATYPUS_RUNNER.out.ch_vcf
-    ch_logs =     ch_logs.mix(PLATYPUS_RUNNER.out.ch_platypus_log)
+    vcf_ch      = PLATYPUS_RUNNER.out.ch_vcf
+    ch_logs     = ch_logs.mix(PLATYPUS_RUNNER.out.ch_platypus_log)
     ch_versions = ch_versions.mix(PLATYPUS_RUNNER.out.platypus_version)
-    ch_versions=  ch_versions.mix(PLATYPUS_RUNNER.out.bgzip_version)
+    ch_versions = ch_versions.mix(PLATYPUS_RUNNER.out.bgzip_version)
+
 
     //
     //SUBWORKFLOW: platypusindelAnnotation.sh
     //
-    PLATYPUSINDELANNOTATION(vcf_ch, sample_ch)
+    if (params.runIndelAnnotation) {
+        PLATYPUSINDELANNOTATION(vcf_ch)
+        ch_versions = ch_versions.mix(PLATYPUSINDELANNOTATION.out.versions)
+        vcf_ch      = PLATYPUSINDELANNOTATION.out.vcf_ch
+        conf_vcf    = PLATYPUSINDELANNOTATION.out.conf_vcf_ch
+    }
 
-    ch_versions= ch_versions.mix(PLATYPUSINDELANNOTATION.out.versions)
-    vcf_ch=PLATYPUSINDELANNOTATION.out.vcf_ch
-    conf_vcf=PLATYPUSINDELANNOTATION.out.conf_vcf_ch
-
-//SUBWORKFLOW: FILTER VCF
-
-// FILTER_VCF(vcf_ch,INPUT_CHECK.out.ch_sample )
-
+    //
+    //SUBWORKFLOW: FILTER VCF: filter_vcf.sh
+    //
+    if (params.runIndelAnnotation && params.runIndelVCFFilter) {
+        FILTER_VCF(vcf_ch )
+    }
     //
     // MODULE: Pipeline reporting
     //
