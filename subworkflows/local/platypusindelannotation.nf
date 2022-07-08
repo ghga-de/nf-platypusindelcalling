@@ -13,7 +13,6 @@ include { CONFIDENCEANNOTATION } from '../../modules/local/confidenceannotation.
 workflow PLATYPUSINDELANNOTATION {
     take:
     vcf_ch
-    sample_ch
 
     main:
 
@@ -50,19 +49,22 @@ workflow PLATYPUSINDELANNOTATION {
     )
     ch_log   = ANNOVAR.out.log
     versions = versions.mix(ANNOVAR.out.versions)
+    vcf_ch   = ANNOVAR.out.vcf
+    conf_vcf_ch =Channel.empty()
+    if (params.runIndelDeepAnnotation) {
+// RUN CREATEPIPES (annotate_vcf.pl)
+        CREATEPIPES(
+        ANNOVAR.out.vcf, repeatmasker, dacblacklist, dukeexcluded, hiseqdepth, selfchain, mapability, simpletandemrepeats
+        )
+        versions = versions.mix(CREATEPIPES.out.versions)
 
-    // RUN CREATEPIPES (annotate_vcf.pl)
-    CREATEPIPES(
-    ANNOVAR.out.vcf, repeatmasker, dacblacklist, dukeexcluded, hiseqdepth, selfchain, mapability, simpletandemrepeats
-    )
-    versions = versions.mix(CREATEPIPES.out.versions)
-
-    CONFIDENCEANNOTATION(
-    CREATEPIPES.out.vcf, sample_ch
-    )
-    vcf_ch = CONFIDENCEANNOTATION.out.vcf
-    conf_vcf_ch   = CONFIDENCEANNOTATION.out.vcf_conf
-    versions = versions.mix(CONFIDENCEANNOTATION.out.versions)
+        CONFIDENCEANNOTATION(
+        CREATEPIPES.out.vcf
+        )
+        vcf_ch      = CONFIDENCEANNOTATION.out.vcf
+        conf_vcf_ch = conf_vcf_ch.mix(CONFIDENCEANNOTATION.out.vcf_conf)
+        versions    = versions.mix(CONFIDENCEANNOTATION.out.versions)
+        }
 
 emit:
 conf_vcf_ch

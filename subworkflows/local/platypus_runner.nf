@@ -4,10 +4,9 @@
 
 params.options = [:]
 
-include { PLATYPUS } from '../../modules/local/platypus.nf'                addParams( options: params.options )
-//include { CHECK_IF_CORRUPTED as CHECK_WITHCONTROL} from '../../modules/local/check_if_corrupted.nf'   addParams( options: params.options )
-//include { CHECK_IF_CORRUPTED as CHECK_NOCONTROL} from '../../modules/local/check_if_corrupted.nf'     addParams( options: params.options )
-include { TABIX_BGZIPTABIX } from '../../modules/local/tabix_bgziptabix.nf'       addParams( options: params.options )
+include { PLATYPUS          } from '../../modules/local/platypus.nf'               addParams( options: params.options )
+include { CHECK_IF_CORRUPTED} from '../../modules/local/check_if_corrupted.nf'     addParams( options: params.options )
+include { TABIX_BGZIPTABIX  } from '../../modules/local/tabix_bgziptabix.nf'       addParams( options: params.options )
 
 workflow PLATYPUS_RUNNER {
     take:
@@ -28,6 +27,10 @@ workflow PLATYPUS_RUNNER {
     )
     ch_vcf = TABIX_BGZIPTABIX.out.gz_tbi
     bgzip_version = TABIX_BGZIPTABIX.out.versions
+
+    CHECK_IF_CORRUPTED (
+    ch_vcf
+    )
 
     emit:
     ch_vcf
