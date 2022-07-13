@@ -14,15 +14,13 @@ process FILTER_BY_CRIT {
     tuple val(meta), file(vcfgz), file(vcf_tbi)
 
     output:
-     tuple val(meta), path('*_postFiltered.vcf.gz'),  path('*_postFiltered.vcf.gz.tbi')   , emit: vcf
-    //    path  "versions.yml"                                                  , emit: versions
+     tuple val(meta), path('*Filter.vcf.gz'),  path('*Filter.vcf.gz.tbi')   , emit: vcf
+    //    path  "versions.yml"                                              , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
 
     script:
-    def out_vcf   = "${meta.id}_postFiltered.vcf"
-    def out_vcfgz = "${meta.id}_postFiltered.vcf.gz"
 
     def filter_values = "ExAC AF ${params.crit_exac_maxmaf}+"
     filter_values = filter_values + " EVS MAF ${params.crit_evs_maxmaf}+"
@@ -35,17 +33,17 @@ process FILTER_BY_CRIT {
     filter_values = filter_values + " REGION_CONFIDENCE . ${params.crit_recurrance}+"
 
 // Filter variants only if there is no control, else do noting
-    if (meta.iscontrol == 0) {
+    if (meta.iscontrol == '1') {
         """
-        mv $vcfgz $out_vcfgz
-        tabix $out_vcfgz
+        mv $vcfgz ${meta.id}_noFilter.vcf.gz
+        tabix ${meta.id}_noFilter.vcf.gz
         """
     }
     else {
         """
-        vcf_filter_by_crit.py $vcfgz $out_vcf $filter_values
-        bgzip -c $out_vcf > $out_vcfgz
-        tabix $out_vcfgz
+        vcf_filter_by_crit.py $vcfgz ${meta.id}_postFilter.vcf $filter_values
+        bgzip -c ${meta.id}_postFilter.vcf > ${meta.id}_postFilter.vcf.gz
+        tabix ${meta.id}_postFilter.vcf.gz
         """
     }
 

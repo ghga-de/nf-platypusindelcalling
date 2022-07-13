@@ -31,7 +31,7 @@ script:
     def out_log     = "${meta.id}.platypus.log"
 
 
-    if (meta.iscontrol == 1)
+    if (meta.iscontrol == '1')
         {
         """
         platypus callVariants \\

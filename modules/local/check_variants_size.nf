@@ -1,5 +1,5 @@
-// samtools view will be used to get sample names
-process CHECK_IF_CORRUPTED {
+
+process CHECK_VARIANTS_SIZE {
     tag "$meta.id"
     label 'process_low'
 
@@ -13,7 +13,6 @@ process CHECK_IF_CORRUPTED {
     tuple val(meta), file(vcf), file(vcf_tbi)
 
     output:
- //   path("corrupted.txt")                  , emit: corrupted
 
     when:
     task.ext.when == null || task.ext.when
@@ -21,15 +20,7 @@ process CHECK_IF_CORRUPTED {
     script:
     def args = task.ext.args?: ''
 
-// If there is no control (iscontrol=1), isNoControlWorkflow arg is false
-    if (meta.iscontrol == '1'){
-        """
-        corrupted.sh -i $vcf -c false
-        """
-    }
-    else {
-        """
-        corrupted.sh -i $vcf -c true
-        """
-    }
+    """
+    check_variants_size.sh -i $vcf -m ${params.max_var_screenshots}
+    """
 }

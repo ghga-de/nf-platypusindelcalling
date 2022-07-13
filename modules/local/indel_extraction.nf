@@ -15,7 +15,8 @@ process INDEL_EXTRACTION {
 
     output:
     tuple val(meta), path('*functional.vcf.gz'), path('*functional.vcf.gz.tbi')   , emit: vcf
-    path  "versions.yml"                                                            , emit: versions
+    tuple val(meta), path('*.functional_var_count.txt')                           , emit: functional_var
+    path  "versions.yml"                                                          , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -33,9 +34,9 @@ process INDEL_EXTRACTION {
     """
     indel_extractor_v1.pl --infile=$ch_vcf --somout=$somatic_indels_vcf --funcout=$somatic_functional_indel_vcf --ncout=$somatic_ncRNA_indel_vcf \\
         --germlineout=$germline_functional_indel_vcf --minconf=${params.min_confidence_score} ${params.add_filter_opt}
-
-    bgzip -c $somatic_functional_indel_vcf > $outnamegz
+    bgzip -c $somatic_indels_vcf > $outnamegz
     tabix $outnamegz
+    cat $somatic_functional_indel_vcf | tail -n +2 | wc -l | cut -f1 -d " " > ${meta.id}.functional_var_count.txt
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

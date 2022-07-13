@@ -16,7 +16,7 @@ process CONFIDENCEANNOTATION {
     output:
     tuple val(meta), path('*.conf.vcf.gz'),  path('*.conf.vcf.gz.tbi')   , emit: vcf_conf
     tuple val(meta), path('*.ann.vcf.gz'),  path('*.ann.vcf.gz.tbi')     , emit: vcf
-    path  "versions.yml"                                                   , emit: versions
+    path  "versions.yml"                                                 , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -27,12 +27,12 @@ process CONFIDENCEANNOTATION {
     def out_vcf    = "${meta.id}.conf.vcf"
     def out_vcfgz  = "${meta.id}.conf.vcf.gz"
 
-    if (meta.iscontrol == 1)
+    if (meta.iscontrol == '1')
     {
         """
-        samtools view -H $meta.control_bam | grep '^@RG' | sed "s/.*SM:\\([^\\t]*\\).*/\\1/g" | uniq > controlname.txt
-        samtools view -H $meta.tumor_bam | grep '^@RG' | sed "s/.*SM:\\([^\\t]*\\).*/\\1/g" | uniq > tumorname.txt
-        confidenceAnnotation_Indels.py --infile=$vcfgz --controlColName=\$(cat controlname.txt) --tumorColName=\$(cat tumorname.txt) \\
+        samtools view -H $meta.control_bam | grep '^@RG' | sed "s/.*SM:\\([^\\t]*\\).*/\\1/g" | uniq > ${meta.id}.controlname.txt
+        samtools view -H $meta.tumor_bam | grep '^@RG' | sed "s/.*SM:\\([^\\t]*\\).*/\\1/g" | uniq > ${meta.id}.tumorname.txt
+        confidenceAnnotation_Indels.py --infile=$vcfgz --skip_order_check --controlColName=\$(cat ${meta.id}.controlname.txt) --tumorColName=\$(cat ${meta.id}.tumorname.txt) \\
         ${params.confidence_opts_indel} | tee $temp_vcf | cut -f 1-11 > $out_vcf
 
         bgzip -c $out_vcf > $out_vcfgz
@@ -52,8 +52,8 @@ process CONFIDENCEANNOTATION {
     }
     else {
         """
-        samtools view -H $meta.tumor_bam | grep '^@RG' | sed "s/.*SM:\\([^\\t]*\\).*/\\1/g" | uniq > tumorname.txt
-        confidenceAnnotation_Indels.py --infile=$vcfgz --nocontrol --tumorColName=\$(cat tumorname.txt) \\
+        samtools view -H $meta.tumor_bam | grep '^@RG' | sed "s/.*SM:\\([^\\t]*\\).*/\\1/g" | uniq > ${meta.id}tumorname.txt
+        confidenceAnnotation_Indels.py --infile=$vcfgz  --skip_order_check --nocontrol --tumorColName=\$(cat ${meta.id}.tumorname.txt) \\
         ${params.confidence_opts_indel} | tee $temp_vcf | cut -f 1-11 > $out_vcf
 
         bgzip -c $out_vcf > $out_vcfgz

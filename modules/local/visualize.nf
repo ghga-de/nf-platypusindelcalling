@@ -12,27 +12,38 @@ process VISUALIZE {
 
     input:
     tuple val(meta), file(vcfgz), file(vcf_tbi)
-    file (ref)
-    file (repeatmasker)
+    tuple path(ref), path(ref_fai)
+    tuple path(repeatmasker), path(repeatmasker_tbi)
 
     output:
-    tuple val(meta), path('*.pdf')   , emit: pdfs
-    path  "versions.yml"               , emit: versions
+    tuple val(meta), path('*.pdf')                   , optional: true
 
     when:
     task.ext.when == null || task.ext.when
 
     script:
 
-    if (meta.iscontrol == 1) {
+    if (meta.iscontrol == '1') {
         """
-        visualize_somatic.sh -i $vcfgz -c false -r $ref -n $meta.control_bam -t $meta.tumor_bam -w ${params.window_size} -a $repeatmasker -m ${params.max_var_screenshots}
-
+        visualize.py  \\
+        --vcf=$vcfgz  \\
+        --control=$meta.control_bam  \\
+        --tumor=$meta.tumor_bam  \\
+        --ref=$ref  \\
+        --prefix=indel_  \\
+        --window=${params.window_size}  \\
+        --annotations=$repeatmasker
         """
         }
     else {
         """
-        visualize_somatic.sh -i $vcfgz -c true -r $ref -n 'null' -t $meta.tumor_bam -w ${params.window_size} -a $repeatmasker -m ${params.max_var_screenshots}
+        visualize.py  \\
+        --vcf=$vcfgz  \\
+        --tumor=$meta.tumor_bam  \\
+        --ref=$ref  \\
+        --prefix=indel_  \\
+        --window=${params.window_size}  \\
+        --annotations=$repeatmasker
         """
-    }
+         }
 }
