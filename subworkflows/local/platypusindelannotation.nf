@@ -8,11 +8,12 @@ include { ANNOTATE_VCF         } from '../../modules/local/annotate_vcf.nf'     
 include { ANNOVAR              } from '../../modules/local/annovar.nf'                addParams( options: params.options )
 include { CREATEPIPES          } from '../../modules/local/createpipes.nf'            addParams( options: params.options )
 include { CONFIDENCEANNOTATION } from '../../modules/local/confidenceannotation.nf'   addParams( options: params.options )
+include { PIPEANNOTATOR        } from '../../modules/local/pipeannotator.nf'          addParams( options: params.options )
 
 
 workflow PLATYPUSINDELANNOTATION {
     take:
-    vcf_ch
+    vcf_ch // channel: [val(meta), vcf_file]
 
     main:
 
@@ -51,21 +52,39 @@ workflow PLATYPUSINDELANNOTATION {
     versions = versions.mix(ANNOVAR.out.versions)
     vcf_ch   = ANNOVAR.out.vcf
     conf_vcf_ch =Channel.empty()
-    if (params.runIndelDeepAnnotation) {
+
 // RUN CREATEPIPES (annotate_vcf.pl)
-        CREATEPIPES(
-        ANNOVAR.out.vcf, repeatmasker, dacblacklist, dukeexcluded, hiseqdepth, selfchain, mapability, simpletandemrepeats
-        )
-        versions = versions.mix(CREATEPIPES.out.versions)
+    CREATEPIPES(
+    ANNOVAR.out.vcf, repeatmasker, dacblacklist, dukeexcluded, hiseqdepth, selfchain, mapability, simpletandemrepeats
+    )
+    versions = versions.mix(CREATEPIPES.out.versions)
 
-        CONFIDENCEANNOTATION(
-        CREATEPIPES.out.vcf
-        )
-        vcf_ch      = CONFIDENCEANNOTATION.out.vcf
-        conf_vcf_ch = conf_vcf_ch.mix(CONFIDENCEANNOTATION.out.vcf_conf)
-        versions    = versions.mix(CONFIDENCEANNOTATION.out.versions)
-        }
+    CONFIDENCEANNOTATION(
+    CREATEPIPES.out.vcf
+    )
+    vcf_ch      = CONFIDENCEANNOTATION.out.vcf
+    conf_vcf_ch = conf_vcf_ch.mix(CONFIDENCEANNOTATION.out.vcf_conf)
+    versions    = versions.mix(CONFIDENCEANNOTATION.out.versions)
 
+    if (params.runIndelDeepAnnotation)
+    {
+        if (params.enchancer_file) { enchangers = Channel.fromPath([params.enchancer_file, params.enchancer_file + '.tbi'], checkIfExists: true).collect() } else { enhangers = Channel.empty() }
+        if (params.cpgislands_file) { cpgislands = Channel.fromPath([params.cpgislands_file, params.cpgislands_file + '.tbi'], checkIfExists: true).collect() } else { cpgislands = Channel.empty() }
+        if (params.tfbscons_file) { tfbscons = Channel.fromPath([params.tfbscons_file, params.tfbscons_file + '.tbi'], checkIfExists: true).collect() } else { tfbscons = Channel.empty() }
+        if (params.encode_dnase_file) { encode_dnase = Channel.fromPath([params.encode_dnase_file, params.encode_dnase_file + '.tbi'], checkIfExists: true).collect() } else { encode_dnase = Channel.empty() }
+        if (params.mirnas_snornas_file) { mirnas_snornas = Channel.fromPath([params.mirnas_snornas_file, params.mirnas_snornas_file + '.tbi'], checkIfExists: true).collect() } else { mirnas_snornas = Channel.empty() }
+        if (params.cosmic_file) { cosmic = Channel.fromPath([params.cosmic_file, params.cosmic_file + '.tbi'], checkIfExists: true).collect() } else { cosmic = Channel.empty() }
+        if (params.mirbase_file) { mirbase = Channel.fromPath([params.mirbase_file, params.mirbase_file + '.tbi'], checkIfExists: true).collect() } else { mirbase = Channel.empty() }
+        if (params.mir_targets_file) { mir_targets = Channel.fromPath([params.mir_targets_file, params.mir_targets_file + '.tbi'], checkIfExists: true).collect() } else { mir_targets = Channel.empty() }
+        if (params.cgi_mountains_file) { cgi_mountains = Channel.fromPath([params.cgi_mountains_file, params.cgi_mountains_file + '.tbi'], checkIfExists: true).collect() } else { cgi_mountains = Channel.empty() }
+        if (params.phastconselem_file) { phastconselem = Channel.fromPath([params.phastconselem_file, params.phastconselem_file + '.tbi'], checkIfExists: true).collect() } else { phastconselem = Channel.empty() }
+        if (params.encode_tfbs_file) { encode_tfbs = Channel.fromPath([params.encode_tfbs_file, params.encode_tfbs_file + '.tbi'], checkIfExists: true).collect() } else { encode_tfbs = Channel.empty() }
+
+        PIPEANNOTATOR (
+        vcf_ch, enchangers, cpgislands, tfbscons, encode_dnase, mirnas_snornas, cosmic, mirbase, mir_targets, cgi_mountains, phastconselem, encode_tfbs
+        )
+
+    }
 emit:
 conf_vcf_ch
 vcf_ch
