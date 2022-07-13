@@ -4,13 +4,14 @@
 
 params.options = [:]
 
-include { FILTER_BY_CRIT    } from '../../modules/local/filter_by_crit.nf'       addParams( options: params.options )
-include { INDEL_EXTRACTION  } from '../../modules/local/indel_extraction.nf'     addParams( options: params.options )
-include { VISUALIZE         } from '../../modules/local/visualize.nf'            addParams( options: params.options )
+include { FILTER_BY_CRIT       } from '../../modules/local/filter_by_crit.nf'       addParams( options: params.options )
+include { INDEL_EXTRACTION     } from '../../modules/local/indel_extraction.nf'     addParams( options: params.options )
+include { CHECK_VARIANTS_SIZE  } from '../../modules/local/check_variants_size.nf'  addParams( options: params.options )
+include { VISUALIZE            } from '../../modules/local/visualize.nf'            addParams( options: params.options )
 
 workflow FILTER_VCF {
     take:
-    vcf_ch
+    vcf_ch // channel: [val(meta), vcf_file]
 
     main:
     if (params.reference) { ref = Channel.fromPath([params.reference,params.reference +'.fai'], checkIfExists: true).collect() } else { ref = Channel.empty() }
@@ -27,6 +28,9 @@ workflow FILTER_VCF {
     somatic_vcf_ch=INDEL_EXTRACTION.out.vcf
 
     // CHECK IF THERE IS FUNCTIONAL SOMATIC VARIANTS, IF THERE IS DO FOLLOWING
+    CHECK_VARIANTS_SIZE (
+    somatic_vcf_ch
+    )
 
     VISUALIZE (
     somatic_vcf_ch, ref, repeatmasker
