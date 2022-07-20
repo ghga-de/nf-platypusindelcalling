@@ -1,14 +1,14 @@
 
 process PLATYPUS {
     tag "$meta.id"
-    label 'process_low'
+    label 'process_medium'
 
     conda     (params.enable_conda ? "$baseDir/assets/environment.yml" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
     '' :
     'kubran/platypus:0.8.1.1-3' }"
 
-    publishDir params.outdir+'/platypus' , mode: 'copy'
+    publishDir params.outdir+ '/indelCalling' , mode: 'copy'
 
 
     input:
@@ -16,9 +16,9 @@ process PLATYPUS {
     tuple path(ref), path(ref_fai)
 
     output:
-    tuple val(meta), path('*.platypus.vcf')                     , emit: vcf
-    tuple val(meta), path('*.platypus.log')                     , emit: platypus_log
-    path  "versions.yml"                                        , emit: versions
+    tuple val(meta), path('*.platypus.vcf.gz'), path('*.platypus.vcf.gz.tbi')      , emit: vcf
+    tuple val(meta), path('*.platypus.log')                                        , emit: platypus_log
+    path  "versions.yml"                                                           , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -28,6 +28,7 @@ script:
     def opt_options = " --genIndels=1 --genSNPs=0 --verbosity=1 --bufferSize=100000 --maxReads=5000000 --minFlank=0"
     def options_arg = "${params.optimized}" == "" ? "${params.options}" : "${opt_options}"
     def out_vcf     = "${meta.id}.platypus.vcf"
+    def out_vcfgz   = "${meta.id}.platypus.vcf.gz"
     def out_log     = "${meta.id}.platypus.log"
 
 
@@ -42,9 +43,13 @@ script:
         --logFileName=$out_log \\
         $options_arg
 
+        bgzip  --threads ${task.cpus} -c $out_vcf > $out_vcfgz
+        tabix $out_vcfgz
+
         cat <<-END_VERSIONS > versions.yml
         "${task.process}":
         platypus: \$(echo \$(platypus --version 2>&1) | sed 's/^.*platypus //; s/Using.*\$//')
+        tabix: \$(echo \$(tabix -h 2>&1) | sed 's/^.*Version: //; s/ .*\$//')
         END_VERSIONS
 
         """
@@ -60,9 +65,13 @@ script:
         --logFileName=$out_log \\
         $options_arg
 
+        bgzip  --threads ${task.cpus} -c $out_vcf > $out_vcfgz
+        tabix $out_vcfgz
+
         cat <<-END_VERSIONS > versions.yml
         "${task.process}":
         platypus: 0.8.1.1-3 | sed 's/^.*platypus //; s/Using.*\$//')
+        tabix: \$(echo \$(tabix -h 2>&1) | sed 's/^.*Version: //; s/ .*\$//')
         END_VERSIONS
          """
         }
