@@ -24,7 +24,6 @@ process ANNOTATE_VCF {
 
     output:
     tuple val(meta), path('*.ForAnnovar.bed')                    , emit: forannovar
-    tuple val(meta), path('*.tmp')                               , emit: tmp
     tuple val(meta), path('*.vcf')                               , emit: unziped_vcf
     path  "versions.yml"                                         , emit: versions
 
