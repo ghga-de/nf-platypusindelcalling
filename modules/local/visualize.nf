@@ -1,4 +1,4 @@
-
+// Takes screenshots of somatic functional variants given window sizes
 process VISUALIZE {
     tag "$meta.id"
     label 'process_low'
@@ -8,7 +8,7 @@ process VISUALIZE {
     '' :
     'kubran/python2.7' }"
 
-    publishDir params.outdir+'/visualize' , mode: 'copy'
+    publishDir params.outdir+'/screenshots' , mode: 'copy'
 
     input:
     tuple val(meta), file(vcfgz), file(vcf_tbi)
@@ -17,33 +17,32 @@ process VISUALIZE {
 
     output:
     tuple val(meta), path('*.pdf')                   , optional: true
+    path('versions.yml')                             , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
 
     script:
 
-    if (meta.iscontrol == '1') {
-        """
-        visualize.py  \\
-        --vcf=$vcfgz  \\
-        --control=$meta.control_bam  \\
-        --tumor=$meta.tumor_bam  \\
-        --ref=$ref  \\
-        --prefix=indel_  \\
-        --window=${params.window_size}  \\
-        --annotations=$repeatmasker
-        """
-        }
-    else {
-        """
-        visualize.py  \\
-        --vcf=$vcfgz  \\
-        --tumor=$meta.tumor_bam  \\
-        --ref=$ref  \\
-        --prefix=indel_  \\
-        --window=${params.window_size}  \\
-        --annotations=$repeatmasker
-        """
-         }
+    def nocontrol = meta.iscontrol == '1' ? 'false': 'true'
+
+    """
+    check_variants_size.sh \\
+    -i $vcfgz \\
+    -v ${params.max_var_screenshots} \\
+    -c $meta.control_bam \\
+    -t $meta.tumor_bam \\
+    -r $ref \\
+    -w ${params.window_size} \\
+    -m $repeatmasker \\
+    -s $nocontrol \\
+    -o ${meta.id}.indel_somatic_functional_combined.pdf
+
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+    python: \$(echo \$(python --version 2>&1) | sed 's/^.*python //; s/Using.*\$//')
+    tabix: \$(echo \$(tabix -h 2>&1) | sed 's/^.*tabix //; s/Using.*\$//')
+    END_VERSIONS
+    """
+
 }
