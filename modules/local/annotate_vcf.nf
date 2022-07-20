@@ -1,7 +1,7 @@
-
+//Annotate with polymorphisms (dbSNP, 1K genomes, ExAC, EVS, and local controls) and prepare annovar input file
 process ANNOTATE_VCF {
     tag "$meta.id"
-    label 'process_low'
+    label 'process_medium'
 
     conda     (params.enable_conda ? "$baseDir/assets/perlenvironment.yml" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
@@ -24,6 +24,7 @@ process ANNOTATE_VCF {
 
     output:
     tuple val(meta), path('*.ForAnnovar.bed')                    , emit: forannovar
+    tuple val(meta), path('*.tmp')                               , emit: tmp
     tuple val(meta), path('*.vcf')                               , emit: unziped_vcf
     path  "versions.yml"                                         , emit: versions
 
