@@ -1,9 +1,10 @@
+//# Gene annotation with annovar
 // PROCESS ANNOVAR table_annovar
 // working database is annovar_Feb2016
 
 process ANNOVAR {
     tag "$meta.id"
-    label 'process_low'
+    label 'process_medium'
 
     conda     (params.enable_conda ? "$baseDir/assets/perlenvironment.yml" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
