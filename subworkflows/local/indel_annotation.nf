@@ -64,9 +64,9 @@ workflow INDEL_ANNOTATION {
     CONFIDENCE_ANNOTATION(
     INDEL_RELIABILITY_PIPE.out.vcf, name_tumor, name_control
     )
-    vcf_ch      = CONFIDENCEANNOTATION.out.vcf
-    conf_vcf_ch = conf_vcf_ch.mix(CONFIDENCEANNOTATION.out.vcf_conf)
-    versions    = versions.mix(CONFIDENCEANNOTATION.out.versions)
+    vcf_ch      = CONFIDENCE_ANNOTATION.out.vcf
+    conf_vcf_ch = conf_vcf_ch.mix(CONFIDENCE_ANNOTATION.out.vcf_conf)
+    versions    = versions.mix(CONFIDENCE_ANNOTATION.out.versions)
 
     if (params.runIndelDeepAnnotation)
     {
@@ -85,6 +85,7 @@ workflow INDEL_ANNOTATION {
         PIPE_ANNOTATOR (
         vcf_ch, enchangers, cpgislands, tfbscons, encode_dnase, mirnas_snornas, cosmic, mirbase, mir_targets, cgi_mountains, phastconselem, encode_tfbs
         )
+        versions    = versions.mix(PIPE_ANNOTATOR.out.versions)
 
     }
 emit:
