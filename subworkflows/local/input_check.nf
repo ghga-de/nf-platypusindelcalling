@@ -19,12 +19,16 @@ workflow INPUT_CHECK {
         .set {ch_sample}
 
     emit:
-    ch_sample // channel: [ sample, tumor,tumor.bai, control, control.bai, iscontrol ]
+    ch_sample // channel: [ val(meta), [tumor,tumor.bai],[ control, control.bai]]
     versions = SAMPLESHEET_CHECK.out.versions
 }
 
-// Function to get list of [ sample, [ tumor, control ] ]
+// Function to get list of [ sample, [ tumor], [control ] ]
 def create_bam_channel(LinkedHashMap row) {
+// create meta map
+    def meta = [:]
+    meta.id           = row.sample
+    meta.iscontrol    = row.iscontrol
 
     // add path(s) of the fastq file(s) to the meta map
     def bam_meta = []
@@ -34,13 +38,28 @@ def create_bam_channel(LinkedHashMap row) {
 
         if (row.iscontrol) {
             if (!file(row.control).exists()) {
-                if (row.control == 'dummy') {bam_meta = [  row.sample, file(row.tumor), file(row.tumor + '.bai'),[],[], row.iscontrol  ]}
+                if (row.control == 'dummy') {
+                    bam_meta = [  meta, file(row.tumor), file(row.tumor + '.bai'), [],[]  ]
+                    meta.tumor_bam = file(row.tumor)
+                    meta.tumor_bai = file(row.tumor + '.bai')
+                    meta.control_bam = []
+                    meta.control_bai = []
+
+}
                 else {exit 1, "ERROR: Please check input samplesheet -> Control file does not exist!\n${row.control}"}
             }
-            bam_meta = [ row.sample, file(row.tumor), file(row.tumor + '.bai'), file(row.control), file(row.control + '.bai'),row.iscontrol ]
+            bam_meta = [ meta, file(row.tumor), file(row.tumor + '.bai'), file(row.control), file(row.control + '.bai') ]
+            meta.tumor_bam = file(row.tumor)
+            meta.tumor_bai = file(row.tumor + '.bai')
+            meta.control_bam = file(row.control)
+            meta.control_bai = file(row.control + '.bai')
 
         } else {
-            bam_meta = [  row.sample, file(row.tumor), file(row.tumor + '.bai'),[],[], row.iscontrol  ]
+            bam_meta = [  meta, file(row.tumor), file(row.tumor + '.bai'), [],[]  ]
+            meta.tumor_bam = file(row.tumor)
+            meta.tumor_bai = file(row.tumor + '.bai')
+            meta.control_bam = []
+            meta.control_bai = []
         }
     return bam_meta
 }

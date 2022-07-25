@@ -1,24 +1,48 @@
 //
-// FILTER VCF: ...
+// FILTER VCF: Filtering only applied if the tumor file has no control!
 //
 
 params.options = [:]
 
-include { FILTER_BY_CRIT  } from '../../modules/local/filter_by_crit.nf'     addParams( options: params.options )
+include { FILTER_BY_CRIT       } from '../../modules/local/filter_by_crit.nf'       addParams( options: params.options )
+include { INDEL_EXTRACTION     } from '../../modules/local/indel_extraction.nf'     addParams( options: params.options )
+include { VISUALIZE            } from '../../modules/local/visualize.nf'            addParams( options: params.options )
+include { INDEL_JSON           } from '../../modules/local/indel_json_v1.nf'        addParams( options: params.options )
 
 workflow FILTER_VCF {
     take:
-    vcf_ch
-    sample_ch
+    vcf_ch // channel: [val(meta), vcf_file]
 
     main:
     if (params.reference) { ref = Channel.fromPath([params.reference,params.reference +'.fai'], checkIfExists: true).collect() } else { ref = Channel.empty() }
+    if (params.repeat_masker) { repeatmasker = Channel.fromPath([params.repeat_masker, params.repeat_masker + '.tbi'], checkIfExists: true).collect() } else { repeatmasker = Channel.empty() }
 
-    // RUN vcf_filter_bycrit.pl ONLY IF THERE IS NO CONTROL!
+    versions=Channel.empty()
+    // RUN vcf_filter_bycrit.pl : filter only be apply on for no-control cases
     FILTER_BY_CRIT(
-    vcf_ch, sample_ch
+    vcf_ch
     )
+    versions= versions.mix(FILTER_BY_CRIT.out.versions)
+
+    INDEL_EXTRACTION(
+    FILTER_BY_CRIT.out.vcf
+    )
+    somatic_vcf_ch=INDEL_EXTRACTION.out.vcf
+    versions= versions.mix(INDEL_EXTRACTION.out.versions)
+
+    // CHECK IF THERE IS FUNCTIONAL SOMATIC VARIANTS, IF THERE IS DO FOLLOWING
+
+    VISUALIZE (
+    somatic_vcf_ch, ref, repeatmasker
+    )
+    versions= versions.mix(VISUALIZE.out.versions)
+
+    INDEL_JSON(
+    somatic_vcf_ch
+    )
+    versions= versions.mix(INDEL_JSON.out.versions)
 
     emit:
-    vcf_ch
+    somatic_vcf_ch
+    versions
 }
