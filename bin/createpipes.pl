@@ -12,15 +12,14 @@ use warnings;
 use String::Util qw(trim);
 
 if (@ARGV < 5) {
-    die "USAGE: 1.basis file to which annotations will be added 2.config file 3.path to annotate_vcf.pl script 4. identifier of pipe to create 5. full path of tabix binary \n";
+    die "USAGE: 1.basis file to which annotations will be added 2.config file 3.path to annotate_vcf.pl script 4. identifier of pipe to create 5. output\n";
 }
 
 my $basis = shift;
 my $filelist = shift;
 my $overlapper = shift;
 my $pipename = shift;
-my $tabix_bin = shift;
-# my $result = shift;
+my $result = shift;
 
 # all files to overlap with are listed in $filelist:
 # name=/path/name.bed.gz or gff.gz or gvf.gz
@@ -31,8 +30,8 @@ open(FL, $filelist) or die "could not open $filelist: $!\n";
 #my @help = ();
 my ($column, $file, @options);
 my $files = 0;
-my $stem = "perl $overlapper -a $basis";
-if ($basis =~ /.gz$/) {$stem = "zcat $basis | perl $overlapper -a -";}
+my $stem = " $overlapper -a $basis";
+if ($basis =~ /.gz$/) {$stem = "zcat < $basis | $overlapper -a -";}
 my $commandlist = "";
 my $type = "";
 
@@ -60,7 +59,7 @@ while (<FL>) {
     } else {
         $type = "gff3";
     }
-    $commandlist .= "$stem -b $file --bFileType=$type --columnName=$column --tabix_bin=$tabix_bin ";
+    $commandlist .= "$stem -b $file --bFileType=$type --columnName=$column ";
     # additional columns to report? (default is only the "name" one)
     if (defined($options[0])) {
         $commandlist .= " --bAdditionalColumns=$options[0]";
@@ -74,10 +73,10 @@ while (<FL>) {
         $commandlist .= " $options[2]"; # for passing through options to annotate_vcf.pl
     }
     $files++;
-    $stem = " | perl $overlapper -a -";
+    $stem = " | $overlapper -a -";
 }
 close FL;
-#$commandlist.=" > $result";
+$commandlist.=" > $result";
 print STDERR "$files files to overlap with.\n";
 # print STDERR "The command for the overlap pipe is: $commandlist\n";
 print $commandlist;
