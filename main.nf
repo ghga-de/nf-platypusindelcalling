@@ -1,11 +1,9 @@
 #!/usr/bin/env nextflow
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    nf-core/platypusindelcalling
+    nf-platypusindelcalling
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    Github : https://github.com/nf-core/platypusindelcalling
-    Website: https://nf-co.re/platypusindelcalling
-    Slack  : https://nfcore.slack.com/channels/platypusindelcalling
+    Github : https://github.com/nf-platypusindelcalling
 ----------------------------------------------------------------------------------------
 */
 
@@ -36,9 +34,9 @@ WorkflowMain.initialise(workflow, params, log)
 include { PLATYPUSINDELCALLING } from './workflows/platypusindelcalling'
 
 //
-// WORKFLOW: Run main nf-core/platypusindelcalling analysis pipeline
+// WORKFLOW: Run main nf-platypusindelcalling analysis pipeline
 //
-workflow NFCORE_PLATYPUSINDELCALLING {
+workflow NF_PLATYPUSINDELCALLING {
     PLATYPUSINDELCALLING ()
 }
 
@@ -53,7 +51,7 @@ workflow NFCORE_PLATYPUSINDELCALLING {
 // See: https://github.com/nf-core/rnaseq/issues/619
 //
 workflow {
-    NFCORE_PLATYPUSINDELCALLING ()
+    NF_PLATYPUSINDELCALLING ()
 }
 
 /*
