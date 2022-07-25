@@ -4,11 +4,12 @@ channels:
   - bioconda
   - defaults
   - bioconda-legacy
+  - r
 
 dependencies:
-  - perl-json-create=0.24=pl5.22.0_0
-  - perl-threaded=5.22.0=10
   - perl=5.22.0.1=0
+  - perl-json-create
+  - perl-threaded=5.22.0=10
   - tabix=0.2.5=0
   - bzip2=1.0.6=1
   - zlib=1.2.8=3
@@ -22,3 +23,6 @@ dependencies:
   - libpng=1.6.28=1
   - libtiff=4.0.7=0
   - libxcb=1.12=1
+  - curl=7.54.1=0
+  - readline=6.2=0
+  - glib

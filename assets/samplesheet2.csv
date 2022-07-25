@@ -1,3 +1,5 @@
 sample,tumor,control
-WES_FD_1,../data_test/BAM/WES_FD_T_1.bwa.dedup.bam,../data_test/BAM/WES_FD_N_1.bwa.dedup.bam
-WES_FD_2,../data_test/BAM/WES_FD_T_2.bwa.dedup.bam,../data_test/BAM/WES_FD_N_2.bwa.dedup.bam
+HCC1187,/Users/kubranarci/Desktop/Workflows/data_test/BAM/tumor_HCC1187_chr2.bam,/Users/kubranarci/Desktop/Workflows/data_test/BAM/blood_HCC1187_chr2.bam
+HCC1187_2,/Users/kubranarci/Desktop/Workflows/data_test/BAM/tumor_HCC1187_chr2.bam,
+
+
