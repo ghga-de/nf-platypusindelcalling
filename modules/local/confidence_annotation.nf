@@ -5,7 +5,7 @@ process CONFIDENCE_ANNOTATION {
 
     conda     (params.enable_conda ? "" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-    '' :
+    'python2.7.sif' :
     'kubran/python2.7' }"
 
     publishDir params.outdir+'/confidenceannotation' , mode: 'copy'

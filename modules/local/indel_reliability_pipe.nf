@@ -7,7 +7,7 @@ process INDEL_RELIABILITY_PIPE {
 
     conda     (params.enable_conda ? "$baseDir/assets/perlenvironment.yml" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-    '' :
+    'runtinda_perkenv.2.sif' :
     'kubran/perl_annotate:v0' }"
 
     //conda wont work here, database files are embeded inside the docker file

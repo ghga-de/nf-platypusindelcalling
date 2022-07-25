@@ -6,7 +6,7 @@ process INDEL_JSON {
 
     conda (params.enable_conda ? "bioconda::samtools=1.15.1" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-    '' :
+    'runtinda_perkenv.2.sif' :
     'kubran/perl_annotate:v0' }"
 
     publishDir params.outdir+'/screenshots'                                    , mode: 'copy'
