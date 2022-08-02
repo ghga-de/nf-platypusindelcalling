@@ -12,11 +12,16 @@ WorkflowPlatypusindelcalling.initialise(params, log)
 // Check input path parameters to see if they exist
 def checkPathParamList = [ params.input, params.multiqc_config, params.reference]
 def checkPathParamList_annotation = [params.k_genome, params.dbsnp_indel, params.dbsnp_snv,params.exac_file, params.evs_file,
-                                     params.local_control_wgs, params.local_control_wes, params.gnomed_genomes, params.gnomed_exomes,
+                                     params.local_control_wgs, params.local_control_wes, params.gnomad_genomes, params.gnomad_exomes,
                                      params.table_folder, params.annovar_path]
 
 def checkPathParamList_deepanno= [params.repeat_masker, params.dac_blacklist, params.duke_excluded, params.hiseq_depth,
-                                  params.self_chain, params.mapability_file, params.simple_tandemrepeats]
+                                  params.self_chain, params.mapability_file, params.simple_tandemrepeats, params.enchancer_file,
+                                  params.cpgislands_file, params.tfbscons_file, params.encode_dnase_file, params.mirnas_snornas_file,
+                                  params.mirbase_file, params.cosmic_file, params.mir_targets_file, params.cgi_mountains_file,
+                                  params.phastconselem_file, params.encode_tfbs_file]
+def checkParamList_runtinda=[params.chrlength_file, params.genemodel_bed, params.exomecapturekit_bed]
+
 for (param in checkPathParamList) { if (param) { file(param, checkIfExists: true) } }
 
 if (params.runIndelAnnotation){
@@ -25,6 +30,8 @@ if (params.runIndelAnnotation){
         for (param in checkPathParamList_deepanno) { if (param) { file(param, checkIfExists: true) } }
     }
 }
+
+if (params.runTinda){for (param in checkParamList_runtinda) { if (param) { file(param, checkIfExists: true) } }}
 
 // Check mandatory parameters
 if (params.input) { ch_input = file(params.input) } else { exit 1, 'Input samplesheet not specified!' }
