@@ -19,7 +19,7 @@ workflow INPUT_CHECK {
         .set {ch_sample}
 
     emit:
-    ch_sample // channel: [ val(meta), [tumor, tumor.bai, control, control.bai] ]
+    ch_sample // channel: [ val(meta), [tumor,tumor.bai],[ control, control.bai]]
     versions = SAMPLESHEET_CHECK.out.versions
 }
 
@@ -39,7 +39,7 @@ def create_bam_channel(LinkedHashMap row) {
         if (row.iscontrol) {
             if (!file(row.control).exists()) {
                 if (row.control == 'dummy') {
-                    bam_meta = [  meta, [file(row.tumor), file(row.tumor + '.bai')],[ [],[] ] ]
+                    bam_meta = [  meta, file(row.tumor), file(row.tumor + '.bai'), [],[]  ]
                     meta.tumor_bam = file(row.tumor)
                     meta.tumor_bai = file(row.tumor + '.bai')
                     meta.control_bam = []
@@ -48,14 +48,14 @@ def create_bam_channel(LinkedHashMap row) {
 }
                 else {exit 1, "ERROR: Please check input samplesheet -> Control file does not exist!\n${row.control}"}
             }
-            bam_meta = [ meta, [file(row.tumor), file(row.tumor + '.bai')], [file(row.control), file(row.control + '.bai')] ]
+            bam_meta = [ meta, file(row.tumor), file(row.tumor + '.bai'), file(row.control), file(row.control + '.bai') ]
             meta.tumor_bam = file(row.tumor)
             meta.tumor_bai = file(row.tumor + '.bai')
             meta.control_bam = file(row.control)
             meta.control_bai = file(row.control + '.bai')
 
         } else {
-            bam_meta = [  meta, [file(row.tumor), file(row.tumor + '.bai')],[ [],[] ] ]
+            bam_meta = [  meta, file(row.tumor), file(row.tumor + '.bai'), [],[]  ]
             meta.tumor_bam = file(row.tumor)
             meta.tumor_bai = file(row.tumor + '.bai')
             meta.control_bam = []

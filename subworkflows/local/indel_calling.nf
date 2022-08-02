@@ -9,7 +9,7 @@ include { CHECK_IF_CORRUPTED} from '../../modules/local/check_if_corrupted.nf'  
 
 workflow INDEL_CALLING {
     take:
-    sample_ch // channel: [val(meta), [tumor bams], [control bams]]
+    sample_ch // channel: [val(meta), tumor,tumor_bai, control, control_bai]
 
     main:
     if (params.reference) { ref = Channel.fromPath([params.reference,params.reference +'.fai'], checkIfExists: true).collect() } else { ref = Channel.empty() }

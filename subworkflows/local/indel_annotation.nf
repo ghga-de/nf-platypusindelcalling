@@ -26,8 +26,8 @@ workflow INDEL_ANNOTATION {
     if (params.evs_file) { evs = Channel.fromPath([params.evs_file, params.evs_file + '.tbi'], checkIfExists: true).collect() } else { evs = Channel.empty() }
     if (params.local_control_wgs) { localcontrolwgs = Channel.fromPath([params.local_control_wgs,params.local_control_wgs + '.tbi' ], checkIfExists: true).collect() } else { localcontrolwgs = Channel.empty() }
     if (params.local_control_wes) { localcontrolwes = Channel.fromPath([params.local_control_wes, params.local_control_wes + '.tbi'], checkIfExists: true).collect() } else { localcontrolwes = Channel.empty() }
-    if (params.gnomed_genomes) { gnomedgenomes = Channel.fromPath([params.gnomed_genomes, params.gnomed_genomes + '.tbi'], checkIfExists: true).collect() } else { gnomedgenomes = Channel.empty() }
-    if (params.gnomed_exomes) { gnomedexomes = Channel.fromPath([params.gnomed_exomes, params.gnomed_exomes + '.tbi'], checkIfExists: true).collect() } else { gnomedexomes = Channel.empty() }
+    if (params.gnomad_genomes) { gnomadgenomes = Channel.fromPath([params.gnomad_genomes, params.gnomad_genomes + '.tbi'], checkIfExists: true).collect() } else { gnomadgenomes = Channel.empty() }
+    if (params.gnomad_exomes) { gnomadexomes = Channel.fromPath([params.gnomad_exomes, params.gnomad_exomes + '.tbi'], checkIfExists: true).collect() } else { gnomadexomes = Channel.empty() }
 
     if (params.repeat_masker) { repeatmasker = Channel.fromPath([params.repeat_masker, params.repeat_masker + '.tbi'], checkIfExists: true).collect() } else { repeatmasker = Channel.empty() }
     if (params.dac_blacklist) { dacblacklist = Channel.fromPath([params.dac_blacklist, params.dac_blacklist + '.tbi'], checkIfExists: true).collect() } else { dacblacklist = Channel.empty() }
@@ -41,7 +41,7 @@ workflow INDEL_ANNOTATION {
     versions=Channel.empty()
     // RUN annotate_vcf.pl
     ANNOTATE_VCF (
-    vcf_ch, kgenome, dbsnpindel, dbsnpsnv, exac, evs, localcontrolwgs, localcontrolwes, gnomedgenomes, gnomedexomes
+    vcf_ch, kgenome, dbsnpindel, dbsnpsnv, exac, evs, localcontrolwgs, localcontrolwes, gnomadgenomes, gnomadexomes
     )
     ch_vcf    = ANNOTATE_VCF.out.unziped_vcf
     versions  = versions.mix(ANNOTATE_VCF.out.versions)
@@ -62,7 +62,7 @@ workflow INDEL_ANNOTATION {
     versions = versions.mix(INDEL_RELIABILITY_PIPE.out.versions)
 
     CONFIDENCE_ANNOTATION(
-    INDEL_RELIABILITY_PIPE.out.vcf, name_tumor, name_control
+    INDEL_RELIABILITY_PIPE.out.vcf
     )
     vcf_ch      = CONFIDENCE_ANNOTATION.out.vcf
     conf_vcf_ch = conf_vcf_ch.mix(CONFIDENCE_ANNOTATION.out.vcf_conf)
