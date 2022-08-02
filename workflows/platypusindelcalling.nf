@@ -12,11 +12,16 @@ WorkflowPlatypusindelcalling.initialise(params, log)
 // Check input path parameters to see if they exist
 def checkPathParamList = [ params.input, params.multiqc_config, params.reference]
 def checkPathParamList_annotation = [params.k_genome, params.dbsnp_indel, params.dbsnp_snv,params.exac_file, params.evs_file,
-                                     params.local_control_wgs, params.local_control_wes, params.gnomed_genomes, params.gnomed_exomes,
+                                     params.local_control_wgs, params.local_control_wes, params.gnomad_genomes, params.gnomad_exomes,
                                      params.table_folder, params.annovar_path]
 
 def checkPathParamList_deepanno= [params.repeat_masker, params.dac_blacklist, params.duke_excluded, params.hiseq_depth,
-                                  params.self_chain, params.mapability_file, params.simple_tandemrepeats]
+                                  params.self_chain, params.mapability_file, params.simple_tandemrepeats, params.enchancer_file,
+                                  params.cpgislands_file, params.tfbscons_file, params.encode_dnase_file, params.mirnas_snornas_file,
+                                  params.mirbase_file, params.cosmic_file, params.mir_targets_file, params.cgi_mountains_file,
+                                  params.phastconselem_file, params.encode_tfbs_file]
+def checkParamList_runtinda=[params.chrlength_file, params.genemodel_bed, params.exomecapturekit_bed]
+
 for (param in checkPathParamList) { if (param) { file(param, checkIfExists: true) } }
 
 if (params.runIndelAnnotation){
@@ -25,6 +30,8 @@ if (params.runIndelAnnotation){
         for (param in checkPathParamList_deepanno) { if (param) { file(param, checkIfExists: true) } }
     }
 }
+
+if (params.runTinda){for (param in checkParamList_runtinda) { if (param) { file(param, checkIfExists: true) } }}
 
 // Check mandatory parameters
 if (params.input) { ch_input = file(params.input) } else { exit 1, 'Input samplesheet not specified!' }
@@ -57,13 +64,14 @@ ch_multiqc_custom_config = params.multiqc_config ? Channel.fromPath(params.multi
 // SUBWORKFLOW: Consisting of a mix of local and nf-core/modules
 //
 include {INPUT_CHECK            } from '../subworkflows/local/input_check'
-include {PLATYPUS_RUNNER        } from '../subworkflows/local/platypus_runner'
-include {PLATYPUSINDELANNOTATION} from '../subworkflows/local/platypusindelannotation'
+include {INDEL_CALLING          } from '../subworkflows/local/indel_calling'
+include {INDEL_ANNOTATION       } from '../subworkflows/local/indel_annotation'
 include {FILTER_VCF             } from '../subworkflows/local/filter_vcf'
+include {RUNTINDA               } from '../subworkflows/local/runtinda'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    IMPORT NF-CORE MODULES/SUBWORKFLOWS
+    IMPORT MODULES/SUBWORKFLOWS
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
@@ -72,6 +80,11 @@ include {FILTER_VCF             } from '../subworkflows/local/filter_vcf'
 //
 include { MULTIQC                     } from '../modules/nf-core/modules/multiqc/main'
 include { CUSTOM_DUMPSOFTWAREVERSIONS } from '../modules/nf-core/modules/custom/dumpsoftwareversions/main'
+
+//
+// MODULE: Local modules
+//
+include { EXTRACT_SAMPLE_NAME } from '../modules/local/extract_sample_name.nf'     addParams( options: params.options )
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -100,34 +113,54 @@ workflow PLATYPUSINDELCALLING {
     sample_ch.view()
     ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
 
+// MODULE: Prepare sample names
+    EXTRACT_SAMPLE_NAME(
+        sample_ch
+        )
+
     //
     // SUBWORKFLOW:indelCalling.sh
     //
 
-    PLATYPUS_RUNNER(sample_ch)
+    INDEL_CALLING(sample_ch)
 
-    vcf_ch      = PLATYPUS_RUNNER.out.ch_vcf
-    ch_logs     = ch_logs.mix(PLATYPUS_RUNNER.out.ch_platypus_log)
-    ch_versions = ch_versions.mix(PLATYPUS_RUNNER.out.platypus_version)
-    ch_versions = ch_versions.mix(PLATYPUS_RUNNER.out.bgzip_version)
+    platypus_vcf_ch = INDEL_CALLING.out.vcf_ch
+    ch_logs         = ch_logs.mix(INDEL_CALLING.out.ch_platypus_log)
+    ch_versions     = ch_versions.mix(INDEL_CALLING.out.platypus_version)
 
-
+    name_tumor=EXTRACT_SAMPLE_NAME.out.tumor_name
+    name_control=EXTRACT_SAMPLE_NAME.out.control_name
     //
     //SUBWORKFLOW: platypusindelAnnotation.sh
     //
     if (params.runIndelAnnotation) {
-        PLATYPUSINDELANNOTATION(vcf_ch)
-        ch_versions = ch_versions.mix(PLATYPUSINDELANNOTATION.out.versions)
-        vcf_ch      = PLATYPUSINDELANNOTATION.out.vcf_ch
-        conf_vcf    = PLATYPUSINDELANNOTATION.out.conf_vcf_ch
+        INDEL_ANNOTATION(
+        platypus_vcf_ch, name_tumor, name_control
+        )
+        ch_versions = ch_versions.mix(INDEL_ANNOTATION.out.versions)
+        vcf_ch      = INDEL_ANNOTATION.out.vcf_ch
+        conf_vcf    = INDEL_ANNOTATION.out.conf_vcf_ch
+
+        //
+        //SUBWORKFLOW: FILTER VCF: filter_vcf.sh
+        //
+        if (params.runIndelVCFFilter) {
+            FILTER_VCF(
+            vcf_ch
+            )
+            ch_versions = ch_versions.mix(FILTER_VCF.out.versions)
+        }
+    }
+    //
+    //SUBWORKFLOW: RUNTINDA: checkSampleSawpTiN.sh
+    //
+
+    if (params.runTinda) {
+        RUNTINDA(
+            platypus_vcf_ch
+            )
     }
 
-    //
-    //SUBWORKFLOW: FILTER VCF: filter_vcf.sh
-    //
-    if (params.runIndelAnnotation && params.runIndelVCFFilter) {
-        FILTER_VCF(vcf_ch )
-    }
     //
     // MODULE: Pipeline reporting
     //
