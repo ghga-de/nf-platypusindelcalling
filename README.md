@@ -40,8 +40,8 @@ Annotation Files: Unless --runIndelAnnotation is true, the following files must 
 - --evs_file:
 - --local_control_wgs:
 - --local_control_wes:
-- --gnomed_genomes:
-- --gnomed_exomes:
+- --gnomad_genomes:
+- --gnomad_exomes:
 
 Annovar:
 
@@ -58,13 +58,16 @@ On release, automated continuous integration tests run the pipeline on a full-si
 <!-- TODO nf-core: Fill in short bullet-pointed list of the default steps in the pipeline -->
 
 1. Platypus ([`Platypus`](https://www.well.ox.ac.uk/research/research-groups/lunter-group/lunter-group/platypus-a-haplotype-based-variant-caller-for-next-generation-sequence-data))
-2. Annotation using several databases like Gnomed, dbsnp..
-3. ANNOVAR (["ANNOVAR"](https://annovar.openbioinformatics.org/en/latest/))
-4. INDEL Deep Annotation
-5. Filtering
-6. Checks Sample Swap
-7. Canopy Based Clustering
-8. Bias Filter
+   : Platypus tool is used to call variants using local realignmnets and local assemblies. It can detect SNPs, MNPs, short indels, replacements, deletions up to several kb. It can be both used with WGS and WES. The tool has been thoroughly tested on data mapped with Stampy and BWA.
+2. Basic Annotations: In-house scripts to annotate with several databases like gnomAD, dbSNP, and ExAC.
+3. ANNOVAR ([`Annovar`](https://annovar.openbioinformatics.org/en/latest/))
+   : annotate_variation.pl is used to annotate variants. The tool makes classifications for intergenic, intogenic, nonsynoymous SNP, frameshift deletion or large-scale duplication regions.
+4. Reliability and confidation annotations: It is an optional step (--runIndelAnnotation) for Mapability, hiseq, selfchain and repeat regions checks for reliability and confidence of those scores.
+5. INDEL Deep Annotation: It is an optional step (runIndelDeepAnnotation) for number of extra indel annotations like enhancer, cosmic, mirBASE, encode databases.
+6. Filtering: It is an optional step (runIndelVCFFilter)for only applies for the tumor samples with no-control.
+7. Checks Sample Swap
+  . Canopy Based Clustering
+  . Bias Filter
 
 ## Quick Start
 
@@ -99,6 +102,12 @@ Only docker is working for now!
    ```console
    nextflow run nf-core/platypusindelcalling --input samplesheet.csv --outdir <OUTDIR> --genome GRCh37 -profile <docker/singularity/podman/shifter/charliecloud/conda/institute>
    ```
+## Samplesheet columns
+**sample**: The sample name will be tagged to the job
+
+**tumor**: The path to the tumor file
+
+**control**: The path to the control file, if there is no control will be kept blank.
 
 ## Documentation
 
