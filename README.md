@@ -1,6 +1,7 @@
 
-[![GitHub Actions CI Status](https://github.com/nf-core/platypusindelcalling/workflows/nf-core%20CI/badge.svg)](https://github.com/nf-core/platypusindelcalling/actions?query=workflow%3A%22nf-core+CI%22)
-[![GitHub Actions Linting Status](https://github.com/nf-core/platypusindelcalling/workflows/nf-core%20linting/badge.svg)](https://github.com/nf-core/platypusindelcalling/actions?query=workflow%3A%22nf-core+linting%22)
+
+[![GitHub Actions CI Status](https://github.com/kubranarci/nf-core-platypusindelcalling/workflows/nf-core%20CI/badge.svg)](https://github.com/nf-core/platypusindelcalling/actions?query=workflow%3A%22nf-core+CI%22)
+[![GitHub Actions Linting Status](https://github.com/kubranarci/nf-core-platypusindelcalling/workflows/nf-core%20linting/badge.svg)](https://github.com/nf-core/platypusindelcalling/actions?query=workflow%3A%22nf-core+linting%22)
 [![AWS CI](https://img.shields.io/badge/CI%20tests-full%20size-FF9900?logo=Amazon%20AWS)](https://nf-co.re/platypusindelcalling/results)
 [![Cite with Zenodo](http://img.shields.io/badge/DOI-10.5281/zenodo.XXXXXXX-1073c8)](https://doi.org/10.5281/zenodo.XXXXXXX)
 
@@ -10,15 +11,39 @@
 [![run with singularity](https://img.shields.io/badge/run%20with-singularity-1d355c.svg)](https://sylabs.io/docs/)
 [![Launch on Nextflow Tower](https://img.shields.io/badge/Launch%20%F0%9F%9A%80-Nextflow%20Tower-%234256e7)](https://tower.nf/launch?pipeline=https://github.com/nf-core/platypusindelcalling)
 
-[![Get help on Slack](http://img.shields.io/badge/slack-nf--core%20%23platypusindelcalling-4A154B?logo=slack)](https://nfcore.slack.com/channels/platypusindelcalling)
-[![Follow on Twitter](http://img.shields.io/badge/twitter-%40nf__core-1DA1F2?logo=twitter)](https://twitter.com/nf_core)
-[![Watch on YouTube](http://img.shields.io/badge/youtube-nf--core-FF0000?logo=youtube)](https://www.youtube.com/c/nf-core)
 
 ## Introduction
 
-<!-- TODO nf-core: Write a 1-2 sentence summary of what data the pipeline is for and what it does -->
 
-DKFZ-ODCF/IndelCallingWorkflow: A Platypus-based workflow for indel calling
+
+DKFZ-ODCF/IndelCallingWorkflow:A Platypus-based insertion/deletion-detection workflow with extensive quality control additions.
+
+The Indel workflow was in the pan-cancer analysis of whole genomes (PCAWG) and can be cited with the following publication:
+
+Pan-cancer analysis of whole genomes.
+The ICGC/TCGA Pan-Cancer Analysis of Whole Genomes Consortium.
+Nature volume 578, pages 82–93 (2020).
+DOI 10.1038/s41586-020-1969-6
+
+## Data requirements
+
+Reference Files:
+
+- --reference: A reference directory .fa or .fasta (including index files in the same directory) should be defined.
+
+Annotation Files: Unless --runIndelAnnotation is true, the following files must be defined:
+
+- --k_genome:
+- --dbsnp_indel:
+- --dbsnp_snv:
+- --exac_file:
+- --evs_file:
+- --local_control_wgs:
+- --local_control_wes:
+- --gnomad_genomes:
+- --gnomad_exomes:
+
+Annovar:
 
 **nf-core/platypusindelcalling** is a bioinformatics best-practice analysis pipeline for platypus based indel calling pipeline. The workflow is based on DKFZ - ODCF OTP Indel Calling Pipeline
 
@@ -33,13 +58,16 @@ On release, automated continuous integration tests run the pipeline on a full-si
 <!-- TODO nf-core: Fill in short bullet-pointed list of the default steps in the pipeline -->
 
 1. Platypus ([`Platypus`](https://www.well.ox.ac.uk/research/research-groups/lunter-group/lunter-group/platypus-a-haplotype-based-variant-caller-for-next-generation-sequence-data))
-2. Annotation using several databases like Gnomed, dbsnp..
-3. ANNOVAR (["ANNOVAR"](https://annovar.openbioinformatics.org/en/latest/))
-4. INDEL Deep Annotation
-5. Filtering
-6. Checks Sample Swap
-7. Canopy Based Clustering
-8. Bias Filter
+   : Platypus tool is used to call variants using local realignmnets and local assemblies. It can detect SNPs, MNPs, short indels, replacements, deletions up to several kb. It can be both used with WGS and WES. The tool has been thoroughly tested on data mapped with Stampy and BWA.
+2. Basic Annotations: In-house scripts to annotate with several databases like gnomAD, dbSNP, and ExAC.
+3. ANNOVAR ([`Annovar`](https://annovar.openbioinformatics.org/en/latest/))
+   : annotate_variation.pl is used to annotate variants. The tool makes classifications for intergenic, intogenic, nonsynoymous SNP, frameshift deletion or large-scale duplication regions.
+4. Reliability and confidation annotations: It is an optional step (--runIndelAnnotation) for Mapability, hiseq, selfchain and repeat regions checks for reliability and confidence of those scores.
+5. INDEL Deep Annotation: It is an optional step (runIndelDeepAnnotation) for number of extra indel annotations like enhancer, cosmic, mirBASE, encode databases.
+6. Filtering: It is an optional step (runIndelVCFFilter)for only applies for the tumor samples with no-control.
+7. Checks Sample Swap
+  . Canopy Based Clustering
+  . Bias Filter
 
 ## Quick Start
 
@@ -47,7 +75,14 @@ On release, automated continuous integration tests run the pipeline on a full-si
 
 2. Install any of [`Docker`](https://docs.docker.com/engine/installation/), [`Singularity`](https://www.sylabs.io/guides/3.0/user-guide/) (you can follow [this tutorial](https://singularity-tutorial.github.io/01-installation/)), [`Podman`](https://podman.io/), [`Shifter`](https://nersc.gitlab.io/development/shifter/how-to-use/) or [`Charliecloud`](https://hpc.github.io/charliecloud/) for full pipeline reproducibility _(you can use [`Conda`](https://conda.io/miniconda.html) both to install Nextflow itself and also to manage software within pipelines. Please only use it within pipelines as a last resort; see [docs](https://nf-co.re/usage/configuration#basic-configuration-profiles))_.
 
+Only docker is working for now!
+
 3. Download the pipeline and test it on a minimal dataset with a single command:
+
+  before run do this to bin directory!:
+  ```console
+  chmod +x bin/*
+  ```
 
    ```console
    nextflow run nf-core/platypusindelcalling -profile test,YOURPROFILE --outdir <OUTDIR>
@@ -55,7 +90,7 @@ On release, automated continuous integration tests run the pipeline on a full-si
 
    Note that some form of configuration will be needed so that Nextflow knows how to fetch the required software. This is usually done in the form of a config profile (`YOURPROFILE` in the example command above). You can chain multiple config profiles in a comma-separated string.
 
-   > - The pipeline comes with config profiles called `docker`, `singularity`, `podman`, `shifter`, `charliecloud` and `conda` which instruct the pipeline to use the named tool for software management. For example, `-profile test,docker`.
+   > - The pipeline comes with config profiles called `docker`, `singularity` and `conda` which instruct the pipeline to use the named tool for software management. For example, `-profile test,docker`.
    > - Please check [nf-core/configs](https://github.com/nf-core/configs#documentation) to see if a custom config file to run nf-core pipelines already exists for your Institute. If so, you can simply use `-profile <institute>` in your command. This will enable either `docker` or `singularity` and set the appropriate execution settings for your local compute environment.
    > - If you are using `singularity`, please use the [`nf-core download`](https://nf-co.re/tools/#downloading-pipelines-for-offline-use) command to download images first, before running the pipeline. Setting the [`NXF_SINGULARITY_CACHEDIR` or `singularity.cacheDir`](https://www.nextflow.io/docs/latest/singularity.html?#singularity-docker-hub) Nextflow options enables you to store and re-use the images from a central location for future pipeline runs.
    > - If you are using `conda`, it is highly recommended to use the [`NXF_CONDA_CACHEDIR` or `conda.cacheDir`](https://www.nextflow.io/docs/latest/conda.html) settings to store the environments in a central location for future pipeline runs.
@@ -67,14 +102,23 @@ On release, automated continuous integration tests run the pipeline on a full-si
    ```console
    nextflow run nf-core/platypusindelcalling --input samplesheet.csv --outdir <OUTDIR> --genome GRCh37 -profile <docker/singularity/podman/shifter/charliecloud/conda/institute>
    ```
+## Samplesheet columns
+**sample**: The sample name will be tagged to the job
+
+**tumor**: The path to the tumor file
+
+**control**: The path to the control file, if there is no control will be kept blank.
 
 ## Documentation
 
 The nf-core/platypusindelcalling pipeline comes with documentation about the pipeline [usage](https://nf-co.re/platypusindelcalling/usage), [parameters](https://nf-co.re/platypusindelcalling/parameters) and [output](https://nf-co.re/platypusindelcalling/output).
 
+
 ## Credits
 
 nf-core/platypusindelcalling was originally written by Kuebra Narci kuebra.narci@dkfz-heidelberg.de.
+
+The pipeline is originally written in workflow management language Roddy. [Inspired github page] (https://github.com/DKFZ-ODCF/IndelCallingWorkflow)
 
 We thank the following people for their extensive assistance in the development of this pipeline:
 
@@ -96,9 +140,3 @@ For further information or help, don't hesitate to get in touch on the [Slack `#
 An extensive list of references for the tools used by the pipeline can be found in the [`CITATIONS.md`](CITATIONS.md) file.
 
 You can cite the `nf-core` publication as follows:
-
-> **The nf-core framework for community-curated bioinformatics pipelines.**
->
-> Philip Ewels, Alexander Peltzer, Sven Fillinger, Harshil Patel, Johannes Alneberg, Andreas Wilm, Maxime Ulysse Garcia, Paolo Di Tommaso & Sven Nahnsen.
->
-> _Nat Biotechnol._ 2020 Feb 13. doi: [10.1038/s41587-020-0439-x](https://dx.doi.org/10.1038/s41587-020-0439-x).
