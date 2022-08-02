@@ -1,19 +1,18 @@
-### Get the real names of the columns created by Platypus
+// Get the real names of the columns created by Platypus
 process CONFIDENCE_ANNOTATION {
     tag "$meta.id"
     label 'process_medium'
 
     conda     (params.enable_conda ? "" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-    '' :
+    'python2.7.sif' :
     'kubran/python2.7' }"
 
     publishDir params.outdir+'/confidenceannotation' , mode: 'copy'
 
     input:
     tuple val(meta), file(vcfgz), file(vcf_tbi)
-    tuple val(meta), file(tumor_name)
-    tuple val(meta), file(control_name)
+
 
     output:
     tuple val(meta), path('*.conf.vcf.gz'),  path('*.conf.vcf.gz.tbi')   , emit: vcf_conf
@@ -32,7 +31,10 @@ process CONFIDENCE_ANNOTATION {
     if (meta.iscontrol == '1')
     {
         """
-        confidenceAnnotation_Indels.py --infile=$vcfgz --skip_order_check --controlColName=\$(cat $control_name) --tumorColName=\$(cat $tumor_name) \\
+        samtools view -H $meta.control_bam | grep '^@RG' | sed "s/.*SM:\\([^\\t]*\\).*/\\1/g" | uniq > ${meta.id}.controlname.txt
+        samtools view -H $meta.tumor_bam | grep '^@RG' | sed "s/.*SM:\\([^\\t]*\\).*/\\1/g" | uniq > ${meta.id}.tumorname.txt
+
+        confidenceAnnotation_Indels.py --infile=$vcfgz --skip_order_check --controlColName=\$(cat ${meta.id}.controlname.txt) --tumorColName=\$(cat ${meta.id}.tumorname.txt) \\
         ${params.confidence_opts_indel} | tee $temp_vcf | cut -f 1-11 > $out_vcf
 
         bgzip -c $out_vcf > $out_vcfgz
@@ -52,7 +54,8 @@ process CONFIDENCE_ANNOTATION {
     }
     else {
         """
-        confidenceAnnotation_Indels.py --infile=$vcfgz  --skip_order_check --nocontrol --tumorColName=\$(cat $tumor_name) \\
+        samtools view -H $meta.tumor_bam | grep '^@RG' | sed "s/.*SM:\\([^\\t]*\\).*/\\1/g" | uniq > ${meta.id}.tumorname.txt
+        confidenceAnnotation_Indels.py --infile=$vcfgz  --skip_order_check --nocontrol --tumorColName=\$(cat ${meta.id}.tumorname.txt) \\
         ${params.confidence_opts_indel} | tee $temp_vcf | cut -f 1-11 > $out_vcf
 
         bgzip -c $out_vcf > $out_vcfgz

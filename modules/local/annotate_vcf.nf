@@ -5,7 +5,7 @@ process ANNOTATE_VCF {
 
     conda     (params.enable_conda ? "$baseDir/assets/perlenvironment.yml" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-    '' :
+    'perl_annotate.v.0.sif' :
     'kubran/perl_annotate:v0' }"
 
     publishDir params.outdir+'/annotate' , mode: 'copy'
@@ -19,8 +19,8 @@ process ANNOTATE_VCF {
     tuple path(evs), path(evs_i)
     tuple path(localcontrolwgs), path(localcontrolwgs_i)
     tuple path(localcontrolwes), path(localcontrolwes_i)
-    tuple path(gnomedgenomes), path(gnomedgenomes_i)
-    tuple path(gnomedexomes), path(gnomedexomes_i)
+    tuple path(gnomadgenomes), path(gnomadgenomes_i)
+    tuple path(gnomadexomes), path(gnomadexomes_i)
 
     output:
     tuple val(meta), path('*.ForAnnovar.bed')                    , emit: forannovar
@@ -43,8 +43,8 @@ process ANNOTATE_VCF {
         --padding=${params.padding} --minOverlapFraction=${params.minoverlapfraction} --maxBorderDistanceSum=${params.maxborderdist} --maxNrOfMatches=${params.maxmatches} | \\
     annotate_vcf.pl -a - -b $exac --columnName='ExAC' --bFileType vcf --reportLevel 4 --reportMatchType | \\
     annotate_vcf.pl -a - -b $evs --columnName='EVS' --bFileType vcf --reportLevel 4 --reportMatchType | \\
-    annotate_vcf.pl -a - -b $gnomedexomes --columnName='GNOMAD_EXOMES' --bFileType vcf --reportLevel 4 --reportMatchType| \\
-    annotate_vcf.pl -a - -b $gnomedgenomes --columnName='GNOMAD_GENOMES' --bFileType vcf --reportLevel 4 --reportMatchType| \\
+    annotate_vcf.pl -a - -b $gnomadexomes --columnName='GNOMAD_EXOMES' --bFileType vcf --reportLevel 4 --reportMatchType| \\
+    annotate_vcf.pl -a - -b $gnomadgenomes --columnName='GNOMAD_GENOMES' --bFileType vcf --reportLevel 4 --reportMatchType| \\
     annotate_vcf.pl -a - -b $localcontrolwgs --columnName='LocalControlAF_WGS' --minOverlapFraction 1 --bFileType vcf --reportLevel 4 --reportMatchType | \\
     annotate_vcf.pl -a - -b $localcontrolwes --columnName='LocalControlAF_WES' --minOverlapFraction 1 --bFileType vcf --reportLevel 4 --reportMatchType | \\
     tee $temp_name | vcf_to_annovar.pl ${params.chr_prefix} ${params.chr_suffix} > $for_annovar

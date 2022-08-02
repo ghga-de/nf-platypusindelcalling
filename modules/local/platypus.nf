@@ -5,18 +5,19 @@ process PLATYPUS {
 
     conda     (params.enable_conda ? "$baseDir/assets/environment.yml" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-    '' :
+    'platypus.0.8.1.1.3.sif' :
     'kubran/platypus:0.8.1.1-3' }"
 
     publishDir params.outdir+ '/indelCalling' , mode: 'copy'
 
 
     input:
-    tuple val(meta), path(tumor), path(control)
+    tuple val(meta), path(tumor), path(tumor_bai), path(control),  path(control_bai)
     tuple path(ref), path(ref_fai)
 
     output:
     tuple val(meta), path('*.platypus.vcf.gz'), path('*.platypus.vcf.gz.tbi')      , emit: vcf
+    tuple val(meta), path('*.platypus.vcf')                                        , emit: vcf_temp
     tuple val(meta), path('*.platypus.log')                                        , emit: platypus_log
     path  "versions.yml"                                                           , emit: versions
 
@@ -25,30 +26,27 @@ process PLATYPUS {
 
 script:
 
-    def opt_options = " --genIndels=1 --genSNPs=0 --verbosity=1 --bufferSize=100000 --maxReads=5000000 --minFlank=0"
-    def options_arg = "${params.optimized}" == "" ? "${params.options}" : "${opt_options}"
     def out_vcf     = "${meta.id}.platypus.vcf"
     def out_vcfgz   = "${meta.id}.platypus.vcf.gz"
     def out_log     = "${meta.id}.platypus.log"
-
 
     if (meta.iscontrol == '1')
         {
         """
         platypus callVariants \\
         --nCPU=${params.max_cpus}  \\
-        --bamFiles=$control[0],$tumor[0] \\
+        --bamFiles=$control,$tumor \\
         --output=$out_vcf \\
         --refFile=$ref \\
         --logFileName=$out_log \\
-        $options_arg
+        ${params.optimized}
 
         bgzip  --threads ${task.cpus} -c $out_vcf > $out_vcfgz
         tabix $out_vcfgz
 
         cat <<-END_VERSIONS > versions.yml
         "${task.process}":
-        platypus: \$(echo \$(platypus --version 2>&1) | sed 's/^.*platypus //; s/Using.*\$//')
+        platypus: 0.8.1.1-3 | sed 's/^.*platypus //; s/Using.*\$//')
         tabix: \$(echo \$(tabix -h 2>&1) | sed 's/^.*Version: //; s/ .*\$//')
         END_VERSIONS
 
@@ -59,11 +57,11 @@ script:
         """
         platypus callVariants \\
         --nCPU=${params.max_cpus}  \\
-        --bamFiles=$tumor[0] \\
+        --bamFiles=$tumor \\
         --output=$out_vcf \\
         --refFile=$ref \\
         --logFileName=$out_log \\
-        $options_arg
+        ${params.optimized}
 
         bgzip  --threads ${task.cpus} -c $out_vcf > $out_vcfgz
         tabix $out_vcfgz
