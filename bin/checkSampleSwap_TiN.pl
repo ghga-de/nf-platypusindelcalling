@@ -214,10 +214,16 @@ close GTraw;
 
 ### Cleaning up MNPs, due to the MNPs escaping in multi-SNVs lines
 #`cat $snvsGT_RawFile | python $split_mnps_script | uniq > $snvsGT_RawFile.temp ; mv -f $snvsGT_RawFile.temp $snvsGT_RawFile`;
+
+system("alias python='/usr/bin/python2.7' && . ~/.bashrc");
+
 my $resolve_complex_variants = "(head -n 2000 '$snvsGT_RawFile' | grep '#' ;
-  cat > '$snvsGT_RawFile' | splitMNPsAndComplex.py | grep -v '#' | sort -V -k1,2) | uniq > '$snvsGT_RawFile';";
+  cat '$snvsGT_RawFile' | splitMNPsAndComplex.py | grep -v '#' | sort -V -k1,2) | uniq > '$snvsGT_RawFile'.temp ;
+  mv -f '$snvsGT_RawFile'.temp '$snvsGT_RawFile';";
+
 
 print "\n$resolve_complex_variants\n";
+
 my $run_resolve_complex = system($resolve_complex_variants);
 
 if($run_resolve_complex !=0){

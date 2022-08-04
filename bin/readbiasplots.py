@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2.7
 #
 # Copyright (c) 2018 German Cancer Research Center (DKFZ).
 #
@@ -103,18 +103,18 @@ def hinton(weight_matrix, intensity_matrix, cmap, vmin, vmax, max_weight=None, a
 		  ax: matplotlib.axes.Axes instance
 	"""
 	ax = ax if ax is not None else plt.gca()
-	
+
 	# Set colors for intensity matrix
 	cm = plt.get_cmap(cmap)
 	cNorm = matplotlib.colors.Normalize(vmin=vmin, vmax=vmax)
 	scalarMap = matplotlib.cm.ScalarMappable(norm=cNorm, cmap=cm)
 	intensity_colors = scalarMap.to_rgba(intensity_matrix)
-	
+
 	ax.patch.set_facecolor('gray')
 	ax.set_aspect('equal', 'box')
 	ax.xaxis.set_major_locator(plt.NullLocator())
 	ax.yaxis.set_major_locator(plt.NullLocator())
-	
+
 	for (x,y),w in np.ndenumerate(weight_matrix):
 		color = intensity_colors[x][y]
 		size = 0.
@@ -128,7 +128,7 @@ def hinton(weight_matrix, intensity_matrix, cmap, vmin, vmax, max_weight=None, a
 		rect = plt.Rectangle([(3-y) - size / 2, x - size / 2], size, size,
 		                     facecolor=color, edgecolor=color)
 		ax.add_patch(rect)
-	
+
 	plt.ylim([-1,4])
 	plt.xlim(-1,4)
 	ax.invert_xaxis()
@@ -154,18 +154,18 @@ def hintonLegend(weight_matrix, intensity_matrix, text_matrix, cmap, vmin, vmax,
 		  ax: matplotlib.axes.Axes instance
 	"""
 	ax = ax if ax is not None else plt.gca()
-	
+
 	# Set colors for intensity matrix
 	cm = plt.get_cmap(cmap)
 	cNorm = matplotlib.colors.Normalize(vmin=vmin, vmax=vmax)
 	scalarMap = matplotlib.cm.ScalarMappable(norm=cNorm, cmap=cm)
 	intensity_colors = scalarMap.to_rgba(intensity_matrix)
-	
+
 	ax.patch.set_facecolor('gray')
 	ax.set_aspect('equal', 'box')
 	ax.xaxis.set_major_locator(plt.NullLocator())
 	ax.yaxis.set_major_locator(plt.NullLocator())
-	
+
 	for (x,y),w in np.ndenumerate(weight_matrix):
 		color = intensity_colors[x][y]
 		size = 0.
@@ -184,7 +184,7 @@ def hintonLegend(weight_matrix, intensity_matrix, text_matrix, cmap, vmin, vmax,
 		ax.add_patch(rect)
 		plt.text(3-y, x, w)
 
-	
+
 	plt.ylim([-1,4])
 	plt.xlim(-1,4)
 	ax.invert_xaxis()
