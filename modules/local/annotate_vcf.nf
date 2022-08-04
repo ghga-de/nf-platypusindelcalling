@@ -6,7 +6,7 @@ process ANNOTATE_VCF {
     conda     (params.enable_conda ? "$baseDir/assets/perlenvironment.yml" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
     'perl_annotate.v.0.sif' :
-    'kubran/perl_annotate:v0' }"
+    'kubran/odcf_indelcalling:v0' }"
 
     publishDir params.outdir+'/annotate' , mode: 'copy'
 
