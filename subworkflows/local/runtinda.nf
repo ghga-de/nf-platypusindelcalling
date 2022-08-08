@@ -8,16 +8,16 @@ include { SAMPLE_SWAP                                } from '../../modules/local
 
 workflow RUNTINDA {
     take:
-    vcf_ch         // channel: [val(meta), vcfgz, vcfgz_tbi]
+    vcf_ch           // channel: [val(meta), vcfgz, vcfgz_tbi]
+    ref              // reference channel [ref.fa, ref.fa.fai]
+    chrlength        // channel: [file.txt]
+    genemodel        // channel: [file.bed.gz, file.bed.gz.tbi]
+    localcontrolwgs  // channel: [file.bed.gz, file.bed.gz.tbi]
+    localcontrolwes  // channel: [file.bed.gz, file.bed.gz.tbi]
+    gnomadgenomes    // channel: [file.bed.gz, file.bed.gz.tbi]
+    gnomadexomes     // channel: [file.bed.gz, file.bed.gz.tbi]
 
     main:
-    if (params.reference) { ref = Channel.fromPath([params.reference,params.reference +'.fai'], checkIfExists: true).collect() } else { ref = Channel.empty() }
-    if (params.chrlength_file) { chrlength = Channel.fromPath(params.chrlength_file, checkIfExists: true) } else { chrlength = Channel.empty() }
-    if (params.genemodel_bed) { genemodel = Channel.fromPath([params.genemodel_bed,params.genemodel_bed +'.tbi'], checkIfExists: true).collect() } else { genemodel = Channel.empty() }
-    if (params.local_control_wgs) { localcontrolwgs = Channel.fromPath([params.local_control_wgs,params.local_control_wgs + '.tbi' ], checkIfExists: true).collect() } else { localcontrolwgs = Channel.empty() }
-    if (params.local_control_wes) { localcontrolwes = Channel.fromPath([params.local_control_wes, params.local_control_wes + '.tbi'], checkIfExists: true).collect() } else { localcontrolwes = Channel.empty() }
-    if (params.gnomad_genomes) { gnomadgenomes = Channel.fromPath([params.gnomad_genomes, params.gnomad_genomes + '.tbi'], checkIfExists: true).collect() } else { gnomadgenomes = Channel.empty() }
-    if (params.gnomad_exomes) { gnomadexomes = Channel.fromPath([params.gnomad_exomes, params.gnomad_exomes + '.tbi'], checkIfExists: true).collect() } else { gnomadexomes = Channel.empty() }
 
 
     SAMPLE_SWAP(
