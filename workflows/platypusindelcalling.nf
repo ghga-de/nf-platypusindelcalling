@@ -10,17 +10,44 @@ def summary_params = NfcoreSchema.paramsSummaryMap(workflow, params)
 WorkflowPlatypusindelcalling.initialise(params, log)
 
 // Check input path parameters to see if they exist
-def checkPathParamList = [ params.input, params.multiqc_config, params.reference]
-def checkPathParamList_annotation = [params.k_genome, params.dbsnp_indel, params.dbsnp_snv,params.exac_file, params.evs_file,
-                                     params.local_control_wgs, params.local_control_wes, params.gnomad_genomes, params.gnomad_exomes,
-                                     params.table_folder, params.annovar_path]
+def checkPathParamList = [ params.input,
+                           params.multiqc_config,
+                           params.reference]
 
-def checkPathParamList_deepanno= [params.repeat_masker, params.dac_blacklist, params.duke_excluded, params.hiseq_depth,
-                                  params.self_chain, params.mapability_file, params.simple_tandemrepeats, params.enchancer_file,
-                                  params.cpgislands_file, params.tfbscons_file, params.encode_dnase_file, params.mirnas_snornas_file,
-                                  params.mirbase_file, params.cosmic_file, params.mir_targets_file, params.cgi_mountains_file,
-                                  params.phastconselem_file, params.encode_tfbs_file]
-def checkParamList_runtinda=[params.chrlength_file, params.genemodel_bed, params.exomecapturekit_bed]
+def checkPathParamList_annotation = [params.k_genome,
+                                     params.dbsnp_indel,
+                                     params.dbsnp_snv,
+                                     params.exac_file,
+                                     params.evs_file,
+                                     params.local_control_wgs,
+                                     params.local_control_wes,
+                                     params.gnomad_genomes,
+                                     params.gnomad_exomes,
+                                     params.table_folder,
+                                     params.annovar_path]
+
+def checkPathParamList_deepanno= [params.repeat_masker,
+                                  params.dac_blacklist,
+                                  params.duke_excluded,
+                                  params.hiseq_depth,
+                                  params.self_chain,
+                                  params.mapability_file,
+                                  params.simple_tandemrepeats,
+                                  params.enchancer_file,
+                                  params.cpgislands_file,
+                                  params.tfbscons_file,
+                                  params.encode_dnase_file,
+                                  params.mirnas_snornas_file,
+                                  params.mirbase_file,
+                                  params.cosmic_file,
+                                  params.mir_targets_file,
+                                  params.cgi_mountains_file,
+                                  params.phastconselem_file,
+                                  params.encode_tfbs_file]
+
+def checkParamList_runtinda=[params.chrlength_file,
+                             params.genemodel_bed,
+                             params.exomecapturekit_bed]
 
 for (param in checkPathParamList) { if (param) { file(param, checkIfExists: true) } }
 
@@ -33,9 +60,47 @@ if (params.runIndelAnnotation){
 
 if (params.runTinda){for (param in checkParamList_runtinda) { if (param) { file(param, checkIfExists: true) } }}
 
-// Check mandatory parameters
-if (params.input) { ch_input = file(params.input) } else { exit 1, 'Input samplesheet not specified!' }
+//// Check mandatory parameters
 
+// Input samplesheet
+if (params.input)       { ch_input = file(params.input) } else { exit 1, 'Input samplesheet not specified!' }
+// Reference fasta file
+if (params.reference)   { ref = Channel.fromPath([params.reference,params.reference +'.fai'], checkIfExists: true).collect() } else { exit 1, 'Input reference file does not exist' }
+// Annotation databases
+if (params.k_genome)             { kgenome = Channel.fromPath([params.k_genome,params.k_genome +'.tbi'], checkIfExists: true).collect() } else { kgenome = Channel.empty() }
+if (params.dbsnp_indel)          { dbsnpindel = Channel.fromPath([params.dbsnp_indel, params.dbsnp_indel + '.tbi'], checkIfExists: true).collect() } else { dbsnpindel = Channel.empty() }
+if (params.dbsnp_snv)            { dbsnpsnv = Channel.fromPath([params.dbsnp_snv,params.dbsnp_snv +'.tbi' ], checkIfExists: true).collect() } else { dbsnpsnv = Channel.empty() }
+if (params.exac_file)            { exac = Channel.fromPath([params.exac_file, params.exac_file + '.tbi'], checkIfExists: true).collect() } else { exac = Channel.empty() }
+if (params.evs_file)             { evs = Channel.fromPath([params.evs_file, params.evs_file + '.tbi'], checkIfExists: true).collect() } else { evs = Channel.empty() }
+if (params.local_control_wgs)    { localcontrolwgs = Channel.fromPath([params.local_control_wgs,params.local_control_wgs + '.tbi' ], checkIfExists: true).collect() } else { localcontrolwgs = Channel.empty() }
+if (params.local_control_wes)    { localcontrolwes = Channel.fromPath([params.local_control_wes, params.local_control_wes + '.tbi'], checkIfExists: true).collect() } else { localcontrolwes = Channel.empty() }
+if (params.gnomad_genomes)       { gnomadgenomes = Channel.fromPath([params.gnomad_genomes, params.gnomad_genomes + '.tbi'], checkIfExists: true).collect() } else { gnomadgenomes = Channel.empty() }
+if (params.gnomad_exomes)        { gnomadexomes = Channel.fromPath([params.gnomad_exomes, params.gnomad_exomes + '.tbi'], checkIfExists: true).collect() } else { gnomadexomes = Channel.empty() }
+// Annovar table folder
+if (params.table_folder)         { annodb = Channel.fromPath(params.table_folder, checkIfExists: true) } else { annodb = Channel.empty() }
+// Realiability files
+if (params.repeat_masker)        { repeatmasker = Channel.fromPath([params.repeat_masker, params.repeat_masker + '.tbi'], checkIfExists: true).collect() } else { repeatmasker = Channel.empty() }
+if (params.dac_blacklist)        { dacblacklist = Channel.fromPath([params.dac_blacklist, params.dac_blacklist + '.tbi'], checkIfExists: true).collect() } else { dacblacklist = Channel.empty() }
+if (params.duke_excluded)        { dukeexcluded = Channel.fromPath([params.duke_excluded, params.duke_excluded + '.tbi'], checkIfExists: true).collect() } else { dukeexcluded = Channel.empty() }
+if (params.hiseq_depth)          { hiseqdepth = Channel.fromPath([params.hiseq_depth, params.hiseq_depth + '.tbi'], checkIfExists: true).collect() } else { hiseqdepth = Channel.empty() }
+if (params.self_chain)           { selfchain = Channel.fromPath([params.self_chain, params.self_chain + '.tbi'], checkIfExists: true).collect() } else { selfchain = Channel.empty() }
+if (params.mapability_file)      { mapability = Channel.fromPath([params.mapability_file, params.mapability_file + '.tbi'], checkIfExists: true).collect() } else { mapability = Channel.empty() }
+if (params.simple_tandemrepeats) { simpletandemrepeats = Channel.fromPath([params.simple_tandemrepeats, params.simple_tandemrepeats + '.tbi'], checkIfExists: true).collect() } else { simpletandemrepeats = Channel.empty() }
+// Indel Deep Annotation files
+if (params.enchancer_file)       { enchangers = Channel.fromPath([params.enchancer_file, params.enchancer_file + '.tbi'], checkIfExists: true).collect() } else { enhangers = Channel.empty() }
+if (params.cpgislands_file)      { cpgislands = Channel.fromPath([params.cpgislands_file, params.cpgislands_file + '.tbi'], checkIfExists: true).collect() } else { cpgislands = Channel.empty() }
+if (params.tfbscons_file)        { tfbscons = Channel.fromPath([params.tfbscons_file, params.tfbscons_file + '.tbi'], checkIfExists: true).collect() } else { tfbscons = Channel.empty() }
+if (params.encode_dnase_file)    { encode_dnase = Channel.fromPath([params.encode_dnase_file, params.encode_dnase_file + '.tbi'], checkIfExists: true).collect() } else { encode_dnase = Channel.empty() }
+if (params.mirnas_snornas_file)  { mirnas_snornas = Channel.fromPath([params.mirnas_snornas_file, params.mirnas_snornas_file + '.tbi'], checkIfExists: true).collect() } else { mirnas_snornas = Channel.empty() }
+if (params.cosmic_file)          { cosmic = Channel.fromPath([params.cosmic_file, params.cosmic_file + '.tbi'], checkIfExists: true).collect() } else { cosmic = Channel.empty() }
+if (params.mirbase_file)         { mirbase = Channel.fromPath([params.mirbase_file, params.mirbase_file + '.tbi'], checkIfExists: true).collect() } else { mirbase = Channel.empty() }
+if (params.mir_targets_file)     { mir_targets = Channel.fromPath([params.mir_targets_file, params.mir_targets_file + '.tbi'], checkIfExists: true).collect() } else { mir_targets = Channel.empty() }
+if (params.cgi_mountains_file)   { cgi_mountains = Channel.fromPath([params.cgi_mountains_file, params.cgi_mountains_file + '.tbi'], checkIfExists: true).collect() } else { cgi_mountains = Channel.empty() }
+if (params.phastconselem_file)   { phastconselem = Channel.fromPath([params.phastconselem_file, params.phastconselem_file + '.tbi'], checkIfExists: true).collect() } else { phastconselem = Channel.empty() }
+if (params.encode_tfbs_file)     { encode_tfbs = Channel.fromPath([params.encode_tfbs_file, params.encode_tfbs_file + '.tbi'], checkIfExists: true).collect() } else { encode_tfbs = Channel.empty() }
+// Tinda files
+if (params.chrlength_file)       { chrlength = Channel.fromPath(params.chrlength_file, checkIfExists: true) } else { chrlength = Channel.empty() }
+if (params.genemodel_bed)        { genemodel = Channel.fromPath([params.genemodel_bed,params.genemodel_bed +'.tbi'], checkIfExists: true).collect() } else { genemodel = Channel.empty() }
 
 // TODO: Write a pretty log here, write the used parameters
 log.info """\
@@ -113,16 +178,14 @@ workflow PLATYPUSINDELCALLING {
     sample_ch.view()
     ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
 
-// MODULE: Prepare sample names
-    EXTRACT_SAMPLE_NAME(
-        sample_ch
-        )
 
     //
     // SUBWORKFLOW:indelCalling.sh
     //
 
-    INDEL_CALLING(sample_ch)
+    INDEL_CALLING(
+        sample_ch, ref
+    )
 
     platypus_vcf_ch = INDEL_CALLING.out.vcf_ch
     ch_logs         = ch_logs.mix(INDEL_CALLING.out.ch_platypus_log)
@@ -135,8 +198,11 @@ workflow PLATYPUSINDELCALLING {
     //
     if (params.runIndelAnnotation) {
         INDEL_ANNOTATION(
-        platypus_vcf_ch, name_tumor, name_control
+        platypus_vcf_ch,  kgenome, dbsnpindel, dbsnpsnv, exac, evs, localcontrolwgs, localcontrolwes, gnomadgenomes, gnomadexomes,
+        annodb, repeatmasker, dacblacklist, dukeexcluded, hiseqdepth, selfchain, mapability, simpletandemrepeats, enchangers,
+        cpgislands, tfbscons, encode_dnase, mirnas_snornas, cosmic, mirbase, mir_targets, cgi_mountains, phastconselem, encode_tfbs
         )
+
         ch_versions = ch_versions.mix(INDEL_ANNOTATION.out.versions)
         vcf_ch      = INDEL_ANNOTATION.out.vcf_ch
         conf_vcf    = INDEL_ANNOTATION.out.conf_vcf_ch
@@ -146,7 +212,7 @@ workflow PLATYPUSINDELCALLING {
         //
         if (params.runIndelVCFFilter) {
             FILTER_VCF(
-            vcf_ch
+            vcf_ch, ref, repeatmasker, genemodel, localcontrolwgs, localcontrolwes, gnomadgenomes, gnomadexomes
             )
             ch_versions = ch_versions.mix(FILTER_VCF.out.versions)
         }
@@ -157,17 +223,18 @@ workflow PLATYPUSINDELCALLING {
 
     if (params.runTinda) {
         RUNTINDA(
-            platypus_vcf_ch
+            platypus_vcf_ch, ref, chrlength, genemodel, localcontrolwgs, localcontrolwes, gnomadgenomes, gnomadexomes
             )
     }
 
     //
     // MODULE: Pipeline reporting
     //
-   // CUSTOM_DUMPSOFTWAREVERSIONS (
-  //  ch_versions.unique().collectFile(name: 'collated_versions.yml')
-  //  )
-
+    ch_version_yaml = Channel.empty() 
+    CUSTOM_DUMPSOFTWAREVERSIONS (
+    ch_versions.unique().collectFile(name: 'collated_versions.yml')
+    )
+    ch_version_yaml = CUSTOM_DUMPSOFTWAREVERSIONS.out.mqc_yml.collect() 
 
     //
     // MODULE: MultiQC
