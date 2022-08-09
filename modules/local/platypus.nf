@@ -5,7 +5,7 @@ process PLATYPUS {
 
     conda     (params.enable_conda ? "$baseDir/assets/environment.yml" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-    'platypus.0.8.1.1.3.sif' :
+    'library://kubran/indelcalling/platypus:0.8.1.1.3' :
     'kubran/platypus:0.8.1.1-3' }"
 
     publishDir params.outdir+ '/indelCalling' , mode: 'copy'

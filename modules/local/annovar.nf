@@ -8,7 +8,7 @@ process ANNOVAR {
 
     conda     (params.enable_conda ? "$baseDir/assets/perlenvironment.yml" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-    '' :
+    'library://kubran/indelcalling/odcf_indelcalling_perl:v0' :
     'kubran/indelcalling_perl:v1' }"
 
 //conda wont work here, database files are embeded inside the docker file

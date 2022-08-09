@@ -5,7 +5,7 @@ process FILTER_BY_CRIT {
 
     conda     (params.enable_conda ? "" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-    'python2.7.sif' :
+    'library://kubran/indelcalling/odcf_indelcalling:v0' :
     'kubran/odcf_indelcalling:v0' }"
 
     publishDir params.outdir+'/filter' , mode: 'copy'

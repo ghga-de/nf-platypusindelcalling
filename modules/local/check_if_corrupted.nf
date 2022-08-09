@@ -5,7 +5,7 @@ process CHECK_IF_CORRUPTED {
 
     conda (params.enable_conda ? "bioconda::samtools=1.15.1" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-    'runtinda_perkenv.2.siff' :
+    'library://kubran/indelcalling/odcf_indelcalling:v0' :
     'kubran/odcf_indelcalling:v0' }"
     publishDir params.outdir+'/currupted' , mode: 'copy'
 

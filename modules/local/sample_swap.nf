@@ -5,7 +5,7 @@ process SAMPLE_SWAP {
 
     conda     (params.enable_conda ? "$baseDir/assets/perlenvironment.yml" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-    'file//${projectDir}/assets/runtinda_perkenv.2.sif' :
+    'library://kubran/indelcalling/odcf_indelcalling:v0' :
     'kubran/odcf_indelcalling:v0' }"
 
     publishDir params.outdir+'/tinda'                              , mode: 'copy'
