@@ -149,7 +149,7 @@ include { CUSTOM_DUMPSOFTWAREVERSIONS } from '../modules/nf-core/modules/custom/
 //
 // MODULE: Local modules
 //
-include { EXTRACT_SAMPLE_NAME } from '../modules/local/extract_sample_name.nf'     addParams( options: params.options )
+//include { EXTRACT_SAMPLE_NAME } from '../modules/local/extract_sample_name.nf'     addParams( options: params.options )
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -191,8 +191,6 @@ workflow PLATYPUSINDELCALLING {
     ch_logs         = ch_logs.mix(INDEL_CALLING.out.ch_platypus_log)
     ch_versions     = ch_versions.mix(INDEL_CALLING.out.platypus_version)
 
-    name_tumor=EXTRACT_SAMPLE_NAME.out.tumor_name
-    name_control=EXTRACT_SAMPLE_NAME.out.control_name
     //
     //SUBWORKFLOW: platypusindelAnnotation.sh
     //
@@ -212,7 +210,7 @@ workflow PLATYPUSINDELCALLING {
         //
         if (params.runIndelVCFFilter) {
             FILTER_VCF(
-            vcf_ch, ref, repeatmasker, genemodel, localcontrolwgs, localcontrolwes, gnomadgenomes, gnomadexomes
+            vcf_ch, ref, repeatmasker
             )
             ch_versions = ch_versions.mix(FILTER_VCF.out.versions)
         }

@@ -11,7 +11,8 @@ workflow INDEL_CALLING {
     take:
     sample_ch // channel: [val(meta), tumor,tumor_bai, control, control_bai]
     ref       // reference channel [ref.fa, ref.fa.fai]
-
+    
+    main:
     PLATYPUS (
     sample_ch, ref
     )

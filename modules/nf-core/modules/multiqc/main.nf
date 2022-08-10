@@ -8,6 +8,7 @@ process MULTIQC {
 
     input:
     path multiqc_files
+    path ch_logs
 
     output:
     path "*multiqc_report.html", emit: report
