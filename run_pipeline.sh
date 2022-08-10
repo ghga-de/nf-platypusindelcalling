@@ -1,4 +1,4 @@
 #!/bin/bash
 
-module load nextflow
-nextflow run main.nf -profile dkfz_config,singularity --runTinda false
+module load nextflow/21.10.6
+nextflow run main.nf -profile dkfz_cluster,singularity --runTinda false

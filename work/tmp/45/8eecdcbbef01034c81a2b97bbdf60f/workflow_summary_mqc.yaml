@@ -1,0 +1,43 @@
+id: 'nf-core-platypusindelcalling-summary'
+description: ' - this information is collected when the pipeline is started.'
+section_name: 'nf-core/platypusindelcalling Workflow Summary'
+section_href: 'https://github.com/nf-core/platypusindelcalling'
+plot_type: 'html'
+data: |
+    <p style="font-size:110%"><b>Core Nextflow options</b></p>
+    <dl class="dl-horizontal">
+        <dt>runName</dt><dd><samp>distraught_marconi</samp></dd>
+        <dt>containerEngine</dt><dd><samp>singularity</samp></dd>
+        <dt>launchDir</dt><dd><samp>/home/narci/nf-platypusindelcalling</samp></dd>
+        <dt>workDir</dt><dd><samp>/home/narci/nf-platypusindelcalling/work</samp></dd>
+        <dt>projectDir</dt><dd><samp>/home/narci/nf-platypusindelcalling</samp></dd>
+        <dt>userName</dt><dd><samp>narci</samp></dd>
+        <dt>profile</dt><dd><samp>dkfz_cluster,singularity</samp></dd>
+        <dt>configFiles</dt><dd><samp>/home/narci/nf-platypusindelcalling/nextflow.config</samp></dd>
+    </dl>
+    <p style="font-size:110%"><b>Input/output options</b></p>
+    <dl class="dl-horizontal">
+        <dt>input</dt><dd><samp>assets/samplesheet_cluster.csv</samp></dd>
+        <dt>outdir</dt><dd><samp>/omics/groups/OE0608/internal/kubran/results</samp></dd>
+    </dl>
+    <p style="font-size:110%"><b>Reference genome options</b></p>
+    <dl class="dl-horizontal">
+        <dt>genome</dt><dd><samp>hg19</samp></dd>
+        <dt>fasta</dt><dd><samp>s3://ngi-igenomes/igenomes/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa</samp></dd>
+    </dl>
+    <p style="font-size:110%"><b>Institutional config options</b></p>
+    <dl class="dl-horizontal">
+        <dt>config_profile_name</dt><dd><samp>Test profile for DKFZ cluster</samp></dd>
+        <dt>config_profile_description</dt><dd><samp>Test dataset for to check pipeline function</samp></dd>
+        <dt>config_profile_contact</dt><dd><samp>Kübra Narcı kuebra.narci@dkfz-heidelberg.de</samp></dd>
+    </dl>
+    <p style="font-size:110%"><b>Max job request options</b></p>
+    <dl class="dl-horizontal">
+        <dt>max_cpus</dt><dd><samp>8</samp></dd>
+        <dt>max_memory</dt><dd><samp>36.GB</samp></dd>
+        <dt>max_time</dt><dd><samp>24.h</samp></dd>
+    </dl>
+    <p style="font-size:110%"><b>Generic options</b></p>
+    <dl class="dl-horizontal">
+        <dt>tracedir</dt><dd><samp>results/pipeline_info</samp></dd>
+    </dl>
