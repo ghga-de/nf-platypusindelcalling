@@ -6,7 +6,6 @@ process SAMPLESHEET_CHECK {
         'python:3.8.3' :
         'quay.io/biocontainers/python:3.8.3' }"
 
-    publishDir params.outdir+'/samplesheet' , mode: 'copy'
 
     input:
     path samplesheet

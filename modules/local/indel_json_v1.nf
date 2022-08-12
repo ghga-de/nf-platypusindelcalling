@@ -6,10 +6,10 @@ process INDEL_JSON {
 
     conda (params.enable_conda ? "bioconda::samtools=1.15.1" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-    'library://kubran/indelcalling/odcf_indelcalling:v0' :
+    'odcf_indelcalling.sif' :
     'kubran/odcf_indelcalling:v0' }"
 
-    publishDir params.outdir+'/screenshots'                                    , mode: 'copy'
+    publishDir params.outdir+ '/${meta.id}'+'/screenshots' , mode: 'copy'
 
     input:
     tuple val(meta), file(vcf), file(vcf_tbi)

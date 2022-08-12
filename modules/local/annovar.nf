@@ -8,14 +8,14 @@ process ANNOVAR {
 
     conda     (params.enable_conda ? "$baseDir/assets/perlenvironment.yml" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-    'library://kubran/indelcalling/odcf_indelcalling_perl:v0' :
+    'odcf_indelcalling_perl.sif' :
     'kubran/indelcalling_perl:v1' }"
 
 //conda wont work here, database files are embeded inside the docker file
 //'noelnamai/annovar:4.18' is also a docker from https://github.com/noelnamai/aws-mutation-calling/blob/master/main.nf
 
-    publishDir params.outdir+'/annovar' , mode: 'copy'
-
+    publishDir params.outdir+ '/${meta.id}'+'/annotate_vcf' , mode: 'copy'
+    
     input:
     tuple val(meta), file(annovar_bed)
     tuple val(meta), file(ch_vcf)
@@ -44,18 +44,24 @@ process ANNOVAR {
     def av_cytoband      = "${meta.id}.${params.buildver}_cytoband"
 
     """
-    perl ${params.annovar_path}/annotate_variation.pl --buildver=${params.buildver} -dbtype ${params.dbtype} $annovar_bed $annovar_table
-    perl ${params.annovar_path}/annotate_variation.pl --buildver=${params.buildver} -regionanno -dbtype segdup --outfile=$meta.id $annovar_bed $annovar_table
-    perl ${params.annovar_path}/annotate_variation.pl --buildver=${params.buildver} -regionanno -dbtype band --outfile=$meta.id $annovar_bed $annovar_table
+    perl ${params.annovar_path}/annotate_variation.pl \\
+        --buildver=${params.buildver} -dbtype ${params.dbtype} $annovar_bed $annovar_table
+    perl ${params.annovar_path}/annotate_variation.pl \\
+        --buildver=${params.buildver} -regionanno -dbtype segdup --outfile=$meta.id $annovar_bed $annovar_table
+    perl ${params.annovar_path}/annotate_variation.pl \\
+        --buildver=${params.buildver} -regionanno -dbtype band --outfile=$meta.id $annovar_bed $annovar_table
 
     processAnnovarOutput.pl $variant_function $variant_exon > newcol.tsv
 
-    newCols2vcf.pl --vcfFile=$ch_vcf --newColFile='newcol.tsv' \\
-        --newColHeader=${params.geneannocols} --chrPrefix=${params.chr_prefix} --chrSuffix=${params.chr_suffix} --reportColumns="3,4,5,6" --bChrPosEnd="0,1,2" | \\
-    newCols2vcf.pl --vcfFile="-" --newColFile=$av_segdup --newColHeader=${params.segdupcol} --chrPrefix=${params.chr_prefix} --chrSuffix=${params.chr_suffix} \\
-        --reportColumns="1" --bChrPosEnd="2,7,8"  | \\
-    newCols2vcf.pl --vcfFile="-" --newColFile=$av_cytoband --newColHeader=${params.cytobandcol} --chrPrefix=${params.chr_prefix} --chrSuffix=${params.chr_suffix} \\
-        --reportColumns="1" --bChrPosEnd="2,7,8" > $tempname
+    newCols2vcf.pl --vcfFile=$ch_vcf \\
+        --newColFile='newcol.tsv' --newColHeader=${params.geneannocols} --chrPrefix=${params.chr_prefix} \\ 
+        --chrSuffix=${params.chr_suffix} --reportColumns="3,4,5,6" --bChrPosEnd="0,1,2" | \\
+    newCols2vcf.pl --vcfFile="-" \\
+        --newColFile=$av_segdup --newColHeader=${params.segdupcol} --chrPrefix=${params.chr_prefix} \\
+        --chrSuffix=${params.chr_suffix} --reportColumns="1" --bChrPosEnd="2,7,8"  | \\
+    newCols2vcf.pl --vcfFile="-" \\
+        --newColFile=$av_cytoband --newColHeader=${params.cytobandcol} --chrPrefix=${params.chr_prefix} \\
+        --chrSuffix=${params.chr_suffix} --reportColumns="1" --bChrPosEnd="2,7,8" > $tempname
 
     bgzip -c $tempname > $tempnamegz
     tabix $tempnamegz

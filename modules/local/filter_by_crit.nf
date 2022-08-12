@@ -5,10 +5,10 @@ process FILTER_BY_CRIT {
 
     conda     (params.enable_conda ? "" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-    'library://kubran/indelcalling/odcf_indelcalling:v0' :
+    'odcf_indelcalling.sif' :
     'kubran/odcf_indelcalling:v0' }"
 
-    publishDir params.outdir+'/filter' , mode: 'copy'
+    publishDir params.outdir+ '/${meta.id}'+'/filtered_vcf' , mode: 'copy'
 
     input:
     tuple val(meta), file(vcfgz), file(vcf_tbi)
@@ -23,14 +23,14 @@ process FILTER_BY_CRIT {
     script:
 
     def filter_values = "ExAC AF ${params.crit_exac_maxmaf}+"
-    filter_values = filter_values + " EVS MAF ${params.crit_evs_maxmaf}+"
-    filter_values = filter_values + " GNOMAD_EXOMES AF ${params.crit_gnomad_exomes_maxmaf}+"
-    filter_values = filter_values + " GNOMAD_GENOMES AF ${params.crit_gnomad_genomes_maxmaf}+"
-    filter_values = filter_values + " 1K_GENOMES EUR_AF ${params.crit_1kgenomes_maxmaf}+"
-    filter_values = filter_values + " DBSNP CLN,COMMON nonexist,exist"
-    filter_values = filter_values + " LocalControlAF_WGS AF ${params.crit_localcontrol_maxmaf}+"
-    filter_values = filter_values + " LocalControlAF_WES AF ${params.crit_localcontrol_maxmaf}+"
-    filter_values = filter_values + " REGION_CONFIDENCE . ${params.crit_recurrance}+"
+        filter_values = filter_values + " EVS MAF ${params.crit_evs_maxmaf}+"
+        filter_values = filter_values + " GNOMAD_EXOMES AF ${params.crit_gnomad_exomes_maxmaf}+"
+        filter_values = filter_values + " GNOMAD_GENOMES AF ${params.crit_gnomad_genomes_maxmaf}+"
+        filter_values = filter_values + " 1K_GENOMES EUR_AF ${params.crit_1kgenomes_maxmaf}+"
+        filter_values = filter_values + " DBSNP CLN,COMMON nonexist,exist"
+        filter_values = filter_values + " LocalControlAF_WGS AF ${params.crit_localcontrol_maxmaf}+"
+        filter_values = filter_values + " LocalControlAF_WES AF ${params.crit_localcontrol_maxmaf}+"
+        filter_values = filter_values + " REGION_CONFIDENCE . ${params.crit_recurrance}+"
 
 // Filter variants only if there is no control, else do noting
     if (meta.iscontrol == '1') {

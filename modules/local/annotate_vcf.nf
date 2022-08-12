@@ -5,10 +5,10 @@ process ANNOTATE_VCF {
 
     conda     (params.enable_conda ? "$baseDir/assets/perlenvironment.yml" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-    'library://kubran/indelcalling/odcf_indelcalling:v0' :
+    'odcf_indelcalling.sif' :
     'kubran/odcf_indelcalling:v0' }"
 
-    publishDir params.outdir+'/annotate' , mode: 'copy'
+    publishDir params.outdir+ '/${meta.id}'+'/annotate_vcf' , mode: 'copy'
 
     input:
     tuple val(meta), file(vcf), file(vcf_tbi)
@@ -35,19 +35,32 @@ process ANNOTATE_VCF {
     def temp_name   = "${meta.id}.tmp"
     def out_vcf     = "${meta.id}.vcf"
 
+    // QUESTION: BETTER WAY TO RUN ANNOTATE_VCF, either use the parameters check or run as block
+
     """
     zcat < $vcf | \\
-    annotate_vcf.pl -a - -b $dbsnpindel --columnName='DBSNP' --reportMatchType --bAdditionalColumn=2 --reportBFeatCoord  \\
-        --padding=${params.padding} --minOverlapFraction=${params.minoverlapfraction} --maxBorderDistanceSum=${params.maxborderdist} --maxNrOfMatches=${params.maxmatches} | \\
-    annotate_vcf.pl -a - -b $kgenome --columnName='1K_GENOMES' --reportMatchType --bAdditionalColumn=2 --reportBFeatCoord  \\
-        --padding=${params.padding} --minOverlapFraction=${params.minoverlapfraction} --maxBorderDistanceSum=${params.maxborderdist} --maxNrOfMatches=${params.maxmatches} | \\
-    annotate_vcf.pl -a - -b $exac --columnName='ExAC' --bFileType vcf --reportLevel 4 --reportMatchType | \\
-    annotate_vcf.pl -a - -b $evs --columnName='EVS' --bFileType vcf --reportLevel 4 --reportMatchType | \\
-    annotate_vcf.pl -a - -b $gnomadexomes --columnName='GNOMAD_EXOMES' --bFileType vcf --reportLevel 4 --reportMatchType| \\
-    annotate_vcf.pl -a - -b $gnomadgenomes --columnName='GNOMAD_GENOMES' --bFileType vcf --reportLevel 4 --reportMatchType| \\
-    annotate_vcf.pl -a - -b $localcontrolwgs --columnName='LocalControlAF_WGS' --minOverlapFraction 1 --bFileType vcf --reportLevel 4 --reportMatchType | \\
-    annotate_vcf.pl -a - -b $localcontrolwes --columnName='LocalControlAF_WES' --minOverlapFraction 1 --bFileType vcf --reportLevel 4 --reportMatchType | \\
+    annotate_vcf.pl -a - -b $dbsnpindel --columnName='DBSNP' \\
+        --reportMatchType --bAdditionalColumn=2 --reportBFeatCoord --padding=${params.padding} \\
+        --minOverlapFraction=${params.minoverlapfraction} --maxBorderDistanceSum=${params.maxborderdist} \\
+        --maxNrOfMatches=${params.maxmatches} | \\
+    annotate_vcf.pl -a - -b $kgenome --columnName='1K_GENOMES' \\
+        --reportMatchType --bAdditionalColumn=2 --reportBFeatCoord --padding=${params.padding} \\
+        --minOverlapFraction=${params.minoverlapfraction} --maxBorderDistanceSum=${params.maxborderdist} \\
+        --maxNrOfMatches=${params.maxmatches} | \\
+    annotate_vcf.pl -a - -b $exac --columnName='ExAC' \\
+        --bFileType vcf --reportLevel 4 --reportMatchType | \\
+    annotate_vcf.pl -a - -b $evs --columnName='EVS' \\
+        --bFileType vcf --reportLevel 4 --reportMatchType | \\
+    annotate_vcf.pl -a - -b $gnomadexomes --columnName='GNOMAD_EXOMES' \\
+        --bFileType vcf --reportLevel 4 --reportMatchType| \\
+    annotate_vcf.pl -a - -b $gnomadgenomes --columnName='GNOMAD_GENOMES' \\
+        --bFileType vcf --reportLevel 4 --reportMatchType| \\
+    annotate_vcf.pl -a - -b $localcontrolwgs --columnName='LocalControlAF_WGS' \\
+        --minOverlapFraction 1 --bFileType vcf --reportLevel 4 --reportMatchType | \\
+    annotate_vcf.pl -a - -b $localcontrolwes --columnName='LocalControlAF_WES' \\
+         --minOverlapFraction 1 --bFileType vcf --reportLevel 4 --reportMatchType | \\
     tee $temp_name | vcf_to_annovar.pl ${params.chr_prefix} ${params.chr_suffix} > $for_annovar
+
     mv $temp_name $out_vcf
 
 

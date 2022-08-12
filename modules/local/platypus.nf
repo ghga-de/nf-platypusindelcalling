@@ -1,15 +1,14 @@
 
 process PLATYPUS {
     tag "$meta.id"
-    label 'process_medium'
+    label 'process_intermediate'
 
     conda     (params.enable_conda ? "$baseDir/assets/environment.yml" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
     'platypus_0.8.1.1.3.sif' :
-    'kubran/platypus:0.8.1.1-3' }"
+    'kubran/platypus:0.8.1.1-3'}"
 
-    publishDir params.outdir+ '/indelCalling' , mode: 'copy'
-
+    publishDir params.outdir+ '/${meta.id}'+'/vcf' , mode: 'copy'
 
     input:
     tuple val(meta), path(tumor), path(tumor_bai), path(control),  path(control_bai)
@@ -30,48 +29,27 @@ script:
     def out_vcfgz   = "${meta.id}.platypus.vcf.gz"
     def out_log     = "${meta.id}.platypus.log"
 
-    if (meta.iscontrol == '1')
-        {
-        """
-        platypus callVariants \\
-        --nCPU=${params.max_cpus}  \\
-        --bamFiles=$control,$tumor \\
+    def bamlist = meta.iscontrol == '1' ? "${control},${tumor}" : "${tumor}"
+
+
+    """
+    platypus callVariants \\
+        --nCPU=${params.max_cpus} \\
+        --bamFiles=$bamlist \\
         --output=$out_vcf \\
         --refFile=$ref \\
         --logFileName=$out_log \\
         ${params.optimized}
 
-        bgzip  --threads ${task.cpus} -c $out_vcf > $out_vcfgz
-        tabix $out_vcfgz
+    bgzip  --threads ${task.cpus} -c $out_vcf > $out_vcfgz
+    tabix $out_vcfgz
 
-        cat <<-END_VERSIONS > versions.yml
-        "${task.process}":
-        platypus: 0.8.1.1-3 | sed 's/^.*platypus //; s/Using.*\$//')
-        tabix: \$(echo \$(tabix -h 2>&1) | sed 's/^.*Version: //; s/ .*\$//')
-        END_VERSIONS
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+    platypus: 0.8.1.1.3 | sed 's/^.*platypus //; s/Using.*\$//')
+    tabix: \$(echo \$(tabix -h 2>&1) | sed 's/^.*Version: //; s/ .*\$//')
+    END_VERSIONS
 
-        """
-        }
-
-    else {
-        """
-        platypus callVariants \\
-        --nCPU=${params.max_cpus}  \\
-        --bamFiles=$tumor \\
-        --output=$out_vcf \\
-        --refFile=$ref \\
-        --logFileName=$out_log \\
-        ${params.optimized}
-
-        bgzip  --threads ${task.cpus} -c $out_vcf > $out_vcfgz
-        tabix $out_vcfgz
-
-        cat <<-END_VERSIONS > versions.yml
-        "${task.process}":
-        platypus: 0.8.1.1-3 | sed 's/^.*platypus //; s/Using.*\$//')
-        tabix: \$(echo \$(tabix -h 2>&1) | sed 's/^.*Version: //; s/ .*\$//')
-        END_VERSIONS
-         """
-        }
+    """
 
 }

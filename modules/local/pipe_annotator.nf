@@ -6,10 +6,10 @@ process PIPE_ANNOTATOR {
 
     conda     (params.enable_conda ? "$baseDir/assets/perlenvironment.yml" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-    'library://kubran/indelcalling/odcf_indelcalling:v0' :
+    'odcf_indelcalling.sif' :
     'kubran/odcf_indelcalling:v0' }"
 
-    publishDir params.outdir+'/deepannotation' , mode: 'copy'
+    publishDir params.outdir+ '/${meta.id}'+'/annotate_vcf' , mode: 'copy'
 
     input:
     tuple val(meta), file(vcf), file(vcf_tbi)

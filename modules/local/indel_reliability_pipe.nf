@@ -7,13 +7,13 @@ process INDEL_RELIABILITY_PIPE {
 
     conda     (params.enable_conda ? "$baseDir/assets/perlenvironment.yml" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-    'library://kubran/indelcalling/odcf_indelcalling:v0' :
+    'odcf_indelcalling.sif' :
     'kubran/odcf_indelcalling:v0' }"
 
     //conda wont work here, database files are embeded inside the docker file
 
-    publishDir params.outdir+'/createpipes' , mode: 'copy'
-
+    publishDir params.outdir+ '/${meta.id}'+'/annotate_vcf' , mode: 'copy'
+    
     input:
     tuple val(meta),                file(ch_vcf),               file(ch_vcf_i)
     tuple path(repeatmasker),        path(repeatmasker_i)

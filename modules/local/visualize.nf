@@ -5,10 +5,10 @@ process VISUALIZE {
 
     conda     (params.enable_conda ? "" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-    'library://kubran/indelcalling/odcf_indelcalling:v0' :
+    'odcf_indelcalling.sif' :
     'kubran/odcf_indelcalling:v0' }"
 
-    publishDir params.outdir+'/screenshots' , mode: 'copy'
+    publishDir params.outdir+ '/${meta.id}'+'/screenshots' , mode: 'copy'
 
     input:
     tuple val(meta), file(vcfgz), file(vcf_tbi)
@@ -28,15 +28,15 @@ process VISUALIZE {
 
     """
     check_variants_size.sh \\
-    -i $vcfgz \\
-    -v ${params.max_var_screenshots} \\
-    -c $meta.control_bam \\
-    -t $meta.tumor_bam \\
-    -r $ref \\
-    -w ${params.window_size} \\
-    -m $repeatmasker \\
-    -s $nocontrol \\
-    -o ${meta.id}.indel_somatic_functional_combined.pdf
+        -i $vcfgz \\
+        -v ${params.max_var_screenshots} \\
+        -c $meta.control_bam \\
+        -t $meta.tumor_bam \\
+        -r $ref \\
+        -w ${params.window_size} \\
+        -m $repeatmasker \\
+        -s $nocontrol \\
+        -o ${meta.id}.indel_somatic_functional_combined.pdf
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
