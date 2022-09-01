@@ -8,7 +8,7 @@ process CONFIDENCE_ANNOTATION {
     'odcf_indelcalling.sif' :
     'kubran/odcf_indelcalling:v0' }"
 
-    publishDir params.outdir+ '/${meta.id}'+'/annotate_vcf' , mode: 'copy'
+    publishDir params.outdir+'/annotate_vcf' , mode: 'copy'
     
     input:
     tuple val(meta), file(vcfgz), file(vcf_tbi)
@@ -34,12 +34,8 @@ process CONFIDENCE_ANNOTATION {
         samtools view -H $meta.control_bam | grep '^@RG' | sed "s/.*SM:\\([^\\t]*\\).*/\\1/g" | uniq > ${meta.id}.controlname.txt
         samtools view -H $meta.tumor_bam | grep '^@RG' | sed "s/.*SM:\\([^\\t]*\\).*/\\1/g" | uniq > ${meta.id}.tumorname.txt
 
-        confidenceAnnotation_Indels.py \\ 
-            --infile=$vcfgz \\ 
-            --skip_order_check \\ 
-            --controlColName=\$(cat ${meta.id}.controlname.txt) \\ 
-            --tumorColName=\$(cat ${meta.id}.tumorname.txt) \\
-            ${params.confidence_opts_indel} | tee $temp_vcf | cut -f 1-11 > $out_vcf
+        confidenceAnnotation_Indels.py --infile=$vcfgz --skip_order_check --controlColName=\$(cat ${meta.id}.controlname.txt) --tumorColName=\$(cat ${meta.id}.tumorname.txt) \\
+        ${params.confidence_opts_indel} | tee $temp_vcf | cut -f 1-11 > $out_vcf
 
         bgzip -c $out_vcf > $out_vcfgz
         tabix $out_vcfgz
@@ -59,13 +55,8 @@ process CONFIDENCE_ANNOTATION {
     else {
         """
         samtools view -H $meta.tumor_bam | grep '^@RG' | sed "s/.*SM:\\([^\\t]*\\).*/\\1/g" | uniq > ${meta.id}.tumorname.txt
-
-        confidenceAnnotation_Indels.py \\
-            --infile=$vcfgz \\ 
-            --skip_order_check \\
-            --nocontrol \\
-            --tumorColName=\$(cat ${meta.id}.tumorname.txt) \\
-            ${params.confidence_opts_indel} | tee $temp_vcf | cut -f 1-11 > $out_vcf
+        confidenceAnnotation_Indels.py --infile=$vcfgz  --skip_order_check --nocontrol --tumorColName=\$(cat ${meta.id}.tumorname.txt) \\
+        ${params.confidence_opts_indel} | tee $temp_vcf | cut -f 1-11 > $out_vcf
 
         bgzip -c $out_vcf > $out_vcfgz
         tabix $out_vcfgz
