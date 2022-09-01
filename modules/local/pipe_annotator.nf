@@ -9,7 +9,7 @@ process PIPE_ANNOTATOR {
     'odcf_indelcalling.sif' :
     'kubran/odcf_indelcalling:v0' }"
 
-    publishDir params.outdir+ '/${meta.id}'+'/annotate_vcf' , mode: 'copy'
+    publishDir params.outdir+ '/annotate_vcf' , mode: 'copy'
 
     input:
     tuple val(meta), file(vcf), file(vcf_tbi)
