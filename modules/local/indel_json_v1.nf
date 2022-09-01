@@ -9,7 +9,7 @@ process INDEL_JSON {
     'odcf_indelcalling.sif' :
     'kubran/odcf_indelcalling:v0' }"
 
-    publishDir params.outdir+ '/${meta.id}'+'/screenshots' , mode: 'copy'
+    publishDir params.outdir+ '/screenshots' , mode: 'copy'
 
     input:
     tuple val(meta), file(vcf), file(vcf_tbi)
