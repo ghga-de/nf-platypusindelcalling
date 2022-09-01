@@ -8,7 +8,7 @@ process PLATYPUS {
     'platypus_0.8.1.1.3.sif' :
     'kubran/platypus:0.8.1.1-3'}"
 
-    publishDir params.outdir+ '/${meta.id}'+'/vcf' , mode: 'copy'
+    publishDir params.outdir+'/vcf' , mode: 'copy'
 
     input:
     tuple val(meta), path(tumor), path(tumor_bai), path(control),  path(control_bai)
