@@ -8,7 +8,7 @@ process INDEL_EXTRACTION {
     'odcf_indelcalling.sif' :
     'kubran/odcf_indelcalling:v0' }"
 
-    publishDir params.outdir+ '/${meta.id}'+'/filtered_vcf' , mode: 'copy'
+    publishDir params.outdir+'/filtered_vcf' , mode: 'copy'
 
     input:
     tuple val(meta), file(ch_vcf), file(ch_vcf_i)
