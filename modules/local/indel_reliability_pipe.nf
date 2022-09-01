@@ -12,7 +12,7 @@ process INDEL_RELIABILITY_PIPE {
 
     //conda wont work here, database files are embeded inside the docker file
 
-    publishDir params.outdir+ '/${meta.id}'+'/annotate_vcf' , mode: 'copy'
+    publishDir params.outdir+'/annotate_vcf' , mode: 'copy'
     
     input:
     tuple val(meta),                file(ch_vcf),               file(ch_vcf_i)
