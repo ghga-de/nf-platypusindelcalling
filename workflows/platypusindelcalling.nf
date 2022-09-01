@@ -77,7 +77,7 @@ if (params.local_control_wes)    { localcontrolwes = Channel.fromPath([params.lo
 if (params.gnomad_genomes)       { gnomadgenomes = Channel.fromPath([params.gnomad_genomes, params.gnomad_genomes + '.tbi'], checkIfExists: true).collect() } else { gnomadgenomes = Channel.empty() }
 if (params.gnomad_exomes)        { gnomadexomes = Channel.fromPath([params.gnomad_exomes, params.gnomad_exomes + '.tbi'], checkIfExists: true).collect() } else { gnomadexomes = Channel.empty() }
 // Annovar table folder
-if (params.table_folder)         { annodb = Channel.fromPath(params.table_folder, checkIfExists: true, hidden: true ) } else { annodb = Channel.empty() }
+if (params.table_folder)         { annodb = Channel.fromPath(params.table_folder, checkIfExists: true ) } else { annodb = Channel.empty() }
 // Realiability files
 if (params.repeat_masker)        { repeatmasker = Channel.fromPath([params.repeat_masker, params.repeat_masker + '.tbi'], checkIfExists: true).collect() } else { repeatmasker = Channel.empty() }
 if (params.dac_blacklist)        { dacblacklist = Channel.fromPath([params.dac_blacklist, params.dac_blacklist + '.tbi'], checkIfExists: true).collect() } else { dacblacklist = Channel.empty() }
@@ -228,11 +228,11 @@ workflow PLATYPUSINDELCALLING {
     //
     // MODULE: Pipeline reporting
     //
-    ch_version_yaml = Channel.empty() 
-    CUSTOM_DUMPSOFTWAREVERSIONS (
-    ch_versions.unique().collectFile(name: 'collated_versions.yml')
-    )
-    ch_version_yaml = CUSTOM_DUMPSOFTWAREVERSIONS.out.mqc_yml.collect() 
+    //ch_version_yaml = Channel.empty() 
+    //CUSTOM_DUMPSOFTWAREVERSIONS (
+    //ch_versions.unique().collectFile(name: 'collated_versions.yml')
+    //)
+    //ch_version_yaml = CUSTOM_DUMPSOFTWAREVERSIONS.out.mqc_yml.collect() 
 
     //
     // MODULE: MultiQC
