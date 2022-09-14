@@ -3,7 +3,7 @@ process PLATYPUS {
     tag "$meta.id"
     label 'process_intermediate'
 
-    conda     (params.enable_conda ? "$baseDir/assets/environment.yml" : null)
+    conda     (params.enable_conda ? "" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
     'platypus_0.8.1.1.3.sif' :
     'kubran/platypus:0.8.1.1-3'}"
