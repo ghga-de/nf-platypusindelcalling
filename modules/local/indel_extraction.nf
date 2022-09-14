@@ -14,8 +14,10 @@ process INDEL_EXTRACTION {
     tuple val(meta), file(ch_vcf), file(ch_vcf_i)
 
     output:
-    tuple val(meta), path('*somatic_functional.vcf.gz'), path('*somatic_functional.vcf.gz.tbi')   , emit: vcf
-    path('*_to_10.vcf')                                                                           , emit: indels
+    tuple val(meta), path('*somatic_functional.vcf.gz'), path('*somatic_functional.vcf.gz.tbi')   , emit: somatic_functional
+    tuple val (meta), path('*_somatic_indels_conf_*_to_10.vcf'                                    , emit: somatic_indel
+    tuple val (meta), path('*_somatic_ncRNA_indels_conf_*_to_10.vcf'                              , emit: somatic_ncrna
+    tuple val (meta), path('*_germline_functional_indels_conf_*_to_10.vcf'                        , emit: germline_functional
     tuple val(meta), path('*.functional_var_count.txt')                                           , emit: functional_var
     path  "versions.yml"                                                                          , emit: versions
 
