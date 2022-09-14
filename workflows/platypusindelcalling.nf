@@ -228,11 +228,10 @@ workflow PLATYPUSINDELCALLING {
     //
     // MODULE: Pipeline reporting
     //
-    //ch_version_yaml = Channel.empty() 
-    //CUSTOM_DUMPSOFTWAREVERSIONS (
-    //ch_versions.unique().collectFile(name: 'collated_versions.yml')
-    //)
-    //ch_version_yaml = CUSTOM_DUMPSOFTWAREVERSIONS.out.mqc_yml.collect() 
+ //   ch_version_yaml = Channel.empty() 
+//    CUSTOM_DUMPSOFTWAREVERSIONS (
+ //   ch_versions.unique().collectFile(name: 'collated_versions.yml')
+ //   )
 
     //
     // MODULE: MultiQC
@@ -244,7 +243,7 @@ workflow PLATYPUSINDELCALLING {
     ch_multiqc_files = ch_multiqc_files.mix(Channel.from(ch_multiqc_config))
     ch_multiqc_files = ch_multiqc_files.mix(ch_multiqc_custom_config.collect().ifEmpty([]))
     ch_multiqc_files = ch_multiqc_files.mix(ch_workflow_summary.collectFile(name: 'workflow_summary_mqc.yaml'))
-   // ch_multiqc_files = ch_multiqc_files.mix(CUSTOM_DUMPSOFTWAREVERSIONS.out.mqc_yml.collect())
+ //  ch_multiqc_files = ch_multiqc_files.mix(CUSTOM_DUMPSOFTWAREVERSIONS.out.mqc_yml.collect())
 
     MULTIQC (
         ch_multiqc_files.collect(),
