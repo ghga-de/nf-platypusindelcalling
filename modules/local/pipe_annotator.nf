@@ -2,9 +2,9 @@
 // Deep annotation
 process PIPE_ANNOTATOR {
     tag "$meta.id"
-    label 'process_medium'
+    label 'process_low'
 
-    conda     (params.enable_conda ? "$baseDir/assets/perlenvironment.yml" : null)
+    conda     (params.enable_conda ? "" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
     'odcf_indelcalling.sif' :
     'kubran/odcf_indelcalling:v0' }"
