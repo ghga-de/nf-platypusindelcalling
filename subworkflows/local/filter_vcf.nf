@@ -29,7 +29,7 @@ workflow FILTER_VCF {
     INDEL_EXTRACTION(
     FILTER_BY_CRIT.out.vcf
     )
-    somatic_vcf_ch=INDEL_EXTRACTION.out.vcf
+    somatic_vcf_ch=INDEL_EXTRACTION.out.somatic_functional
     versions = versions.mix(INDEL_EXTRACTION.out.versions)
 
     // CHECK IF THERE IS FUNCTIONAL SOMATIC VARIANTS, IF THERE IS DO FOLLOWING
@@ -40,7 +40,7 @@ workflow FILTER_VCF {
     versions = versions.mix(VISUALIZE.out.versions)
 
     INDEL_JSON(
-    somatic_vcf_ch
+    INDEL_EXTRACTION.out.somatic_indel
     )
     versions = versions.mix(INDEL_JSON.out.versions)
 
