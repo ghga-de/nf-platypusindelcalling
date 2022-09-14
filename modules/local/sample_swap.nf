@@ -3,10 +3,10 @@ process SAMPLE_SWAP {
     tag "$meta.id"
     label 'process_low'
 
-    conda     (params.enable_conda ? "$baseDir/assets/perlenvironment.yml" : null)
+    conda     (params.enable_conda ? "" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-    'odcf_indelcalling.sif' :
-    'kubran/odcf_indelcalling:v0' }"
+    'odcf_indelcalling_v2.sif' :
+    'kubran/odcf_indelcalling:v2' }"
 
     publishDir params.outdir+'/tinda' , mode: 'copy'
 
@@ -35,26 +35,8 @@ process SAMPLE_SWAP {
         samtools view -H $meta.control_bam | grep '^@RG' | sed "s/.*SM:\\([^\\t]*\\).*/\\1/g" | uniq > ${meta.id}.controlname.txt
         samtools view -H $meta.tumor_bam | grep '^@RG' | sed "s/.*SM:\\([^\\t]*\\).*/\\1/g" | uniq > ${meta.id}.tumorname.txt
 
-        checkSampleSwap_TiN.pl \\
-            --pid=$meta.id \\
-            --raw_file=$ch_vcf \\
-            --chr_prefix=${params.chr_prefix} \\
-            --gnomAD_genome=$gnomadgenomes \\
-            --gnomAD_exome=$gnomadexomes \\
-            --localControl_WGS=$localcontrolwgs \\
-            --localControl_WES=$localcontrolwes \\
-            --TiNDA_rightBorder=${params.right_border} \\
-            --TiNDA_bottomBorder=${params.bottom_border} \\
-            --maf_thershold=${params.maf_threshold} \\
-            --chrLengthFile=$chrlength \\
-            --normal_header_col=\$(cat ${meta.id}.controlname.txt) \\
-            --tumor_header_col=\$(cat ${meta.id}.tumorname.txt) \\
-            --sequenceType=${params.seqtype} \\
-            --gene_model_bed=$genemodel \\
-            --reference $ref \\
-            --outfile_tindaVCF=${meta.id}.tinda.vcf \\
-            --outfile_swapJSON=${meta.id}.swap.json \\
-            2>&1 | tee ${meta.id}.checkSampleSwap_TiN.log
+        checkSampleSwap_TiN.pl --pid=$meta.id --raw_file=$ch_vcf --chr_prefix=${params.chr_prefix} --gnomAD_genome=$gnomadgenomes --gnomAD_exome=$gnomadexomes --localControl_WGS=$localcontrolwgs --localControl_WES=$localcontrolwes --TiNDA_rightBorder=${params.right_border} --TiNDA_bottomBorder=${params.bottom_border} --maf_thershold=${params.maf_threshold} --chrLengthFile=$chrlength --normal_header_col=\$(cat ${meta.id}.controlname.txt) --tumor_header_col=\$(cat ${meta.id}.tumorname.txt) --sequenceType=${params.seqtype} --gene_model_bed=$genemodel --reference=$ref --outfile_tindaVCF=${meta.id}.tinda.vcf --outfile_swapJSON=${meta.id}.swap.json \\
+        2>&1 | tee ${meta.id}.checkSampleSwap_TiN.log
 
         cat <<-END_VERSIONS > versions.yml
         "${task.process}":
