@@ -12,7 +12,7 @@ process INDEL_JSON {
     publishDir params.outdir+ '/screenshots' , mode: 'copy'
 
     input:
-    tuple val(meta), file(vcf), file(vcf_tbi)
+    tuple val(meta), file(vcf)
 
     output:
     path('*.indel.json')                       , emit: json
