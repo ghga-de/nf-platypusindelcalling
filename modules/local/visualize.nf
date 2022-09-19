@@ -11,7 +11,7 @@ process VISUALIZE {
     publishDir params.outdir+ '/screenshots' , mode: 'copy'
 
     input:
-    tuple val(meta), file(vcfgz), file(vcf_tbi)
+    tuple val(meta), file(vcf)
     tuple path(ref), path(ref_fai)
     tuple path(repeatmasker), path(repeatmasker_tbi)
 
@@ -28,7 +28,7 @@ process VISUALIZE {
 
     """
     check_variants_size.sh \\
-        -i $vcfgz \\
+        -i $vcf \\
         -v ${params.max_var_screenshots} \\
         -c $meta.control_bam \\
         -t $meta.tumor_bam \\
