@@ -14,49 +14,54 @@ process FILTER_BY_CRIT {
     tuple val(meta), file(vcfgz), file(vcf_tbi)
 
     output:
-     tuple val(meta), path('*Filter.vcf.gz'),  path('*Filter.vcf.gz.tbi')   , emit: vcf
-     path  "versions.yml"                                                   , emit: versions
+     tuple val(meta), path('*Filtered.vcf.gz'),  path('*Filtered.vcf.gz.tbi')   , emit: vcf
+     path  "versions.yml"                                                       , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
 
     script:
 
-    def filter_values = "ExAC AF ${params.crit_exac_maxmaf}+"
-        filter_values = filter_values + " EVS MAF ${params.crit_evs_maxmaf}+"
-        filter_values = filter_values + " GNOMAD_EXOMES AF ${params.crit_gnomad_exomes_maxmaf}+"
-        filter_values = filter_values + " GNOMAD_GENOMES AF ${params.crit_gnomad_genomes_maxmaf}+"
-        filter_values = filter_values + " 1K_GENOMES EUR_AF ${params.crit_1kgenomes_maxmaf}+"
-        filter_values = filter_values + " DBSNP CLN,COMMON nonexist,exist"
-        filter_values = filter_values + " LocalControlAF_WGS AF ${params.crit_localcontrol_maxmaf}+"
-        filter_values = filter_values + " LocalControlAF_WES AF ${params.crit_localcontrol_maxmaf}+"
-        filter_values = filter_values + " REGION_CONFIDENCE . ${params.crit_recurrance}+"
-
 // Filter variants only if there is no control, else do noting
     if (meta.iscontrol == '1') {
         """
-        mv $vcfgz ${meta.id}_noFilter.vcf.gz
-        tabix ${meta.id}_noFilter.vcf.gz
+        mv $vcfgz ${meta.id}_noFiltered.vcf.gz
+        tabix ${meta.id}_noFiltered.vcf.gz
 
         cat <<-END_VERSIONS > versions.yml
         "${task.process}":
         tabix: \$(echo \$(tabix -h 2>&1) | sed 's/^.*tabix //; s/Using.*\$//')
         END_VERSIONS
-
         """
     }
     else {
-        """
-        vcf_filter_by_crit.py $vcfgz ${meta.id}_postFilter.vcf $filter_values
-        bgzip -c ${meta.id}_postFilter.vcf > ${meta.id}_postFilter.vcf.gz
-        tabix ${meta.id}_postFilter.vcf.gz
+        if (params.filter_values != "") 
+            {
+            """
+            vcf_filter_by_crit.py $vcfgz ${meta.id}_postFiltered.vcf ${params.filter_values}
+            bgzip -c ${meta.id}_postFiltered.vcf > ${meta.id}_postFiltered.vcf.gz
+            tabix ${meta.id}_postFiltered.vcf.gz
 
-        cat <<-END_VERSIONS > versions.yml
-        "${task.process}":
-        python: \$(echo \$(python --version 2>&1) | sed 's/^.*python //; s/Using.*\$//')
-        tabix: \$(echo \$(tabix -h 2>&1) | sed 's/^.*tabix //; s/Using.*\$//')
-        END_VERSIONS
-        """
+            cat <<-END_VERSIONS > versions.yml
+            "${task.process}":
+            python: \$(echo \$(python --version 2>&1) | sed 's/^.*python //; s/Using.*\$//')
+            tabix: \$(echo \$(tabix -h 2>&1) | sed 's/^.*tabix //; s/Using.*\$//')
+            END_VERSIONS
+            """
+             }
+        else
+        {
+            """
+            mv $vcfgz ${meta.id}_noFiltered.vcf.gz
+            tabix ${meta.id}_noFiltered.vcf.gz
+
+            cat <<-END_VERSIONS > versions.yml
+            "${task.process}":
+            tabix: \$(echo \$(tabix -h 2>&1) | sed 's/^.*tabix //; s/Using.*\$//')
+            END_VERSIONS
+            """ 
+        }
+
     }
 
 }
