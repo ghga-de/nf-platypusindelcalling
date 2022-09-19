@@ -13,10 +13,9 @@ process CONFIDENCE_ANNOTATION {
     input:
     tuple val(meta), file(vcfgz), file(vcf_tbi)
 
-
     output:
     tuple val(meta), path('*.conf.vcf.gz'),  path('*.conf.vcf.gz.tbi')   , emit: vcf_conf
-    tuple val(meta), path('*.ann.vcf.gz'),   path('*.ann.vcf.gz.tbi')    , emit: vcf
+    tuple val(meta), path('*.ann.vcf.gz'),   path('*.ann.vcf.gz.tbi')    , emit: vcf_ann
     path  "versions.yml"                                                 , emit: versions
 
     when:
