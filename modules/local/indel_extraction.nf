@@ -14,26 +14,23 @@ process INDEL_EXTRACTION {
     tuple val(meta), file(ch_vcf), file(ch_vcf_i)
 
     output:
-    tuple val(meta), path('*somatic_functional.vcf.gz'), path('*somatic_functional.vcf.gz.tbi')   , emit: somatic_functional
-    tuple val (meta), path('*_somatic_indels_conf_*_to_10.vcf'                                    , emit: somatic_indel
-    tuple val (meta), path('*_somatic_ncRNA_indels_conf_*_to_10.vcf'                              , emit: somatic_ncrna
-    tuple val (meta), path('*_germline_functional_indels_conf_*_to_10.vcf'                        , emit: germline_functional
-    tuple val(meta), path('*.functional_var_count.txt')                                           , emit: functional_var
-    path  "versions.yml"                                                                          , emit: versions
+    tuple val(meta), path('indels_*_somatic_functional_indels_conf_*_to_10.vcf')          , emit: somatic_functional
+    tuple val(meta), path('indels_*_somatic_indels_conf_*_to_10.vcf')                     , emit: somatic_indel
+    tuple val(meta), path('indels_*_somatic_ncRNA_indels_conf_*_to_10.vcf')                , emit: somatic_ncrna
+    tuple val(meta), path('indels_*_germline_functional_indels_conf_*_to_10.vcf')          , emit: germline_functional
+    tuple val(meta), path('*.functional_var_count.txt')                                    , emit: functional_var
+    path  "versions.yml"                                                                   , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
 
     script:
 
-    def outname   = "${meta.id}.somatic_functional.vcf"
-    def outnamegz = "${meta.id}.somatic_functional.vcf.gz"
-
-    def somatic_indels_vcf            ="${meta.id}_somatic_indels_conf_${params.min_confidence_score}_to_10.vcf"
-    def somatic_functional_indel_vcf  ="${meta.id}_somatic_functional_indels_conf_${params.min_confidence_score}_to_10.vcf"
-    def somatic_ncRNA_indel_vcf       ="${meta.id}_somatic_ncRNA_indels_conf_${params.min_confidence_score}_to_10.vcf"
-    def germline_functional_indel_vcf ="${meta.id}_germline_functional_indels_conf_${params.min_confidence_score}_to_10.vcf"
-
+    def somatic_indels_vcf            ="indels_${meta.id}_somatic_indels_conf_${params.min_confidence_score}_to_10.vcf"
+    def somatic_functional_indel_vcf  ="indels_${meta.id}_somatic_functional_indels_conf_${params.min_confidence_score}_to_10.vcf"
+    def somatic_ncRNA_indel_vcf       ="indels_${meta.id}_somatic_ncRNA_indels_conf_${params.min_confidence_score}_to_10.vcf"
+    def germline_functional_indel_vcf ="indels_${meta.id}_germline_functional_indels_conf_${params.min_confidence_score}_to_10.vcf"
+    def outnamegz                    = "indels_${meta.id}_somatic_functional_indels_conf_${params.min_confidence_score}_to_10.vcf.gz" 
     """
     indel_extractor_v1.pl \\
         --infile=$ch_vcf \\
