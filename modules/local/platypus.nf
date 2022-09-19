@@ -15,9 +15,9 @@ process PLATYPUS {
     tuple path(ref), path(ref_fai)
 
     output:
-    tuple val(meta), path('*.platypus.vcf.gz'), path('*.platypus.vcf.gz.tbi')      , emit: vcf
-    tuple val(meta), path('*.platypus.vcf')                                        , emit: vcf_temp
-    tuple val(meta), path('*.platypus.log')                                        , emit: platypus_log
+    tuple val(meta), path('indel_*.vcf.gz'), path('indel_*.vcf.gz.tbi')      , emit: vcf
+    tuple val(meta), path('indel_*.vcf')                                        , emit: vcf_temp
+    tuple val(meta), path('indel_*.log')                                        , emit: platypus_log
     path  "versions.yml"                                                           , emit: versions
 
     when:
@@ -25,9 +25,9 @@ process PLATYPUS {
 
 script:
 
-    def out_vcf     = "${meta.id}.platypus.vcf"
-    def out_vcfgz   = "${meta.id}.platypus.vcf.gz"
-    def out_log     = "${meta.id}.platypus.log"
+    def out_vcf     = "indel_${meta.id}.vcf"
+    def out_vcfgz   = "indel_${meta.id}.vcf.gz"
+    def out_log     = "indel_${meta.id}.log"
 
     def bamlist = meta.iscontrol == '1' ? "${control},${tumor}" : "${tumor}"
 
@@ -39,7 +39,7 @@ script:
         --output=$out_vcf \\
         --refFile=$ref \\
         --logFileName=$out_log \\
-        ${params.optimized}
+        ${params.platypus_params}
 
     bgzip  --threads ${task.cpus} -c $out_vcf > $out_vcfgz
     tabix $out_vcfgz
