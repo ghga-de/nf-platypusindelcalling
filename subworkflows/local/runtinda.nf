@@ -10,7 +10,7 @@ workflow RUNTINDA {
     take:
     vcf_ch           // channel: [val(meta), vcfgz, vcfgz_tbi]
     ref              // reference channel [ref.fa, ref.fa.fai]
-    chrlength        // channel: [file.txt]
+    chrlength        // channel: [file.txt or file.tab]
     genemodel        // channel: [file.bed.gz, file.bed.gz.tbi]
     localcontrolwgs  // channel: [file.bed.gz, file.bed.gz.tbi]
     localcontrolwes  // channel: [file.bed.gz, file.bed.gz.tbi]
@@ -23,7 +23,11 @@ workflow RUNTINDA {
     SAMPLE_SWAP(
     vcf_ch, ref, chrlength, genemodel, localcontrolwgs, localcontrolwes, gnomadgenomes, gnomadexomes
     )
+    versions = SAMPLE_SWAP.out.versions
+    logs = SAMPLE_SWAP.out.logs
 
     emit:
-    vcf_ch
+    versions
+    logs
+    
 }
