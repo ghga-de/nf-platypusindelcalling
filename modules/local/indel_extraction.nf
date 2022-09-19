@@ -1,5 +1,6 @@
+//indel_reliability_pipe
 
-process INDEL_EXTRACTION {
+process INDEL_RELIABILITY_PIPE {
     tag "$meta.id"
     label 'process_low'
 
@@ -8,42 +9,42 @@ process INDEL_EXTRACTION {
     'odcf_indelcalling.sif' :
     'kubran/odcf_indelcalling:v0' }"
 
-    publishDir params.outdir+'/filtered_vcf' , mode: 'copy'
-
+    publishDir params.outdir+'/annotate_vcf' , mode: 'copy'
+    
     input:
-    tuple val(meta), file(ch_vcf), file(ch_vcf_i)
+    tuple val(meta),                 file(ch_vcf),               file(ch_vcf_i)
+    tuple path(repeatmasker),        path(repeatmasker_i)
+    tuple path(dacblacklist),        path(dacblacklist_i)
+    tuple path(dukeexcluded),        path(dukeexcluded_i)
+    tuple path(hiseqdepth),          path(hiseqdepth_i)
+    tuple path(selfchain),           path(selfchain_i)
+    tuple path(mapability),          path(mapability_i)
+    tuple path(simpletandemrepeats), path(simpletandemrepeats_i)
 
     output:
-    tuple val(meta), path('indels_*_somatic_functional_indels_conf_*_to_10.vcf')          , emit: somatic_functional
-    tuple val(meta), path('indels_*_somatic_indels_conf_*_to_10.vcf')                     , emit: somatic_indel
-    tuple val(meta), path('indels_*_somatic_ncRNA_indels_conf_*_to_10.vcf')                , emit: somatic_ncrna
-    tuple val(meta), path('indels_*_germline_functional_indels_conf_*_to_10.vcf')          , emit: germline_functional
-    tuple val(meta), path('*.functional_var_count.txt')                                    , emit: functional_var
-    path  "versions.yml"                                                                   , emit: versions
+    tuple val(meta), path('*.annotated.vcf.gz'), path('*.annotated.vcf.gz.tbi')   , emit: vcf
+    path  "versions.yml"                                                          , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
 
     script:
 
-    def somatic_indels_vcf            ="indels_${meta.id}_somatic_indels_conf_${params.min_confidence_score}_to_10.vcf"
-    def somatic_functional_indel_vcf  ="indels_${meta.id}_somatic_functional_indels_conf_${params.min_confidence_score}_to_10.vcf"
-    def somatic_ncRNA_indel_vcf       ="indels_${meta.id}_somatic_ncRNA_indels_conf_${params.min_confidence_score}_to_10.vcf"
-    def germline_functional_indel_vcf ="indels_${meta.id}_germline_functional_indels_conf_${params.min_confidence_score}_to_10.vcf"
-    def outnamegz                    = "indels_${meta.id}_somatic_functional_indels_conf_${params.min_confidence_score}_to_10.vcf.gz" 
+    def tempname   = "${meta.id}.annotated.vcf"
+    def tempnamegz = "${meta.id}.annotated.vcf.gz"
+    
     """
-    indel_extractor_v1.pl \\
-        --infile=$ch_vcf \\
-        --somout=$somatic_indels_vcf \\
-        --funcout=$somatic_functional_indel_vcf \\
-        --ncout=$somatic_ncRNA_indel_vcf \\
-        --germlineout=$germline_functional_indel_vcf \\
-        --minconf=${params.min_confidence_score} \\
-        ${params.add_filter_opt}
+    zcat < $ch_vcf | \\
+    annotate_vcf.pl -a - -b $repeatmasker --bFileType=bed --columnName='REPEAT_MASKER' | \\
+    annotate_vcf.pl -a - -b $dacblacklist --bFileType=bed --columnName='DAC_BLACKLIST' | \\
+    annotate_vcf.pl -a - -b $dukeexcluded --bFileType=bed --columnName='DUKE_EXCLUDED' | \\
+    annotate_vcf.pl -a - -b $hiseqdepth --bFileType=bed --columnName='HISEQDEPTH' | \\
+    annotate_vcf.pl -a - -b $selfchain --bFileType=bed --columnName='SELFCHAIN' --bAdditionalColumns=4 --maxNrOfMatches=5 | \\
+    annotate_vcf.pl -a - -b $mapability --bFileType=bed --columnName='MAPABILITY' --breakPointMode --aEndOffset=1 | \\
+    annotate_vcf.pl -a - -b $simpletandemrepeats --bFileType=bed --columnName='SIMPLE_TANDEMREPEATS' --bAdditionalColumns=4 > $tempname
 
-    bgzip -c $somatic_functional_indel_vcf  > $outnamegz
-    tabix $outnamegz
-    cat $somatic_functional_indel_vcf | tail -n +2 | wc -l | cut -f1 -d " " > ${meta.id}.functional_var_count.txt
+    bgzip -c $tempname > $tempnamegz
+    tabix $tempnamegz
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
