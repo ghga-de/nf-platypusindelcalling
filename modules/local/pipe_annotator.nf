@@ -26,7 +26,7 @@ process PIPE_ANNOTATOR {
     tuple path(encode_tfbs), path(encode_tfbs_i)
 
     output:
-    tuple val(meta), path('*.deepanno.vcf.gz'), path('*.deepanno.vcf.gz.tbi') , emit: vcf
+    tuple val(meta), path('*.deepanno.vcf.gz'), path('*.deepanno.vcf.gz.tbi') , emit: deep_vcf
     path  "versions.yml"                                                      , emit: versions
 
     when:
