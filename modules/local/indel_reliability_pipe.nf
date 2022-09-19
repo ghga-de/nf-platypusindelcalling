@@ -1,4 +1,3 @@
-// PROCESS ANNOVAR table_annovar with UCSC files
 //indel_reliability_pipe
 
 process INDEL_RELIABILITY_PIPE {
@@ -10,12 +9,10 @@ process INDEL_RELIABILITY_PIPE {
     'odcf_indelcalling.sif' :
     'kubran/odcf_indelcalling:v0' }"
 
-    //conda wont work here, database files are embeded inside the docker file
-
     publishDir params.outdir+'/annotate_vcf' , mode: 'copy'
     
     input:
-    tuple val(meta),                file(ch_vcf),               file(ch_vcf_i)
+    tuple val(meta),                 file(ch_vcf),               file(ch_vcf_i)
     tuple path(repeatmasker),        path(repeatmasker_i)
     tuple path(dacblacklist),        path(dacblacklist_i)
     tuple path(dukeexcluded),        path(dukeexcluded_i)
@@ -35,6 +32,7 @@ process INDEL_RELIABILITY_PIPE {
 
     def tempname   = "${meta.id}.annotated.vcf"
     def tempnamegz = "${meta.id}.annotated.vcf.gz"
+    
     """
     zcat < $ch_vcf | \\
     annotate_vcf.pl -a - -b $repeatmasker --bFileType=bed --columnName='REPEAT_MASKER' | \\
