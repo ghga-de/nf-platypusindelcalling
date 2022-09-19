@@ -46,21 +46,20 @@ workflow INDEL_ANNOTATION {
     main:
 
     versions=Channel.empty()
+    logs=Channel.empty() 
     // RUN annotate_vcf.pl
     ANNOTATE_VCF (
     vcf_ch, kgenome, dbsnpindel, dbsnpsnv, exac, evs, localcontrolwgs, localcontrolwes, gnomadgenomes, gnomadexomes
     )
-    ch_vcf    = ANNOTATE_VCF.out.unziped_vcf
+ //   logs      = logs.mix(ANNOTATE_VCF.out.log)  
     versions  = versions.mix(ANNOTATE_VCF.out.versions)
 
     // RUN ANNOVAR and sub-scripts
     ANNOVAR(
-    ANNOTATE_VCF.out.forannovar, ch_vcf, annodb
+    ANNOTATE_VCF.out.forannovar, ANNOTATE_VCF.out.unziped_vcf, annodb
     )
-    ch_log   = ANNOVAR.out.log
+    logs     = logs.mix(ANNOVAR.out.log)
     versions = versions.mix(ANNOVAR.out.versions)
-    vcf_ch   = ANNOVAR.out.vcf
-    conf_vcf_ch =Channel.empty()
 
     // RUN CREATEPIPES (annotate_vcf.pl)
     INDEL_RELIABILITY_PIPE(
@@ -71,20 +70,22 @@ workflow INDEL_ANNOTATION {
     CONFIDENCE_ANNOTATION(
     INDEL_RELIABILITY_PIPE.out.vcf
     )
-    vcf_ch      = CONFIDENCE_ANNOTATION.out.vcf
-    conf_vcf_ch = conf_vcf_ch.mix(CONFIDENCE_ANNOTATION.out.vcf_conf)
+    ann_vcf_ch  = CONFIDENCE_ANNOTATION.out.vcf_ann
+    conf_vcf_ch = CONFIDENCE_ANNOTATION.out.vcf_conf
     versions    = versions.mix(CONFIDENCE_ANNOTATION.out.versions)
 
     if (params.runIndelDeepAnnotation)
     {
         PIPE_ANNOTATOR (
-        vcf_ch, enchangers, cpgislands, tfbscons, encode_dnase, mirnas_snornas, cosmic, mirbase, mir_targets, cgi_mountains, phastconselem, encode_tfbs
+        CONFIDENCE_ANNOTATION.out.vcf_ann, enchangers, cpgislands, tfbscons, encode_dnase, mirnas_snornas, cosmic, mirbase, mir_targets, cgi_mountains, phastconselem, encode_tfbs
         )
+        ann_vcf_ch  = PIPE_ANNOTATOR.out.deep_vcf 
         versions    = versions.mix(PIPE_ANNOTATOR.out.versions)
 
     }
 emit:
+logs
 conf_vcf_ch
-vcf_ch
+ann_vcf_ch
 versions
 }
