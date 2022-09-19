@@ -18,7 +18,6 @@ process ANNOVAR {
     tuple val(meta), file(ch_vcf)
     each file(annovar_table)
 
-
     output:
     tuple val(meta), path('*.temp.vcf.gz'), path('*.temp.vcf.gz.tbi')   , emit: vcf
     tuple val(meta), path('*.log')                                      , emit: log
@@ -27,7 +26,6 @@ process ANNOVAR {
     tuple val(meta), path('*variant_function')                          , emit: variant_function
     tuple val(meta), path('*exonic_variant_function')                   , emit: exonic_variant_function
     path  "versions.yml"                                                , emit: versions
-    path 'newcol.tsv'
 
     when:
     task.ext.when == null || task.ext.when
@@ -40,27 +38,38 @@ process ANNOVAR {
     def tempnamegz       = "${meta.id}.temp.vcf.gz"
     def av_segdup        = "${meta.id}.${params.buildver}_genomicSuperDups"
     def av_cytoband      = "${meta.id}.${params.buildver}_cytoBand"
+    def newcol           = "${meta.id}.newcol.tsv" 
 
     """
     perl ${params.annovar_path}/annotate_variation.pl \\
         --buildver=${params.buildver} -dbtype ${params.dbtype} $annovar_bed $annovar_table
+    ## segdup annotation with annovar
     perl ${params.annovar_path}/annotate_variation.pl \\
         --buildver=${params.buildver} -regionanno -dbtype segdup --outfile=$meta.id $annovar_bed $annovar_table
+    ## cytobad annotation with annovar
     perl ${params.annovar_path}/annotate_variation.pl \\
         --buildver=${params.buildver} -regionanno -dbtype band --outfile=$meta.id $annovar_bed $annovar_table
     
-    processAnnovarOutput.pl $variant_function $variant_exon > newcol.tsv
+    processAnnovarOutput.pl $variant_function $variant_exon > $newcol
 
-    newCols2vcf.pl --vcfFile=$ch_vcf --newColFile='newcol.tsv' \\
-        --newColHeader=${params.geneannocols} --chrPrefix=${params.chr_prefix} --chrSuffix=${params.chr_suffix} --reportColumns="3,4,5,6" --bChrPosEnd="0,1,2" | \\
-    newCols2vcf.pl --vcfFile="-" --newColFile=$av_segdup --newColHeader=${params.segdupcol} --chrPrefix=${params.chr_prefix} --chrSuffix=${params.chr_suffix} \\
-        --reportColumns="1" --bChrPosEnd="2,7,8"  | \\
-    newCols2vcf.pl --vcfFile="-" --newColFile=$av_cytoband --newColHeader=${params.cytobandcol} --chrPrefix=${params.chr_prefix} --chrSuffix=${params.chr_suffix} \\
+    newCols2vcf.pl --vcfFile=$ch_vcf --newColFile=$newcol \\
+        --newColHeader=${params.geneannocols} \\
+        --chrPrefix=${params.chr_prefix} \\
+        --chrSuffix=${params.chr_suffix} \\
+        --reportColumns="3,4,5,6" --bChrPosEnd="0,1,2" |
+    newCols2vcf.pl --vcfFile="-" --newColFile=$av_segdup \\
+        --newColHeader=${params.segdupcol} \\
+        --chrPrefix=${params.chr_prefix} \\
+        --chrSuffix=${params.chr_suffix} \\
+        --reportColumns="1" --bChrPosEnd="2,7,8" |
+    newCols2vcf.pl --vcfFile="-" --newColFile=$av_cytoband \\
+        --newColHeader=${params.cytobandcol} \\
+        --chrPrefix=${params.chr_prefix} \\
+        --chrSuffix=${params.chr_suffix} \\
         --reportColumns="1" --bChrPosEnd="2,7,8" > $tempname
 
     bgzip -c $tempname > $tempnamegz
     tabix $tempnamegz
-
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
