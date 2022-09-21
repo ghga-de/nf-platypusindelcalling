@@ -1,6 +1,6 @@
-// vcf_pipeAnnotator.sh
-// Deep annotation
-process PIPE_ANNOTATOR {
+//indel_reliability_pipe
+
+process INDEL_RELIABILITY_PIPE {
     tag "$meta.id"
     label 'process_low'
 
@@ -9,52 +9,47 @@ process PIPE_ANNOTATOR {
     'odcf_indelcalling_v4.sif' :
     'kubran/odcf_indelcalling:v4' }"
 
-    publishDir params.outdir+ '/annotate_vcf' , mode: 'copy'
-
+    publishDir params.outdir+'/annotate_vcf' , mode: 'copy'
+    
     input:
-    tuple val(meta), file(vcf), file(vcf_tbi)
-    tuple path(enchangers), path(enchangers_i)
-    tuple path(cpgislands), path(cpgislands_i)
-    tuple path(tfbscons), path(tfbscons_i)
-    tuple path(encode_dnase), path(encode_dnase_i)
-    tuple path(mirnas_snornas), path(mirnas_snornas_i)
-    tuple path(cosmic), path(cosmic_i)
-    tuple path(mirbase), path(mirbase_i)
-    tuple path(mir_targets), path(mir_targets_i)
-    tuple path(cgi_mountains), path(cgi_mountains_i)
-    tuple path(phastconselem), path(phastconselem_i)
-    tuple path(encode_tfbs), path(encode_tfbs_i)
+    tuple val(meta),                 file(ch_vcf),               file(ch_vcf_i)
+    tuple path(repeatmasker),        path(repeatmasker_i)
+    tuple path(dacblacklist),        path(dacblacklist_i)
+    tuple path(dukeexcluded),        path(dukeexcluded_i)
+    tuple path(hiseqdepth),          path(hiseqdepth_i)
+    tuple path(selfchain),           path(selfchain_i)
+    tuple path(mapability),          path(mapability_i)
+    tuple path(simpletandemrepeats), path(simpletandemrepeats_i)
 
     output:
-    tuple val(meta), path('*.deepanno.vcf.gz'), path('*.deepanno.vcf.gz.tbi') , emit: deep_vcf
-    path  "versions.yml"                                                      , emit: versions
+    tuple val(meta), path('*.annotated.vcf.gz'), path('*.annotated.vcf.gz.tbi')   , emit: vcf
+    path  "versions.yml"                                                          , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
 
     script:
 
+    def tempname   = "${meta.id}.annotated.vcf"
+    def tempnamegz = "${meta.id}.annotated.vcf.gz"
+    
     """
-    zcat < $vcf | \\
-    annotate_vcf.pl -a - -b $enchangers --bFileType=bed --columnName='Enhancers' | \\
-    annotate_vcf.pl -a - -b $cpgislands --bFileType=bed --columnName='CpGislands' | \\
-    annotate_vcf.pl -a - -b $tfbscons --bFileType=bed --columnName='TFBScons' | \\
-    annotate_vcf.pl -a - -b $encode_dnase --bFileType=bed --columnName='ENCODE_DNASE' | \\
-    annotate_vcf.pl -a - -b $mirnas_snornas --bFileType=bed --columnName='miRNAs_snoRNAs' | \\
-    annotate_vcf.pl -a - -b $mirbase --bFileType=bed --columnName='miRBase18' | \\
-    annotate_vcf.pl -a - -b $cosmic --bFileType=bed --columnName='COSMIC' --bAdditionalColumns=7,8,9 --reportLevel=1 | \\
-    annotate_vcf.pl -a - -b $mir_targets --bFileType=bed --columnName='miRNAtargets' | \\
-    annotate_vcf.pl -a - -b $cgi_mountains --bFileType=bed --columnName='CgiMountains' --bAdditionalColumns=4 | \\
-    annotate_vcf.pl -a - -b $phastconselem --bFileType=bed --columnName='phastConsElem20bp' --bAdditionalColumns=4 | \\
-    annotate_vcf.pl -a - -b $encode_tfbs --bFileType=bed --columnName='ENCODE_TFBS' > ${meta.id}.deepanno.vcf
+    zcat < $ch_vcf | \\
+    annotate_vcf.pl -a - -b $repeatmasker --bFileType=bed --columnName='REPEAT_MASKER' | \\
+    annotate_vcf.pl -a - -b $dacblacklist --bFileType=bed --columnName='DAC_BLACKLIST' | \\
+    annotate_vcf.pl -a - -b $dukeexcluded --bFileType=bed --columnName='DUKE_EXCLUDED' | \\
+    annotate_vcf.pl -a - -b $hiseqdepth --bFileType=bed --columnName='HISEQDEPTH' | \\
+    annotate_vcf.pl -a - -b $selfchain --bFileType=bed --columnName='SELFCHAIN' --bAdditionalColumns=4 --maxNrOfMatches=5 | \\
+    annotate_vcf.pl -a - -b $mapability --bFileType=bed --columnName='MAPABILITY' --breakPointMode --aEndOffset=1 | \\
+    annotate_vcf.pl -a - -b $simpletandemrepeats --bFileType=bed --columnName='SIMPLE_TANDEMREPEATS' --bAdditionalColumns=4 > $tempname
 
-    bgzip -c ${meta.id}.deepanno.vcf > ${meta.id}.deepanno.vcf.gz
-    tabix ${meta.id}.deepanno.vcf.gz
+    bgzip -c $tempname > $tempnamegz
+    tabix $tempnamegz
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-    tabix: \$(echo \$(tabix -h 2>&1) | sed 's/^.*tabix //; s/Using.*\$//')
     perl: \$(echo \$(perl --version 2>&1) | sed 's/^.*perl //; s/Using.*\$//')
+    tabix: \$(echo \$(tabix -h 2>&1) | sed 's/^.*tabix //; s/Using.*\$//')
     END_VERSIONS
     """
 }
