@@ -6,8 +6,8 @@ process INDEL_JSON {
 
     conda (params.enable_conda ? "bioconda::samtools=1.15.1" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-    'odcf_indelcalling.sif' :
-    'kubran/odcf_indelcalling:v0' }"
+    'odcf_indelcalling_v4.sif' :
+    'kubran/odcf_indelcalling:v4' }"
 
     publishDir params.outdir+ '/screenshots' , mode: 'copy'
 
