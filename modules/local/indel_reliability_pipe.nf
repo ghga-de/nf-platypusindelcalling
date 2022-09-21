@@ -6,8 +6,8 @@ process INDEL_RELIABILITY_PIPE {
 
     conda     (params.enable_conda ? "" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-    'odcf_indelcalling.sif' :
-    'kubran/odcf_indelcalling:v0' }"
+    'odcf_indelcalling_v4.sif' :
+    'kubran/odcf_indelcalling:v4' }"
 
     publishDir params.outdir+'/annotate_vcf' , mode: 'copy'
     
