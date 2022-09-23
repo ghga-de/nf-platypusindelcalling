@@ -39,9 +39,7 @@ DOI 10.1038/s41586-020-1969-6
 4. Reliability and confidation annotations: It is an optional step (--runIndelAnnotation) for Mapability, hiseq, selfchain and repeat regions checks for reliability and confidence of those scores.
 5. INDEL Deep Annotation: It is an optional step (runIndelDeepAnnotation) for number of extra indel annotations like enhancer, cosmic, mirBASE, encode databases.
 6. Filtering: It is an optional step (runIndelVCFFilter)for only applies for the tumor samples with no-control.
-7. Checks Sample Swap
-  . Canopy Based Clustering
-  . Bias Filter
+7. Checks Sample Swap: Canopy Based Clustering and Bias Filter
 
 ## Data requirements and Paremeters
 
@@ -134,12 +132,19 @@ Filtering is only applied into the samples without control! Filtering options mu
 
 Available filtering columns if the databases are provided: 
 add " EVS MAF VALUE+" to filter_values parameter for EVS db (1)
+
 add " ExAC AF VALUE+" to filter_values parameter for ExAC db (0.01)
+
 add " GNOMAD_EXOMES AF VALUE+" to filter_values parameterfor gnomAD exomes db (0.001)
+
 add " GNOMAD_GENOMES AF VALUE+" to filter_values parameter for gnomAD genomes db (0.001)
+
 add " DBSNP CLN,COMMON nonexist,exist" to filter_values parameter to filtering clinical variants
+
 add " 1K_GENOMES EUR_AF VALUE+" to filter_values parameter for 1k genomes db  for EUR (0.01)
+
 add " LocalControlAF_WGS AF VALUE+ LocalControlAF_WES AF VALUE+" to filter_values parameter for Local control (0.01)
+
 add " LocalControlAF_WGS . VALUE+" to filter_values parameter to filter recurrance (7)
 
 - --filter_values       : " GNOMAD_EXOMES AF 0.001+ GNOMAD_GENOMES AF 0.001+"
@@ -155,6 +160,7 @@ add " LocalControlAF_WGS . VALUE+" to filter_values parameter to filter recurran
 - --repeat_masker       : Repeat Masker file (bed.gz)
 
 **Swap Check Step:** 
+
 If --runTinda is true, the following parameters can be applied:
 
 - -- chrlength_file     : 'assets/chrlengths.plain.sorted.txt'
@@ -208,6 +214,7 @@ If --runTinda is true, the following parameters can be applied:
 
 ## Documentation
 
+**TODO**
 The nf-core/platypusindelcalling pipeline comes with documentation about the pipeline [usage](https://nf-co.re/platypusindelcalling/usage), [parameters](https://nf-co.re/platypusindelcalling/parameters) and [output](https://nf-co.re/platypusindelcalling/output).
 
 
