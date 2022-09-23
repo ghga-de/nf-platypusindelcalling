@@ -146,19 +146,13 @@ include {RUNTINDA               } from '../subworkflows/local/runtinda'
 include { MULTIQC                     } from '../modules/nf-core/modules/multiqc/main'
 include { CUSTOM_DUMPSOFTWAREVERSIONS } from '../modules/nf-core/modules/custom/dumpsoftwareversions/main'
 
-//
-// MODULE: Local modules
-//
-//include { EXTRACT_SAMPLE_NAME } from '../modules/local/extract_sample_name.nf'     addParams( options: params.options )
-
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     RUN MAIN WORKFLOW
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-// Info required for completion email and summary
-def multiqc_report = []
+
 
 //  RUN main workflow
 workflow PLATYPUSINDELCALLING {
@@ -166,7 +160,7 @@ workflow PLATYPUSINDELCALLING {
     ch_versions = Channel.empty()
     ch_logs = Channel.empty()
 
-//TODO: PREPARE GENOME AND ANNOTATION FILES WITH AWS !!!!
+//TODO for GHGA: PREPARE GENOME AND ANNOTATION FILES WITH AWS !!!!
 
 //     SUBWORKFLOW: Read in samplesheet, validate and stage input files
 
@@ -187,30 +181,30 @@ workflow PLATYPUSINDELCALLING {
         sample_ch, ref
     )
 
-    platypus_vcf_ch = INDEL_CALLING.out.vcf_ch
+    //vcf_ch = INDEL_CALLING.out.vcf_ch
     ch_logs         = ch_logs.mix(INDEL_CALLING.out.ch_platypus_log)
     ch_versions     = ch_versions.mix(INDEL_CALLING.out.platypus_version)
 
     //
     //SUBWORKFLOW: platypusindelAnnotation.sh
     //
+    // annotation has two part, first annotation for annovar, second is deep annotation includes for various genomic regions 
     if (params.runIndelAnnotation) {
         INDEL_ANNOTATION(
-        platypus_vcf_ch,  kgenome, dbsnpindel, dbsnpsnv, exac, evs, localcontrolwgs, localcontrolwes, gnomadgenomes, gnomadexomes,
+        INDEL_CALLING.out.vcf_ch,  kgenome, dbsnpindel, dbsnpsnv, exac, evs, localcontrolwgs, localcontrolwes, gnomadgenomes, gnomadexomes,
         annodb, repeatmasker, dacblacklist, dukeexcluded, hiseqdepth, selfchain, mapability, simpletandemrepeats, enchangers,
         cpgislands, tfbscons, encode_dnase, mirnas_snornas, cosmic, mirbase, mir_targets, cgi_mountains, phastconselem, encode_tfbs
         )
 
         ch_versions = ch_versions.mix(INDEL_ANNOTATION.out.versions)
-        vcf_ch      = INDEL_ANNOTATION.out.vcf_ch
-        conf_vcf    = INDEL_ANNOTATION.out.conf_vcf_ch
 
         //
         //SUBWORKFLOW: FILTER VCF: filter_vcf.sh
         //
+        // filtering is only apply into the samples without control, indel extraction and visualization will apply both cases.  
         if (params.runIndelVCFFilter) {
             FILTER_VCF(
-            vcf_ch, ref, repeatmasker
+            INDEL_ANNOTATION.out.ann_vcf_ch, ref, repeatmasker
             )
             ch_versions = ch_versions.mix(FILTER_VCF.out.versions)
         }
@@ -219,38 +213,46 @@ workflow PLATYPUSINDELCALLING {
     //SUBWORKFLOW: RUNTINDA: checkSampleSawpTiN.sh
     //
 
+    // Checks sample swap in platypus output vcf
     if (params.runTinda) {
         RUNTINDA(
-            platypus_vcf_ch, ref, chrlength, genemodel, localcontrolwgs, localcontrolwes, gnomadgenomes, gnomadexomes
+            INDEL_CALLING.out.vcf_ch, ref, chrlength, genemodel, localcontrolwgs, localcontrolwes, gnomadgenomes, gnomadexomes
             )
+        ch_versions = ch_versions.mix(RUNTINDA.out.versions)    
+        ch_logs = ch_versions.mix(RUNTINDA.out.logs) 
     }
 
-    //
-    // MODULE: Pipeline reporting
-    //
- //   ch_version_yaml = Channel.empty() 
-//    CUSTOM_DUMPSOFTWAREVERSIONS (
- //   ch_versions.unique().collectFile(name: 'collated_versions.yml')
- //   )
 
-    //
-    // MODULE: MultiQC
-    //
-    workflow_summary    = WorkflowPlatypusindelcalling.paramsSummaryMultiqc(workflow, summary_params)
-    ch_workflow_summary = Channel.value(workflow_summary)
+    // Info required for completion email and summary
+    def multiqc_report = []
+     ch_versions.view()
+    if (!params.skip_multiqc){
+        //
+        // MODULE: Pipeline reporting
+        //
+        ch_version_yaml = Channel.empty() 
+        CUSTOM_DUMPSOFTWAREVERSIONS (
+        ch_versions.unique().collectFile(name: 'collated_versions.yml'))
 
-    ch_multiqc_files = Channel.empty()
-    ch_multiqc_files = ch_multiqc_files.mix(Channel.from(ch_multiqc_config))
-    ch_multiqc_files = ch_multiqc_files.mix(ch_multiqc_custom_config.collect().ifEmpty([]))
-    ch_multiqc_files = ch_multiqc_files.mix(ch_workflow_summary.collectFile(name: 'workflow_summary_mqc.yaml'))
- //  ch_multiqc_files = ch_multiqc_files.mix(CUSTOM_DUMPSOFTWAREVERSIONS.out.mqc_yml.collect())
+        //
+        // MODULE: MultiQC
+        //
+        workflow_summary    = WorkflowPlatypusindelcalling.paramsSummaryMultiqc(workflow, summary_params)
+        ch_workflow_summary = Channel.value(workflow_summary)
 
-    MULTIQC (
-        ch_multiqc_files.collect(),
-        ch_logs.collect{it[1]}
-    )
-    multiqc_report = MULTIQC.out.report.toList()
-    ch_versions    = ch_versions.mix(MULTIQC.out.versions)
+        ch_multiqc_files = Channel.empty()
+        ch_multiqc_files = ch_multiqc_files.mix(Channel.from(ch_multiqc_config))
+        ch_multiqc_files = ch_multiqc_files.mix(ch_multiqc_custom_config.collect().ifEmpty([]))
+        ch_multiqc_files = ch_multiqc_files.mix(ch_workflow_summary.collectFile(name: 'workflow_summary_mqc.yaml'))
+        ch_multiqc_files = ch_multiqc_files.mix(CUSTOM_DUMPSOFTWAREVERSIONS.out.mqc_yml.collect())
+
+        MULTIQC (
+            ch_multiqc_files.collect(),
+            ch_logs.collect{it[1]}.ifEmpty({[]})
+        )
+        multiqc_report = MULTIQC.out.report.toList()
+        ch_versions    = ch_versions.mix(MULTIQC.out.versions)
+    }
 }
 
 /*
