@@ -8,8 +8,8 @@ process ANNOVAR {
 
     conda     (params.enable_conda ? "" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-    'odcf_indelcalling_perl.sif' :
-    'kubran/indelcalling_perl:v1' }"
+    'odcf_indelcalling_v4.sif' :
+    'kubran/odcf_indelcalling:v4' }"
 
     publishDir params.outdir+'/annotate_vcf' , mode: 'copy'
     
@@ -73,9 +73,10 @@ process ANNOVAR {
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
+    annovar_Feb2016: ${params.buildver}  
     perl: \$(echo \$(perl --version 2>&1) | sed 's/^.*perl //; s/Using.*\$//')
-    bgzip: \$(echo \$(bgzip --version 2>&1) | sed 's/^.*bgzip //; s/Using.*\$//')
-    tabix: \$(echo \$(tabix --version 2>&1) | sed 's/^.*tabix //; s/Using.*\$//')
+    gzip: \$(echo \$(bgzip --version 2>&1) | sed 's/^.*gzip //; s/Using.*\$//')
+    tabix: \$(echo \$(tabix -h 2>&1) | sed 's/^.*Version: //; s/ .*\$//')
     END_VERSIONS
     """
 }
