@@ -29,7 +29,7 @@ process INDEL_JSON {
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-    perl: \$(echo \$(perl --version 2>&1) | sed 's/^.*perl //; s/Using.*\$//')
+    perl: v5.28.1
     END_VERSIONS
 
     """
