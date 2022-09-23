@@ -346,7 +346,6 @@ my $runRscript_code  = join("", "TiN_CanopyBasedClustering.R -f '$snvsGT_germlin
   " --oFile $snvsGT_germlineRare_oFile",
   " --pid $pid",
   " --chrLength $chrLengthFile",
-  " --cFunction canopyCluster_updatedFunction.R",
   " --seqType $seqType",
   " --rightBorder $rightBorder",
   " --bottomBorder $bottomBorder",
