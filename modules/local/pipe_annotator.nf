@@ -6,8 +6,8 @@ process PIPE_ANNOTATOR {
 
     conda     (params.enable_conda ? "" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-    'odcf_indelcalling.sif' :
-    'kubran/odcf_indelcalling:v0' }"
+    'odcf_indelcalling_v4.sif' :
+    'kubran/odcf_indelcalling:v4' }"
 
     publishDir params.outdir+ '/annotate_vcf' , mode: 'copy'
 
@@ -53,8 +53,8 @@ process PIPE_ANNOTATOR {
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-    tabix: \$(echo \$(tabix -h 2>&1) | sed 's/^.*tabix //; s/Using.*\$//')
-    perl: \$(echo \$(perl --version 2>&1) | sed 's/^.*perl //; s/Using.*\$//')
+    tabix: \$(echo \$(tabix -h 2>&1) | sed 's/^.*Version: //; s/ .*\$//')
+    perl: v5.28.1
     END_VERSIONS
     """
 }
