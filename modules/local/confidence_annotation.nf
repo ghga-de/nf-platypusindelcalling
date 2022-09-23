@@ -1,4 +1,3 @@
-// Get the real names of the columns created by Platypus
 process CONFIDENCE_ANNOTATION {
     tag "$meta.id"
     label 'process_medium'
@@ -33,7 +32,8 @@ process CONFIDENCE_ANNOTATION {
         samtools view -H $meta.control_bam | grep '^@RG' | sed "s/.*SM:\\([^\\t]*\\).*/\\1/g" | uniq > ${meta.id}.controlname.txt
         samtools view -H $meta.tumor_bam | grep '^@RG' | sed "s/.*SM:\\([^\\t]*\\).*/\\1/g" | uniq > ${meta.id}.tumorname.txt
 
-        confidenceAnnotation_Indels.py --infile=$vcfgz --skip_order_check --controlColName=\$(cat ${meta.id}.controlname.txt) --tumorColName=\$(cat ${meta.id}.tumorname.txt) \\
+        confidenceAnnotation_Indels.py --infile=$vcfgz --skip_order_check \\
+        --controlColName=\$(cat ${meta.id}.controlname.txt) --tumorColName=\$(cat ${meta.id}.tumorname.txt) \\
         ${params.confidence_opts_indel} | tee $temp_vcf | cut -f 1-11 > $out_vcf
 
         bgzip -c $out_vcf > $out_vcfgz
@@ -46,7 +46,8 @@ process CONFIDENCE_ANNOTATION {
         "${task.process}":
         python: \$(echo \$(python --version 2>&1) | sed 's/^.*python //; s/Using.*\$//')
         samtools: \$(echo \$(samtools --version 2>&1) | sed 's/^.*samtools //; s/Using.*\$//')
-        tabix: \$(echo \$(tabix -h 2>&1) | sed 's/^.*tabix //; s/Using.*\$//')
+        tabix: \$(echo \$(tabix -h 2>&1) | sed 's/^.*Version: //; s/ .*\$//')
+        gzip: \$(echo \$(gzip --version 2>&1) | sed 's/^.*version: //; s/ .*\$//')
         END_VERSIONS
 
         """
@@ -54,7 +55,8 @@ process CONFIDENCE_ANNOTATION {
     else {
         """
         samtools view -H $meta.tumor_bam | grep '^@RG' | sed "s/.*SM:\\([^\\t]*\\).*/\\1/g" | uniq > ${meta.id}.tumorname.txt
-        confidenceAnnotation_Indels.py --infile=$vcfgz  --skip_order_check --nocontrol --tumorColName=\$(cat ${meta.id}.tumorname.txt) \\
+        confidenceAnnotation_Indels.py --infile=$vcfgz  --skip_order_check \\
+        --nocontrol --tumorColName=\$(cat ${meta.id}.tumorname.txt) \\
         ${params.confidence_opts_indel} | tee $temp_vcf | cut -f 1-11 > $out_vcf
 
         bgzip -c $out_vcf > $out_vcfgz
@@ -65,9 +67,10 @@ process CONFIDENCE_ANNOTATION {
 
         cat <<-END_VERSIONS > versions.yml
         "${task.process}":
-        python: \$(echo \$(python --version 2>&1) | sed 's/^.*python //; s/Using.*\$//')
+        python: \$(python --version | sed 's/Python //g')
         samtools: \$(echo \$(samtools --version 2>&1) | sed 's/^.*samtools //; s/Using.*\$//')
-        tabix: \$(echo \$(tabix -h 2>&1) | sed 's/^.*tabix //; s/Using.*\$//')
+        tabix: \$(echo \$(tabix -h 2>&1) | sed 's/^.*Version: //; s/ .*\$//')
+        gzip: \$(echo \$(gzip --version 2>&1) | sed 's/^.*version: //; s/ .*\$//')
         END_VERSIONS
         """
     }
