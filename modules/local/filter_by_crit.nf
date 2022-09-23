@@ -22,6 +22,7 @@ process FILTER_BY_CRIT {
 
     script:
 
+
 // Filter variants only if there is no control, else do noting
     if (meta.iscontrol == '1') {
         """
@@ -30,7 +31,7 @@ process FILTER_BY_CRIT {
 
         cat <<-END_VERSIONS > versions.yml
         "${task.process}":
-        tabix: \$(echo \$(tabix -h 2>&1) | sed 's/^.*tabix //; s/Using.*\$//')
+        tabix: \$(echo \$(tabix -h 2>&1) | sed 's/^.*Version: //; s/ .*\$//')
         END_VERSIONS
         """
     }
@@ -44,8 +45,9 @@ process FILTER_BY_CRIT {
 
             cat <<-END_VERSIONS > versions.yml
             "${task.process}":
-            python: \$(echo \$(python --version 2>&1) | sed 's/^.*python //; s/Using.*\$//')
-            tabix: \$(echo \$(tabix -h 2>&1) | sed 's/^.*tabix //; s/Using.*\$//')
+            python: \$(python --version | sed 's/Python //g')
+            tabix: \$(echo \$(tabix -h 2>&1) | sed 's/^.*Version: //; s/ .*\$//')
+            gzip: \$(echo \$(gzip --version 2>&1) | sed 's/^.*gzip //; s/ .*\$//')
             END_VERSIONS
             """
              }
@@ -54,10 +56,10 @@ process FILTER_BY_CRIT {
             """
             mv $vcfgz ${meta.id}_noFiltered.vcf.gz
             tabix ${meta.id}_noFiltered.vcf.gz
-
+            
             cat <<-END_VERSIONS > versions.yml
-            "${task.process}":
-            tabix: \$(echo \$(tabix -h 2>&1) | sed 's/^.*tabix //; s/Using.*\$//')
+             "${task.process}":
+            tabix: \$(echo \$(tabix -h 2>&1) | sed 's/^.*Version: //; s/ .*\$//')
             END_VERSIONS
             """ 
         }
