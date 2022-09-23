@@ -38,17 +38,17 @@ process INDEL_EXTRACTION {
         --funcout=$somatic_functional_indel_vcf \\
         --ncout=$somatic_ncRNA_indel_vcf \\
         --germlineout=$germline_functional_indel_vcf \\
-        --minconf=${params.min_confidence_score} \\
-        ${params.add_filter_opt}
-
+        --minconf=${params.min_confidence_score}
+        
     bgzip -c $somatic_functional_indel_vcf  > $outnamegz
     tabix $outnamegz
     cat $somatic_functional_indel_vcf | tail -n +2 | wc -l | cut -f1 -d " " > ${meta.id}.functional_var_count.txt
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-    perl: \$(echo \$(perl --version 2>&1) | sed 's/^.*perl //; s/Using.*\$//')
-    tabix: \$(echo \$(tabix -h 2>&1) | sed 's/^.*tabix //; s/Using.*\$//')
+    perl: v5.28.1
+    tabix: \$(echo \$(tabix -h 2>&1) | sed 's/^.*Version: //; s/ .*\$//')
+    gzip: \$(echo \$(gzip --version 2>&1) | sed 's/^.*gzip //; s/ .*\$//')
     END_VERSIONS
     """
 }
