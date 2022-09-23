@@ -48,8 +48,8 @@ process INDEL_RELIABILITY_PIPE {
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-    perl: \$(echo \$(perl --version 2>&1) | sed 's/^.*perl //; s/Using.*\$//')
-    tabix: \$(echo \$(tabix -h 2>&1) | sed 's/^.*tabix //; s/Using.*\$//')
+    perl: v5.28.1
+    tabix: \$(echo \$(tabix -h 2>&1) | sed 's/^.*Version: //; s/ .*\$//')
     END_VERSIONS
     """
 }
