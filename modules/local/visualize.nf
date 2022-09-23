@@ -40,8 +40,8 @@ process VISUALIZE {
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-    python: \$(echo \$(python --version 2>&1) | sed 's/^.*python //; s/Using.*\$//')
-    tabix: \$(echo \$(tabix -h 2>&1) | sed 's/^.*tabix //; s/Using.*\$//')
+    python: \$(python --version | sed 's/Python //g')
+    tabix: \$(echo \$(tabix -h 2>&1) | sed 's/^.*Version: //; s/ .*\$//')
     END_VERSIONS
     """
 
