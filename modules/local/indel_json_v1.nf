@@ -9,7 +9,7 @@ process INDEL_JSON {
     'odcf_indelcalling_v4.sif' :
     'kubran/odcf_indelcalling:v4' }"
 
-    publishDir params.outdir+ '/screenshots' , mode: 'copy'
+    publishDir params.outdir+ '/indel_json' , mode: 'copy'
 
     input:
     tuple val(meta), file(vcf)
@@ -29,7 +29,7 @@ process INDEL_JSON {
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-    perl: v5.28.1
+        perl: v5.28.1
     END_VERSIONS
 
     """
