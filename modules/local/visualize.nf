@@ -8,7 +8,7 @@ process VISUALIZE {
     'odcf_indelcalling_v4.sif' :
     'kubran/odcf_indelcalling:v4' }"
 
-    publishDir params.outdir+ '/screenshots' , mode: 'copy'
+    publishDir params.outdir+ '/visualize' , mode: 'copy'
 
     input:
     tuple val(meta), file(vcf)
@@ -40,8 +40,8 @@ process VISUALIZE {
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-    python: \$(python --version | sed 's/Python //g')
-    tabix: \$(echo \$(tabix -h 2>&1) | sed 's/^.*Version: //; s/ .*\$//')
+        python: \$(python --version | sed 's/Python //g')
+        tabix: \$(echo \$(tabix -h 2>&1) | sed 's/^.*Version: //; s/ .*\$//')
     END_VERSIONS
     """
 
