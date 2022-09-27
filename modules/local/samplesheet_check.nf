@@ -3,8 +3,8 @@ process SAMPLESHEET_CHECK {
 
     conda (params.enable_conda ? "conda-forge::python=3.8.3" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'python:3.8.3' :
-        'quay.io/biocontainers/python:3.8.3' }"
+    'odcf_indelcalling_v4.sif' :
+    'kubran/odcf_indelcalling:v4' }"
 
 
     input:
