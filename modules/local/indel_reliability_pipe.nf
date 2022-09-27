@@ -9,7 +9,7 @@ process INDEL_RELIABILITY_PIPE {
     'odcf_indelcalling_v4.sif' :
     'kubran/odcf_indelcalling:v4' }"
 
-    publishDir params.outdir+'/annotate_vcf' , mode: 'copy'
+    publishDir params.outdir+'/indel_reliability' , mode: 'copy'
     
     input:
     tuple val(meta),                 file(ch_vcf),               file(ch_vcf_i)
