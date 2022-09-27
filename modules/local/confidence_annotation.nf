@@ -7,7 +7,7 @@ process CONFIDENCE_ANNOTATION {
     'odcf_indelcalling_v4.sif' :
     'kubran/odcf_indelcalling:v4' }"
 
-    publishDir params.outdir+'/annotate_vcf' , mode: 'copy'
+    publishDir params.outdir+'/confidence_ann' , mode: 'copy'
     
     input:
     tuple val(meta), file(vcfgz), file(vcf_tbi)
@@ -44,10 +44,10 @@ process CONFIDENCE_ANNOTATION {
 
         cat <<-END_VERSIONS > versions.yml
         "${task.process}":
-        python: \$(echo \$(python --version 2>&1) | sed 's/^.*python //; s/Using.*\$//')
-        samtools: \$(echo \$(samtools --version 2>&1) | sed 's/^.*samtools //; s/Using.*\$//')
-        tabix: \$(echo \$(tabix -h 2>&1) | sed 's/^.*Version: //; s/ .*\$//')
-        gzip: \$(echo \$(gzip --version 2>&1) | sed 's/^.*version: //; s/ .*\$//')
+            python: \$(python --version | sed 's/Python //g')
+            samtools: \$(echo \$(samtools --version 2>&1) | sed 's/^.*samtools //; s/Using.*\$//')
+            tabix: \$(echo \$(tabix -h 2>&1) | sed 's/^.*Version: //; s/ .*\$//')
+            gzip: \$(echo \$(gzip --version 2>&1) | sed 's/^.*gzip //; s/ .*\$//')
         END_VERSIONS
 
         """
@@ -67,10 +67,10 @@ process CONFIDENCE_ANNOTATION {
 
         cat <<-END_VERSIONS > versions.yml
         "${task.process}":
-        python: \$(python --version | sed 's/Python //g')
-        samtools: \$(echo \$(samtools --version 2>&1) | sed 's/^.*samtools //; s/Using.*\$//')
-        tabix: \$(echo \$(tabix -h 2>&1) | sed 's/^.*Version: //; s/ .*\$//')
-        gzip: \$(echo \$(gzip --version 2>&1) | sed 's/^.*version: //; s/ .*\$//')
+            python: \$(python --version | sed 's/Python //g')
+            samtools: \$(echo \$(samtools --version 2>&1) | sed 's/^.*samtools //; s/Using.*\$//')
+            tabix: \$(echo \$(tabix -h 2>&1) | sed 's/^.*Version: //; s/ .*\$//')
+            gzip: \$(echo \$(gzip --version 2>&1) | sed 's/^.*gzip //; s/ .*\$//')
         END_VERSIONS
         """
     }
