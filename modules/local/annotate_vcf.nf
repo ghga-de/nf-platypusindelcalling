@@ -66,8 +66,8 @@ process ANNOTATE_VCF {
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-    perl: v5.28.1
-    tabix: \$(echo \$(tabix -h 2>&1) | sed 's/^.*Version: //; s/ .*\$//')
+        perl: v5.28.1
+        tabix: \$(echo \$(tabix -h 2>&1) | sed 's/^.*Version: //; s/ .*\$//')
     END_VERSIONS
     """
 }
