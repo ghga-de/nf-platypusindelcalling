@@ -73,10 +73,9 @@ process ANNOVAR {
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-    annovar_Feb2016: ${params.buildver}  
-    perl: \$(echo \$(perl --version 2>&1) | sed 's/^.*perl //; s/Using.*\$//')
-    gzip: \$(echo \$(bgzip --version 2>&1) | sed 's/^.*gzip //; s/Using.*\$//')
-    tabix: \$(echo \$(tabix -h 2>&1) | sed 's/^.*Version: //; s/ .*\$//')
+        perl: \$(echo \$(perl --version 2>&1) | sed 's/^.*perl //; s/Using.*\$//')
+        gzip: \$(echo \$(bgzip --version 2>&1) | sed 's/^.*gzip //; s/Using.*\$//')
+        tabix: \$(echo \$(tabix -h 2>&1) | sed 's/^.*Version: //; s/ .*\$//')
     END_VERSIONS
     """
 }
