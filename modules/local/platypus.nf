@@ -46,8 +46,9 @@ script:
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-    platypus: 0.8.1.1.3
-    tabix: \$(echo \$(tabix -h 2>&1) | sed 's/^.*Version: //; s/ .*\$//')
+        platypus: 0.8.1.1.3
+        tabix: \$(echo \$(tabix -h 2>&1) | sed 's/^.*Version: //; s/ .*\$//')
+        gzip: \$(echo \$(gzip --version 2>&1) | sed 's/^.*gzip //; s/ .*\$//')
     END_VERSIONS
 
     """
