@@ -9,7 +9,7 @@ process PIPE_ANNOTATOR {
     'odcf_indelcalling_v4.sif' :
     'kubran/odcf_indelcalling:v4' }"
 
-    publishDir params.outdir+ '/annotate_vcf' , mode: 'copy'
+    publishDir params.outdir+ '/pipe_anno' , mode: 'copy'
 
     input:
     tuple val(meta), file(vcf), file(vcf_tbi)
@@ -53,8 +53,8 @@ process PIPE_ANNOTATOR {
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-    tabix: \$(echo \$(tabix -h 2>&1) | sed 's/^.*Version: //; s/ .*\$//')
-    perl: v5.28.1
+        tabix: \$(echo \$(tabix -h 2>&1) | sed 's/^.*Version: //; s/ .*\$//')
+        perl: v5.28.1
     END_VERSIONS
     """
 }
