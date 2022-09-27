@@ -8,7 +8,7 @@ process SAMPLE_SWAP {
     'odcf_indelcalling_v4.sif' :
     'kubran/odcf_indelcalling:v4' }"
 
-    publishDir params.outdir+'/tinda' , mode: 'copy'
+    publishDir params.outdir+'/sample_swap' , mode: 'copy'
 
     input:
     tuple val(meta), file(ch_vcf), file(ch_vcf_i)
@@ -58,26 +58,27 @@ process SAMPLE_SWAP {
 
         cat <<-END_VERSIONS > versions.yml
         "${task.process}":
-        r-base: \$(echo \$(R --version 2>&1) | sed 's/^.*R version //; s/ .*\$//')
-        perl: v5.28.1
-        tabix: \$(echo \$(tabix -h 2>&1) | sed 's/^.*Version: //; s/ .*\$//')
-        bedtools: \$(echo \$(bedtools --version 2>&1) | sed 's/^.*bedtools //; s/Using.*\$//')
+            r-base: \$(echo \$(R --version 2>&1) | sed 's/^.*R version //; s/ .*\$//')
+            perl: v5.28.1
+            tabix: \$(echo \$(tabix -h 2>&1) | sed 's/^.*Version: //; s/ .*\$//')
+            bedtools: \$(echo \$(bedtools --version 2>&1) | sed 's/^.*bedtools //; s/Using.*\$//')
         END_VERSIONS
         """
     }
     else {
-    """
-    touch indel_${meta.id}.swap.json
-    touch indel_${meta.id}.checkSampleSwap_TiN.log
-    touch indel_${meta.id}.tinda.vcf
+        """
+        touch indel_${meta.id}.swap.json
+        touch indel_${meta.id}.checkSampleSwap_TiN.log
+        touch indel_${meta.id}.tinda.vcf
 
-    cat <<-END_VERSIONS > versions.yml
-    "${task.process}":
-    perl: v5.28.1
-    tabix: \$(echo \$(tabix -h 2>&1) | sed 's/^.*Version: //; s/ .*\$//')
-    bedtools: \$(echo \$(bedtools --version 2>&1) | sed 's/^.*bedtools //; s/Using.*\$//')
-    END_VERSIONS
+        cat <<-END_VERSIONS > versions.yml
+        "${task.process}":
+            r-base: \$(echo \$(R --version 2>&1) | sed 's/^.*R version //; s/ .*\$//')
+            perl: v5.28.1
+            tabix: \$(echo \$(tabix -h 2>&1) | sed 's/^.*Version: //; s/ .*\$//')
+            bedtools: \$(echo \$(bedtools --version 2>&1) | sed 's/^.*bedtools //; s/Using.*\$//')
+        END_VERSIONS
 
-    """
+        """
     }
 }
