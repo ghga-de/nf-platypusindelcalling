@@ -10,7 +10,8 @@ process INDEL_JSON {
     'kubran/odcf_indelcalling:v4' }"
 
     publishDir params.outdir+ '/indel_json' , mode: 'copy'
-
+    errorStrategy 'ignore'
+    
     input:
     tuple val(meta), file(vcf)
 
