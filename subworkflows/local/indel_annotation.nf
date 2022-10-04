@@ -8,7 +8,7 @@ include { ANNOTATE_VCF           } from '../../modules/local/annotate_vcf.nf'   
 include { ANNOVAR                } from '../../modules/local/annovar.nf'                 addParams( options: params.options )
 include { INDEL_RELIABILITY_PIPE } from '../../modules/local/indel_reliability_pipe.nf'  addParams( options: params.options )
 include { CONFIDENCE_ANNOTATION  } from '../../modules/local/confidence_annotation.nf'   addParams( options: params.options )
-include { PIPE_ANNOTATOR         } from '../../modules/local/pipe_annotator.nf'          addParams( options: params.options )
+include { ANNOTATION_PIPES       } from '../../modules/local/annotation_pipes.nf'        addParams( options: params.options )
 
 
 workflow INDEL_ANNOTATION {
@@ -42,14 +42,16 @@ workflow INDEL_ANNOTATION {
     cgi_mountains        // channel: [file.bed.gz, file.bed.gz.tbi]
     phastconselem        // channel: [file.bed.gz, file.bed.gz.tbi]
     encode_tfbs          // channel: [file.bed.gz, file.bed.gz.tbi]
-
+    chr_prefix           // val channel: [prefix]
+  
     main:
 
     versions=Channel.empty()
     logs=Channel.empty() 
+
     // RUN annotate_vcf.pl
     ANNOTATE_VCF (
-    vcf_ch, kgenome, dbsnpindel, dbsnpsnv, exac, evs, localcontrolwgs, localcontrolwes, gnomadgenomes, gnomadexomes
+    vcf_ch, kgenome, dbsnpindel, exac, evs, localcontrolwgs, localcontrolwes, gnomadgenomes, gnomadexomes
     )
  //   logs      = logs.mix(ANNOTATE_VCF.out.log)  
     versions  = versions.mix(ANNOTATE_VCF.out.versions)
@@ -76,11 +78,11 @@ workflow INDEL_ANNOTATION {
 
     if (params.runIndelDeepAnnotation)
     {
-        PIPE_ANNOTATOR (
+        ANNOTATION_PIPES (
         CONFIDENCE_ANNOTATION.out.vcf_ann, enchangers, cpgislands, tfbscons, encode_dnase, mirnas_snornas, cosmic, mirbase, mir_targets, cgi_mountains, phastconselem, encode_tfbs
         )
-        ann_vcf_ch  = PIPE_ANNOTATOR.out.deep_vcf 
-        versions    = versions.mix(PIPE_ANNOTATOR.out.versions)
+        ann_vcf_ch  = ANNOTATION_PIPES.out.deep_vcf 
+        versions    = versions.mix(ANNOTATION_PIPES.out.versions)
 
     }
 emit:
