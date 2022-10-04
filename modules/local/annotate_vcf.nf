@@ -14,7 +14,6 @@ process ANNOTATE_VCF {
     tuple val(meta), file(vcf), file(vcf_tbi)
     tuple path(kgenome), path(kgenome_i)
     tuple path(dbsnpindel), path(dbsnpindel_i)
-    tuple path(dbsnpsnv), path(dbsnpsnv_i)
     tuple path(exac), path(exac_i)
     tuple path(evs), path(evs_i)
     tuple path(localcontrolwgs), path(localcontrolwgs_i)
@@ -59,7 +58,7 @@ process ANNOTATE_VCF {
         --minOverlapFraction 1 --bFileType vcf --reportLevel 4 --reportMatchType | \\
     annotate_vcf.pl -a - -b $localcontrolwes --columnName='LocalControlAF_WES' \\
          --minOverlapFraction 1 --bFileType vcf --reportLevel 4 --reportMatchType | \\
-    tee $temp_name | vcf_to_annovar.pl ${params.chr_prefix} ${params.chr_suffix} > $for_annovar
+    tee $temp_name | vcf_to_annovar.pl ${params.chr_prefix} "" > $for_annovar
 
     mv $temp_name $out_vcf
 
