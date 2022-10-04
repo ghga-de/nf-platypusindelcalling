@@ -14,10 +14,10 @@ process INDEL_EXTRACTION {
     tuple val(meta), file(ch_vcf), file(ch_vcf_i)
 
     output:
-    tuple val(meta), path('indels_*_somatic_functional_indels_conf_*_to_10.vcf')          , emit: somatic_functional
-    tuple val(meta), path('indels_*_somatic_indels_conf_*_to_10.vcf')                     , emit: somatic_indel
-    tuple val(meta), path('indels_*_somatic_ncRNA_indels_conf_*_to_10.vcf')                , emit: somatic_ncrna
-    tuple val(meta), path('indels_*_germline_functional_indels_conf_*_to_10.vcf')          , emit: germline_functional
+    tuple val(meta), path('indel_*_somatic_functional_indels_conf_*_to_10.vcf')          , emit: somatic_functional
+    tuple val(meta), path('indel_*_somatic_indels_conf_*_to_10.vcf')                     , emit: somatic_indel
+    tuple val(meta), path('indel_*_somatic_ncRNA_indels_conf_*_to_10.vcf')                , emit: somatic_ncrna
+    tuple val(meta), path('indel_*_germline_functional_indels_conf_*_to_10.vcf')          , emit: germline_functional
     tuple val(meta), path('*.functional_var_count.txt')                                    , emit: functional_var
     path  "versions.yml"                                                                   , emit: versions
 
@@ -26,11 +26,11 @@ process INDEL_EXTRACTION {
 
     script:
 
-    def somatic_indels_vcf            ="indels_${meta.id}_somatic_indels_conf_${params.min_confidence_score}_to_10.vcf"
-    def somatic_functional_indel_vcf  ="indels_${meta.id}_somatic_functional_indels_conf_${params.min_confidence_score}_to_10.vcf"
-    def somatic_ncRNA_indel_vcf       ="indels_${meta.id}_somatic_ncRNA_indels_conf_${params.min_confidence_score}_to_10.vcf"
-    def germline_functional_indel_vcf ="indels_${meta.id}_germline_functional_indels_conf_${params.min_confidence_score}_to_10.vcf"
-    def outnamegz                    = "indels_${meta.id}_somatic_functional_indels_conf_${params.min_confidence_score}_to_10.vcf.gz" 
+    def somatic_indels_vcf            ="indel_${meta.id}_somatic_indels_conf_${params.min_confidence_score}_to_10.vcf"
+    def somatic_functional_indel_vcf  ="indel_${meta.id}_somatic_functional_indels_conf_${params.min_confidence_score}_to_10.vcf"
+    def somatic_ncRNA_indel_vcf       ="indel_${meta.id}_somatic_ncRNA_indels_conf_${params.min_confidence_score}_to_10.vcf"
+    def germline_functional_indel_vcf ="indel_${meta.id}_germline_functional_indels_conf_${params.min_confidence_score}_to_10.vcf"
+
     """
     indel_extractor_v1.pl \\
         --infile=$ch_vcf \\
@@ -40,15 +40,11 @@ process INDEL_EXTRACTION {
         --germlineout=$germline_functional_indel_vcf \\
         --minconf=${params.min_confidence_score}
         
-    bgzip -c $somatic_functional_indel_vcf  > $outnamegz
-    tabix $outnamegz
     cat $somatic_functional_indel_vcf | tail -n +2 | wc -l | cut -f1 -d " " > ${meta.id}.functional_var_count.txt
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         perl: v5.28.1
-        tabix: \$(echo \$(tabix -h 2>&1) | sed 's/^.*Version: //; s/ .*\$//')
-        gzip: \$(echo \$(gzip --version 2>&1) | sed 's/^.*gzip //; s/ .*\$//')
     END_VERSIONS
     """
 }
