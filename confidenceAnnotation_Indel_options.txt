@@ -1,0 +1,26 @@
+description="Annotate 'CONFIDENCE' and 'CLASSIFICATION' to the vcf file.
+
+-b", "--configfile", dest="configfile", nargs="?", type=argparse.FileType('r'), default=None,
+                        help='Specify the config file which contains header names.
+"-m", "--nomakehead", dest="no_makehead", action="store_true", default=False,
+                        help="Set this flag if you do NOT want to produce a pancancer conform head.
+"-d", "--debug", dest="debug", action="store_true", default=False,
+                        help="Print justification for confidence score.
+"-a", "--anno", dest="anno", type=int, nargs="?", default=0,
+                        help="Set this flag if you want to print the original annotation.
+"-o", "--notonlyindel", dest="notonlyindel", action="store_true", default=False,
+                        help="Set this flag if you want to also annotate not only real indels.
+"-H", "--addhead", dest="additional_header", nargs="+", default=[],
+                        help="String with additional header line infer multiple times for multiple additional lines.")
+"-z", "--center", dest="center", nargs="?", default="DKFZ",
+                        help="Center (unclear if the center where the data was produced or the center of the " \
+                             "calling pipeline; default DKFZ).
+"--hetcontr", dest="hetcontr", type=float, default=-4.60517,
+                        help="Score that a 0/0 call in the control is actually 0/1 or 1/0 (the more negative, the less likely).
+"--homcontr", dest="homcontr", type=float, default=-4.60517,
+                        help="Score that a 0/0 call in the control is actually 1/1 (the more negative, the less likely).
+"--homreftum", dest="homreftum", type=float, default=-4.60517,
+                        help="Score that a 0/1 or 1/0 or 1/1 in tumor is actually 0/0 (the more negative, the less likely).
+"--tumaltgen", dest="tumaltgen", type=float, default=0,
+                        help="Score that a 0/1 or 1/0 call in tumor is actually 1/1 or that a 1/1 call in tumor is " \
+                             "actually 1/0 or 0/1 (the more negative, the less likely)

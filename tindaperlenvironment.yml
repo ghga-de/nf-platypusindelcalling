@@ -1,0 +1,28 @@
+name: perlenvironment
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+  - bioconda-legacy
+  - r
+
+dependencies:
+  - perl=5.22.0.1=0
+  - perl-json-create
+  - perl-threaded=5.22.0=10
+  - tabix=0.2.5=0
+  - bzip2=1.0.6=1
+  - zlib=1.2.8=3
+  - bedtools=2.16.2=0
+  - ghostscript=9.18=1
+  - blas=1.1=openblas
+  - libffi=3.2.1=3
+  - libgcc
+  - libgfortran=3.0.0=1
+  - libiconv=1.14=4
+  - libpng=1.6.28=1
+  - libtiff=4.0.7=0
+  - libxcb=1.12=1
+  - curl=7.54.1=0
+  - readline=6.2=0
+  - glib

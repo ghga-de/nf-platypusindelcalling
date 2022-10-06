@@ -1,0 +1,13 @@
+#<PIPE_CONFIG:INDEL_DEEPANNOTATION
+declare -x    Enhancers=Enhancers_Vista_2011_01_14_chr.bed.gz
+declare -x    CpGislands=UCSC_27Sept2013_CpG_islands.bed.gz
+declare -x    TFBScons=tfbsConsSites_noncoding_merged_chr.bed.gz
+declare -x    ENCODE_DNASE=UCSC_27Sept2013_DNase_cluster_V2.bed.gz
+declare -x    miRNAs_snoRNAs=miRNA_snoRNAs_miRBaseRelease15_chr.bed.gz
+declare -x    miRBase18=miRBase_version-18_chr.bed.gz
+declare -x    COSMIC=Cosmic_v77_hg19_coding_SNVs.bed.gz:7,8,9:1
+declare -x    miRNAtargets=miRNAsites_TargetScan_BartelLab_2011_01_14_chr.bed.gz
+declare -x    CgiMountains=CgiMountains_chr.bed.gz:4
+declare -x    phastConsElem20bp=phastConsElem_min20bp_chr.bed.gz:4
+declare -x    ENCODE_TFBS=UCSC_27Sept2013_wgEncodeRegTfbsClusteredV3.bed.gz
+#>PIPE_CONFIG:INDEL_DEEPANNOTATION
