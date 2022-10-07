@@ -7,15 +7,20 @@
 [![run with docker](https://img.shields.io/badge/run%20with-docker-0db7ed?logo=docker)](https://www.docker.com/)
 [![run with singularity](https://img.shields.io/badge/run%20with-singularity-1d355c.svg)](https://sylabs.io/docs/)
 
+<p align="center">
+    <img title="nf-platypusindelcalling workflow" src="docs/images/nf-platypusindelcalling.png" width=30%>
+</p>
 
 
 ## Introduction
 
-**DKFZ-ODCF/nf-platypusindelcalling**:A Platypus-based insertion/deletion-detection workflow with extensive quality control additions.  The workflow is based on DKFZ - ODCF OTP Indel Calling Pipeline.
+**nf-platypusindelcalling**:A Platypus-based insertion/deletion-detection workflow with extensive quality control additions.  The workflow is based on DKFZ - ODCF OTP Indel Calling Pipeline.
 
 For now, this workflow is only optimal to work in ODCF Cluster. The config file (conf/dkfz_cluster.config) can be used as an example. Running Annotation, DeepAnnotation, Filter and Tinda steps are optinal and can be turned off using [runIndelAnnotation, runIndelDeepAnnotation, runIndelVCFFilter, runTinda] parameters sequentialy.  
 
 The pipeline is built using [Nextflow](https://www.nextflow.io), a workflow tool to run tasks across multiple compute infrastructures in a very portable manner. It uses Docker/Singularity containers making installation trivial and results highly reproducible. The [Nextflow DSL2](https://www.nextflow.io/docs/latest/dsl2.html) implementation of this pipeline uses one container per process which makes it much easier to maintain and update software dependencies.
+
+This nextflow pipeline is the transition of [DKFZ-ODCF/IndelCallingWorkflow] (https://github.com/DKFZ-ODCF/IndelCallingWorkflow). 
 
 <!-- TODO nf-core: Add full-sized test dataset and amend the paragraph below if applicable -->
 
@@ -53,7 +58,6 @@ Platypus parameters must be given under platypus_params, fow whole list of optio
 
 - --platypus_params    : " --genIndels=1 --genSNPs=1 --verbosity=1 --bufferSize=100000 --maxReads=5000000 --minFlank=0"
 
-
 **Annotation Step:** 
 
 If --runIndelAnnotation is true, the following files must be defined (with corresponding indexes):
@@ -70,10 +74,10 @@ If --runIndelAnnotation is true, the following files must be defined (with corre
 - --gnomad_genomes     : Gnomed Genome sites (vcf.gz)
 - --gnomad_exomes      : Gnomed Exome sites (vcf.gz)
 
-- --padding             : integer
+- --padding            : integer
 - --minoverlapfraction : float
-- --maxborderdist       : integer
-- --maxmatches          : integer
+- --maxborderdist      : integer
+- --maxmatches         : integer
 
 **2. Annovar Options:**
 
@@ -85,7 +89,7 @@ annotate_variation.pl -downdb wgEncodeGencodeBasicV19 humandb/ -build hg19
 - --annovar_path        :'/path/to/annovar'
 
 - --buildver            : hg19, hg38 or hg18
-- --dbtype              : wgEncodeGencodeCompV19,wgEncodeGencodeCompV18, wgEncodeGencodeCompV38, wgEncodeGencodeBasicV19, wgEncodeGencodeBasicV18, wgEncodeGencodeBasicV38, refGene, ensGene, knownGene, wgEncodeGencodeBasicV19
+- --dbtype              : wgEncodeGencodeCompV19,wgEncodeGencodeCompV18, wgEncodeGencodeCompV38, wgEncodeGencodeBasicV19, wgEncodeGencodeBasicV18, wgEncodeGencodeBasicV38, refGene, ensGene, knownGene or wgEncodeGencodeBasicV19
 - --segdupcol           : "SEGDUP_COL"
 - --cytobandcol         : "CYTOBAND_COL"
 - --geneannocols        : '"ANNOVAR_FUNCTION,GENE,EXONIC_CLASSIFICATION,ANNOVAR_TRANSCRIPTS"'
@@ -108,7 +112,7 @@ Confidence annotation parameters must be given under confidence_opts_indel, fow 
 
 **5. Deep Annotation Options:**
 
-If --runIndelDeepAnnotation is true, the following files must be defined (with corresponding indexes):
+If --runIndelDeepAnnotation is true, at least one of the following files must be defined (with corresponding indexes):
 
 -  --enchancer_file      : Enhangers (bed.gz)
 -  --cpgislands_file     : CpG islands (bed.gz)
@@ -163,8 +167,8 @@ add " LocalControlAF_WGS . VALUE+" to filter_values parameter to filter recurran
 
 If --runTinda is true, the following parameters can be applied:
 
-- -- chrlength_file     : 'assets/chrlengths.plain.sorted.txt'
-- --genemodel_bed       :  Genecode Exomes (bed.gz)
+- --chrlength_file      : Chromosome lenght file (associated with reference type) (.txt or .tab)
+- --genemodel_bed       : Genecode Exomes (bed.gz)
 - --exomecapturekit_bed : Exome capture kit UTR regions (bed.gz)
 - --local_control_wgs   : Extra Local Control files (vcf.gz)
 - --local_control_wes   : Extra Local Control files (vcf.gz) 
@@ -188,7 +192,7 @@ If --runTinda is true, the following parameters can be applied:
   ```
 
    ```console
-   nextflow run nf-core/platypusindelcalling -profile test,YOURPROFILE --outdir <OUTDIR>
+   nextflow run main.nf -profile test,YOURPROFILE --outdir <OUTDIR>
    ```
 
    Note that some form of configuration will be needed so that Nextflow knows how to fetch the required software. This is usually done in the form of a config profile (`YOURPROFILE` in the example command above). You can chain multiple config profiles in a comma-separated string.
@@ -211,6 +215,13 @@ If --runTinda is true, the following parameters can be applied:
 **tumor**: The path to the tumor file
 
 **control**: The path to the control file, if there is no control will be kept blank.
+
+## Data Requirements
+
+All VCF and BED files need to be indexed with tabix!
+
+[This section is for further]
+
 
 ## Documentation
 
