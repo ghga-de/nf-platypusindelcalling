@@ -16,7 +16,6 @@ workflow INDEL_ANNOTATION {
     vcf_ch               // channel: [val(meta), vcf.gz, vcf.gz.tbi]
     kgenome              // channel: [file.vcf.gz, file.vcf.gz.tbi]
     dbsnpindel           // channel: [file.vcf.gz, file.vcf.gz.tbi]
-    dbsnpsnv             // channel: [file.vcf.gz, file.vcf.gz.tbi]
     exac                 // channel: [file.vcf.gz, file.vcf.gz.tbi]
     evs                  // channel: [file.vcf.gz, file.vcf.gz.tbi]
     localcontrolwgs      // channel: [file.vcf.gz, file.vcf.gz.tbi]
@@ -51,14 +50,14 @@ workflow INDEL_ANNOTATION {
 
     // RUN annotate_vcf.pl
     ANNOTATE_VCF (
-    vcf_ch, kgenome, dbsnpindel, exac, evs, localcontrolwgs, localcontrolwes, gnomadgenomes, gnomadexomes
+    vcf_ch, kgenome, dbsnpindel, exac, evs, localcontrolwgs, localcontrolwes, gnomadgenomes, gnomadexomes, chr_prefix
     )
  //   logs      = logs.mix(ANNOTATE_VCF.out.log)  
     versions  = versions.mix(ANNOTATE_VCF.out.versions)
 
     // RUN ANNOVAR and sub-scripts
     ANNOVAR(
-    ANNOTATE_VCF.out.forannovar, ANNOTATE_VCF.out.unziped_vcf, annodb
+    ANNOTATE_VCF.out.forannovar, ANNOTATE_VCF.out.unziped_vcf, annodb, chr_prefix
     )
     logs     = logs.mix(ANNOVAR.out.log)
     versions = versions.mix(ANNOVAR.out.versions)

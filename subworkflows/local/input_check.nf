@@ -32,6 +32,7 @@ def create_bam_channel(LinkedHashMap row) {
 
     // add path(s) of the fastq file(s) to the meta map
     def bam_meta = []
+    
         if (!file(row.tumor).exists()) {
             exit 1, "ERROR: Please check input samplesheet -> Tumor file does not exist!\n${row.tumor}"
         }
@@ -45,9 +46,12 @@ def create_bam_channel(LinkedHashMap row) {
                     meta.control_bam = []
                     meta.control_bai = []
 
-}
-                else {exit 1, "ERROR: Please check input samplesheet -> Control file does not exist!\n${row.control}"}
+                }
+                else {
+                    exit 1, "ERROR: Please check input samplesheet -> Control file does not exist!\n${row.control}"
+                    }
             }
+
             bam_meta = [ meta, file(row.tumor), file(row.tumor + '.bai'), file(row.control), file(row.control + '.bai') ]
             meta.tumor_bam = file(row.tumor)
             meta.tumor_bai = file(row.tumor + '.bai')
