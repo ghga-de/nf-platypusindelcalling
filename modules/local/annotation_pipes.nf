@@ -5,10 +5,10 @@ process ANNOTATION_PIPES {
 
     conda     (params.enable_conda ? "" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-    'odcf_indelcalling_v4.sif' :
-    'kubran/odcf_indelcalling:v4' }"
+    'odcf_indelcalling_v5.sif' :
+    'kubran/odcf_indelcalling:v5' }"
 
-    publishDir params.outdir+'/annotation_pipe' , mode: 'copy'
+    publishDir params.outdir+'/annotation_pipe'                            , mode: 'copy'
 
     input:
     tuple val(meta), file(vcf), file(vcf_tbi)
@@ -45,9 +45,19 @@ process ANNOTATION_PIPES {
     def phastconselem_seq = phastconselem ? "-p ${phastconselem}" : ''
     def encode_tfbs_seq = encode_tfbs ? "-et ${encode_tfbs}" : ''
 
-
     """
-    create_pipes.sh -i $vcf -id ${meta.id} $enchangers_seq $cpgislands_seq $tfbscons_seq $mirnas_snornas_seq $encode_dnase_seq $mirbase_seq $cosmic_seq $mir_targets_seq $cgi_mountains_seq $phastconselem_seq $encode_tfbs_seq
+    create_pipes.sh -i $vcf -id ${meta.id} \\
+    $enchangers_seq \\
+    $cpgislands_seq \\
+    $tfbscons_seq \\
+    $mirnas_snornas_seq \\
+    $encode_dnase_seq \\
+    $mirbase_seq \\
+    $cosmic_seq \\
+    $mir_targets_seq \\
+    $cgi_mountains_seq \\
+    $phastconselem_seq \\
+    $encode_tfbs_seq
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

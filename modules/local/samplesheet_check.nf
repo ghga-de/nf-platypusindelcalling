@@ -3,8 +3,8 @@ process SAMPLESHEET_CHECK {
 
     conda (params.enable_conda ? "conda-forge::python=3.8.3" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-    'odcf_indelcalling_v4.sif' :
-    'kubran/odcf_indelcalling:v4' }"
+    'odcf_indelcalling_v5.sif' :
+    'kubran/odcf_indelcalling:v5' }"
 
 
     input:
@@ -14,7 +14,7 @@ process SAMPLESHEET_CHECK {
     path '*.csv'                  , emit: csv
     path "versions.yml"           , emit: versions
 
-    script: // This script is bundled with the pipeline, in nf-core/platypusindelcalling/bin/
+    script: 
     """
     check_samplesheet.py \\
         $samplesheet \\

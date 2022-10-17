@@ -6,8 +6,8 @@ process INDEL_RELIABILITY_PIPE {
 
     conda     (params.enable_conda ? "" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-    'odcf_indelcalling_v4.sif' :
-    'kubran/odcf_indelcalling:v4' }"
+    'odcf_indelcalling_v5.sif' :
+    'kubran/odcf_indelcalling:v5' }"
 
     publishDir params.outdir+'/indel_reliability' , mode: 'copy'
     
@@ -48,8 +48,8 @@ process INDEL_RELIABILITY_PIPE {
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-    perl: v5.28.1
-    tabix: \$(echo \$(tabix -h 2>&1) | sed 's/^.*Version: //; s/ .*\$//')
+        perl: v5.28.1
+        tabix: \$(echo \$(tabix -h 2>&1) | sed 's/^.*Version: //; s/ .*\$//')
     END_VERSIONS
     """
 }

@@ -5,10 +5,10 @@ process ANNOTATE_VCF {
 
     conda     (params.enable_conda ? "" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-    'odcf_indelcalling_v4.sif' :
-    'kubran/odcf_indelcalling:v4' }"
+    'odcf_indelcalling_v5.sif' :
+    'kubran/odcf_indelcalling:v5' }"
 
-    publishDir params.outdir+'/annotate_vcf' , mode: 'copy'
+    publishDir params.outdir+'/annotate_vcf'                    , mode: 'copy'
 
     input:
     tuple val(meta), file(vcf), file(vcf_tbi)
@@ -20,21 +20,20 @@ process ANNOTATE_VCF {
     tuple path(localcontrolwes), path(localcontrolwes_i)
     tuple path(gnomadgenomes), path(gnomadgenomes_i)
     tuple path(gnomadexomes), path(gnomadexomes_i)
+    val (chrprefix)
 
     output:
     tuple val(meta), path('*.ForAnnovar.bed')                    , emit: forannovar
     tuple val(meta), path('*.vcf')                               , emit: unziped_vcf
+    val(chrprefix)
     path  "versions.yml"                                         , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
 
     script:
-    def for_annovar = "${meta.id}.ForAnnovar.bed"
     def temp_name   = "${meta.id}.tmp"
-    def out_vcf     = "${meta.id}.vcf"
-
-    // QUESTION: BETTER WAY TO RUN ANNOTATE_VCF, either use the parameters check or run as block
+    def chr_prefix  = chrprefix == "dummy" ? "" : chrprefix
 
     """
     zcat < $vcf | \\
@@ -58,9 +57,9 @@ process ANNOTATE_VCF {
         --minOverlapFraction 1 --bFileType vcf --reportLevel 4 --reportMatchType | \\
     annotate_vcf.pl -a - -b $localcontrolwes --columnName='LocalControlAF_WES' \\
          --minOverlapFraction 1 --bFileType vcf --reportLevel 4 --reportMatchType | \\
-    tee $temp_name | vcf_to_annovar.pl ${params.chr_prefix} "" > $for_annovar
+    tee $temp_name | vcf_to_annovar.pl $chr_prefix "" > "${meta.id}.ForAnnovar.bed"
 
-    mv $temp_name $out_vcf
+    mv $temp_name "${meta.id}.vcf"
 
 
     cat <<-END_VERSIONS > versions.yml

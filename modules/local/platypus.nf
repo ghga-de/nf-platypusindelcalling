@@ -16,9 +16,9 @@ process PLATYPUS {
 
     output:
     tuple val(meta), path('indel_*.vcf.gz'), path('indel_*.vcf.gz.tbi')      , emit: vcf
-    tuple val(meta), path('indel_*.vcf')                                        , emit: vcf_temp
-    tuple val(meta), path('indel_*.log')                                        , emit: platypus_log
-    path  "versions.yml"                                                           , emit: versions
+    tuple val(meta), path('indel_*.vcf')                                     , emit: vcf_temp
+    tuple val(meta), path('indel_*.log')                                     , emit: platypus_log
+    path  "versions.yml"                                                     , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -28,13 +28,11 @@ script:
     def out_vcf     = "indel_${meta.id}.vcf"
     def out_vcfgz   = "indel_${meta.id}.vcf.gz"
     def out_log     = "indel_${meta.id}.log"
-
     def bamlist = meta.iscontrol == '1' ? "${control},${tumor}" : "${tumor}"
-
 
     """
     platypus callVariants \\
-        --nCPU=${params.max_cpus} \\
+        --nCPU=${task.cpus}\\
         --bamFiles=$bamlist \\
         --output=$out_vcf \\
         --refFile=$ref \\
