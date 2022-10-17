@@ -26,46 +26,34 @@ def checkPathParamList_annotation = [params.k_genome,
                                      params.table_folder,
                                      params.annovar_path]
 
-def checkPathParamList_deepanno= [params.repeat_masker,
-                                  params.dac_blacklist,
-                                  params.duke_excluded,
-                                  params.hiseq_depth,
-                                  params.self_chain,
-                                  params.mapability_file,
-                                  params.simple_tandemrepeats,
-                                  params.enchancer_file,
-                                  params.cpgislands_file,
-                                  params.tfbscons_file,
-                                  params.encode_dnase_file,
-                                  params.mirnas_snornas_file,
-                                  params.mirbase_file,
-                                  params.cosmic_file,
-                                  params.mir_targets_file,
-                                  params.cgi_mountains_file,
-                                  params.phastconselem_file,
-                                  params.encode_tfbs_file]
-
 def checkParamList_runtinda=[params.chrlength_file,
                              params.genemodel_bed,
-                             params.exomecapturekit_bed]
+                             params.exomecapturekit_bed,
+                             params.local_control_platypus_wgs,
+                             params.local_control_platypus_wes]
 
 for (param in checkPathParamList) { if (param) { file(param, checkIfExists: true) } }
 
 if (params.runIndelAnnotation){
     for (param in checkPathParamList_annotation) { if (param) { file(param, checkIfExists: true) } }
-    if (params.runIndelDeepAnnotation){
-        for (param in checkPathParamList_deepanno) { if (param) { file(param, checkIfExists: true) } }
-    }
 }
 
 if (params.runTinda){for (param in checkParamList_runtinda) { if (param) { file(param, checkIfExists: true) } }}
 
+// If runIndelDeepAnnotation is true; at least one of the annotation file must be provided
+
+if ((params.runIndelDeepAnnotation) && (!params.enchancer_file || !params.cpgislands_file || !params.tfbscons_file || !params.encode_dnase_file || !params.mirnas_snornas_file || !params.mirbase_file || !params.cosmic_file || !params.mir_targets_file || !params.cgi_mountains_file || !params.phastconselem_file || !params.encode_tfbs_file)) { 
+    log.error "Please specify at least one annotation file to perform INDEL Deep Annotation"
+    exit 1
+}
+
 //// Check mandatory parameters
 
 // Input samplesheet
-if (params.input)       { ch_input = file(params.input) } else { exit 1, 'Input samplesheet not specified!' }
-// Reference fasta file
-if (params.reference)   { ref = Channel.fromPath([params.reference,params.reference +'.fai'], checkIfExists: true).collect() } else { exit 1, 'Input reference file does not exist' }
+if (params.input)                { ch_input = file(params.input) } else { exit 1, 'Input samplesheet not specified!' }
+if (params.reference)            { ref = Channel.fromPath([params.reference,params.reference +'.fai'], checkIfExists: true).collect() } else { exit 1, 'Input reference file does not exist' }
+if (params.chrlength_file)       { chrlength = Channel.fromPath(params.chrlength_file, checkIfExists: true) } else { chrlength = Channel.empty() }
+
 // Annotation databases
 if (params.k_genome)             { kgenome = Channel.fromPath([params.k_genome,params.k_genome +'.tbi'], checkIfExists: true).collect() } else { kgenome = Channel.empty() }
 if (params.dbsnp_indel)          { dbsnpindel = Channel.fromPath([params.dbsnp_indel, params.dbsnp_indel + '.tbi'], checkIfExists: true).collect() } else { dbsnpindel = Channel.empty() }
@@ -99,8 +87,20 @@ if (params.cgi_mountains_file)   { cgi_mountains = Channel.fromPath([params.cgi_
 if (params.phastconselem_file)   { phastconselem = Channel.fromPath([params.phastconselem_file, params.phastconselem_file + '.tbi'], checkIfExists: true).collect() } else { phastconselem = Channel.empty() }
 if (params.encode_tfbs_file)     { encode_tfbs = Channel.fromPath([params.encode_tfbs_file, params.encode_tfbs_file + '.tbi'], checkIfExists: true).collect() } else { encode_tfbs = Channel.empty() }
 // Tinda files
-if (params.chrlength_file)       { chrlength = Channel.fromPath(params.chrlength_file, checkIfExists: true) } else { chrlength = Channel.empty() }
 if (params.genemodel_bed)        { genemodel = Channel.fromPath([params.genemodel_bed,params.genemodel_bed +'.tbi'], checkIfExists: true).collect() } else { genemodel = Channel.empty() }
+if (params.local_control_platypus_wgs)    { localcontrolplatypuswgs = Channel.fromPath([params.local_control_platypus_wgs,params.local_control_platypus_wgs + '.tbi' ], checkIfExists: true).collect() } else { localcontrolplatypuswgs = Channel.empty() }
+if (params.local_control_platypus_wes)    { localcontrolplatypuswes = Channel.fromPath([params.local_control_platypus_wes, params.local_control_platypus_wes + '.tbi'], checkIfExists: true).collect() } else { localcontrolplatypuswes = Channel.empty() }
+
+// Save AWS IGenomes file containing annotation version
+//def anno_readme = params.genomes[params.genome]?.readme
+//if (anno_readme && file(anno_readme).exists()) {
+//    file("${params.outdir}/genome/").mkdirs()
+//    file(anno_readme).copyTo("${params.outdir}/genome/")
+//}
+
+// Initialize file channels based on params, defined in the params.genomes[params.genome] scope
+//fasta              = params.fasta              ? Channel.fromPath(params.fasta).collect()                    : Channel.empty()
+//fasta_fai          = params.fasta_fai          ? Channel.fromPath(params.fasta_fai).collect()                : Channel.empty()
 
 // TODO: Write a pretty log here, write the used parameters
 log.info """\
@@ -134,6 +134,12 @@ include {INDEL_ANNOTATION       } from '../subworkflows/local/indel_annotation'
 include {FILTER_VCF             } from '../subworkflows/local/filter_vcf'
 include {RUNTINDA               } from '../subworkflows/local/runtinda'
 
+//
+// MODULE: Local Modules
+//
+
+include {SET_CHR                } from '../modules/local/set_chr.nf'
+
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     IMPORT MODULES/SUBWORKFLOWS
@@ -152,18 +158,19 @@ include { CUSTOM_DUMPSOFTWAREVERSIONS } from '../modules/nf-core/modules/custom/
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-
-
 //  RUN main workflow
 workflow PLATYPUSINDELCALLING {
 
+    // To gather all versions.yml for MultiQC
     ch_versions = Channel.empty()
+    //To gather all logs for MultiQC
     ch_logs = Channel.empty()
 
-//TODO for GHGA: PREPARE GENOME AND ANNOTATION FILES WITH AWS !!!!
+    //TODO: MAKE REF PIPELINE!!
 
-//     SUBWORKFLOW: Read in samplesheet, validate and stage input files
-
+    //    
+    // SUBWORKFLOW: Read in samplesheet, validate and stage input files
+    //    
     INPUT_CHECK (
         ch_input
         )
@@ -172,6 +179,12 @@ workflow PLATYPUSINDELCALLING {
     sample_ch.view()
     ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
 
+    //
+    // MODULE: Set chr_prefix using sample BAM
+    //
+    SET_CHR(
+        sample_ch
+        )
 
     //
     // SUBWORKFLOW:indelCalling.sh
@@ -181,7 +194,6 @@ workflow PLATYPUSINDELCALLING {
         sample_ch, ref
     )
 
-    //vcf_ch = INDEL_CALLING.out.vcf_ch
     ch_logs         = ch_logs.mix(INDEL_CALLING.out.ch_platypus_log)
     ch_versions     = ch_versions.mix(INDEL_CALLING.out.platypus_version)
 
@@ -191,9 +203,11 @@ workflow PLATYPUSINDELCALLING {
     // annotation has two part, first annotation for annovar, second is deep annotation includes for various genomic regions 
     if (params.runIndelAnnotation) {
         INDEL_ANNOTATION(
-        INDEL_CALLING.out.vcf_ch,  kgenome, dbsnpindel, dbsnpsnv, exac, evs, localcontrolwgs, localcontrolwes, gnomadgenomes, gnomadexomes,
-        annodb, repeatmasker, dacblacklist, dukeexcluded, hiseqdepth, selfchain, mapability, simpletandemrepeats, enchangers,
-        cpgislands, tfbscons, encode_dnase, mirnas_snornas, cosmic, mirbase, mir_targets, cgi_mountains, phastconselem, encode_tfbs
+        INDEL_CALLING.out.vcf_ch, kgenome, dbsnpindel, exac, evs, localcontrolwgs,
+        localcontrolwes, gnomadgenomes, gnomadexomes, annodb, repeatmasker, dacblacklist,
+        dukeexcluded, hiseqdepth, selfchain, mapability, simpletandemrepeats, enchangers,
+        cpgislands, tfbscons, encode_dnase, mirnas_snornas, cosmic, mirbase, mir_targets,
+        cgi_mountains, phastconselem, encode_tfbs, SET_CHR.out.chr
         )
 
         ch_versions = ch_versions.mix(INDEL_ANNOTATION.out.versions)
@@ -216,16 +230,16 @@ workflow PLATYPUSINDELCALLING {
     // Checks sample swap in platypus output vcf
     if (params.runTinda) {
         RUNTINDA(
-            INDEL_CALLING.out.vcf_ch, ref, chrlength, genemodel, localcontrolwgs, localcontrolwes, gnomadgenomes, gnomadexomes
+            INDEL_CALLING.out.vcf_ch, ref, chrlength, genemodel, localcontrolplatypuswgs, 
+            localcontrolplatypuswes, gnomadgenomes, gnomadexomes, SET_CHR.out.chr
             )
         ch_versions = ch_versions.mix(RUNTINDA.out.versions)    
         ch_logs = ch_versions.mix(RUNTINDA.out.logs) 
     }
 
-
     // Info required for completion email and summary
     def multiqc_report = []
-     ch_versions.view()
+    ch_versions.view()
     if (!params.skip_multiqc){
         //
         // MODULE: Pipeline reporting
