@@ -79,7 +79,7 @@ elif [[ $functional_var_count -le $MAX_VARIANT_SCREENSHOTS ]]; then
             --vcf=${somatic_functional_indel_vcf} \
             --tumor=${FILENAME_TUMOR_BAM} \
             --ref=${REFERENCE_GENOME} \
-            --prefix=_indel \
+            --prefix=indel_ \
             --window=${WINDOW_SIZE} \
             --annotations=${REPEAT_MASKER}
     fi
