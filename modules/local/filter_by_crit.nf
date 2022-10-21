@@ -8,7 +8,7 @@ process FILTER_BY_CRIT {
     'odcf_indelcalling_v5.sif' :
     'kubran/odcf_indelcalling:v5' }"
 
-    publishDir params.outdir+'/filter_by_crit' , mode: 'copy'
+ //    publishDir params.outdir+'/filter_by_crit' , mode: 'copy'
 
     input:
     tuple val(meta), file(vcfgz), file(vcf_tbi)
@@ -21,13 +21,14 @@ process FILTER_BY_CRIT {
     task.ext.when == null || task.ext.when
 
     script:
-
+    def args       = task.ext.args ?: ''
+    def prefix     = task.ext.prefix ?: "${meta.id}"
 
 // Filter variants only if there is no control, else do noting
     if (meta.iscontrol == '1') {
         """
-        mv $vcfgz ${meta.id}_noFiltered.vcf.gz
-        tabix ${meta.id}_noFiltered.vcf.gz
+        mv $vcfgz ${prefix}_noFiltered.vcf.gz
+        tabix ${prefix}_noFiltered.vcf.gz
 
         cat <<-END_VERSIONS > versions.yml
         "${task.process}":
@@ -41,9 +42,9 @@ process FILTER_BY_CRIT {
         if (params.filter_values != "") 
             {
             """
-            vcf_filter_by_crit.py $vcfgz ${meta.id}_postFiltered.vcf ${params.filter_values}
-            bgzip -c ${meta.id}_postFiltered.vcf > ${meta.id}_postFiltered.vcf.gz
-            tabix ${meta.id}_postFiltered.vcf.gz
+            vcf_filter_by_crit.py $vcfgz ${prefix}_postFiltered.vcf ${params.filter_values}
+            bgzip -c ${prefix}_postFiltered.vcf > ${prefix}_postFiltered.vcf.gz
+            tabix ${prefix}_postFiltered.vcf.gz
 
             cat <<-END_VERSIONS > versions.yml
             "${task.process}":
@@ -56,8 +57,8 @@ process FILTER_BY_CRIT {
         else
         {
             """
-            mv $vcfgz ${meta.id}_noFiltered.vcf.gz
-            tabix ${meta.id}_noFiltered.vcf.gz
+            mv $vcfgz ${prefix}_noFiltered.vcf.gz
+            tabix ${prefix}_noFiltered.vcf.gz
             
             cat <<-END_VERSIONS > versions.yml
              "${task.process}":

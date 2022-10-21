@@ -8,7 +8,7 @@ process INDEL_EXTRACTION {
     'odcf_indelcalling_v5.sif' :
     'kubran/odcf_indelcalling:v5' }"
 
-    publishDir params.outdir+'/indel_extract' , mode: 'copy'
+ //   publishDir params.outdir+'/indel_extract' , mode: 'copy'
 
     input:
     tuple val(meta), file(ch_vcf), file(ch_vcf_i)
@@ -25,19 +25,21 @@ process INDEL_EXTRACTION {
     task.ext.when == null || task.ext.when
 
     script:
-
-    def somatic_functional_indel_vcf  ="indel_${meta.id}_somatic_functional_indels_conf_${params.min_confidence_score}_to_10.vcf"
+    def prefix     = task.ext.prefix ?: "${meta.id}"
+    def args       = task.ext.args ?: ''
+    def somatic_functional_indel_vcf  ="indel_${prefix}_somatic_functional_indels_conf_${params.min_confidence_score}_to_10.vcf"
 
     """
     indel_extractor_v1.pl \\
         --infile=$ch_vcf \\
-        --somout="indel_${meta.id}_somatic_indels_conf_${params.min_confidence_score}_to_10.vcf" \\
+        --somout=indel_${prefix}_somatic_indels_conf_${params.min_confidence_score}_to_10.vcf \\
         --funcout=$somatic_functional_indel_vcf \\
-        --ncout="indel_${meta.id}_somatic_ncRNA_indels_conf_${params.min_confidence_score}_to_10.vcf" \\
-        --germlineout="indel_${meta.id}_germline_functional_indels_conf_${params.min_confidence_score}_to_10.vcf" \\
-        --minconf=${params.min_confidence_score}
+        --ncout=indel_${prefix}_somatic_ncRNA_indels_conf_${params.min_confidence_score}_to_10.vcf \\
+        --germlineout=indel_${prefix}_germline_functional_indels_conf_${params.min_confidence_score}_to_10.vcf \\
+        --minconf=${params.min_confidence_score} \\
+        $args
         
-    cat $somatic_functional_indel_vcf | tail -n +2 | wc -l | cut -f1 -d " " > ${meta.id}.functional_var_count.txt
+    cat $somatic_functional_indel_vcf | tail -n +2 | wc -l | cut -f1 -d " " > ${prefix}.functional_var_count.txt
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

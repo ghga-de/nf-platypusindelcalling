@@ -19,10 +19,11 @@ process CHECK_IF_CORRUPTED {
     task.ext.when == null || task.ext.when
 
     script:
-    def args = task.ext.args?: ''
+    def args      = task.ext.args?: ''
+    def prefix    = task.ext.prefix ?: "${meta.id}"
     def nocontrol = meta.iscontrol == '1' ? 'false': 'true'
     
-// If there is no control (iscontrol=1), isNoControlWorkflow is false
+// If there is control (iscontrol=1), isNoControlWorkflow is false
 
     """
     corrupted.sh -i $vcf -c $nocontrol

@@ -8,31 +8,31 @@ process ANNOTATE_VCF {
     'odcf_indelcalling_v5.sif' :
     'kubran/odcf_indelcalling:v5' }"
 
-    publishDir params.outdir+'/annotate_vcf'                    , mode: 'copy'
+ //   publishDir params.outdir+'/annotate_vcf'                    , mode: 'copy'
 
     input:
-    tuple val(meta), file(vcf), file(vcf_tbi)
-    tuple path(kgenome), path(kgenome_i)
-    tuple path(dbsnpindel), path(dbsnpindel_i)
-    tuple path(exac), path(exac_i)
-    tuple path(evs), path(evs_i)
+    tuple val(meta)            , file(vcf)               , file(vcf_tbi)
+    tuple path(kgenome)        , path(kgenome_i)
+    tuple path(dbsnpindel)     , path(dbsnpindel_i)
+    tuple path(exac)           , path(exac_i)
+    tuple path(evs)            , path(evs_i)
     tuple path(localcontrolwgs), path(localcontrolwgs_i)
     tuple path(localcontrolwes), path(localcontrolwes_i)
-    tuple path(gnomadgenomes), path(gnomadgenomes_i)
-    tuple path(gnomadexomes), path(gnomadexomes_i)
+    tuple path(gnomadgenomes)  , path(gnomadgenomes_i)
+    tuple path(gnomadexomes)   , path(gnomadexomes_i)
     val (chrprefix)
 
     output:
-    tuple val(meta), path('*.ForAnnovar.bed')                    , emit: forannovar
-    tuple val(meta), path('*.vcf')                               , emit: unziped_vcf
-    val(chrprefix)
-    path  "versions.yml"                                         , emit: versions
+    tuple val(meta), path('*.ForAnnovar.bed')                         , emit: forannovar
+    tuple val(meta), path('*.vcf')                                    , emit: unziped_vcf
+    path  "versions.yml"                                              , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
 
     script:
-    def temp_name   = "${meta.id}.tmp"
+    def args        = task.ext.args ?: ''
+    def prefix      = task.ext.prefix ?: "${meta.id}"
     def chr_prefix  = chrprefix == "dummy" ? "" : chrprefix
 
     """
@@ -57,9 +57,9 @@ process ANNOTATE_VCF {
         --minOverlapFraction 1 --bFileType vcf --reportLevel 4 --reportMatchType | \\
     annotate_vcf.pl -a - -b $localcontrolwes --columnName='LocalControlAF_WES' \\
          --minOverlapFraction 1 --bFileType vcf --reportLevel 4 --reportMatchType | \\
-    tee $temp_name | vcf_to_annovar.pl $chr_prefix "" > "${meta.id}.ForAnnovar.bed"
+    tee ${prefix}.tmp | vcf_to_annovar.pl $chr_prefix "" > ${prefix}.ForAnnovar.bed
 
-    mv $temp_name "${meta.id}.vcf"
+    mv ${prefix}.tmp ${prefix}.vcf
 
 
     cat <<-END_VERSIONS > versions.yml

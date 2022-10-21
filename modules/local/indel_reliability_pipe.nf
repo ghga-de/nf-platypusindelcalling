@@ -9,7 +9,7 @@ process INDEL_RELIABILITY_PIPE {
     'odcf_indelcalling_v5.sif' :
     'kubran/odcf_indelcalling:v5' }"
 
-    publishDir params.outdir+'/indel_reliability' , mode: 'copy'
+ //   publishDir params.outdir+'/indel_reliability' , mode: 'copy'
     
     input:
     tuple val(meta),                 file(ch_vcf),               file(ch_vcf_i)
@@ -29,10 +29,9 @@ process INDEL_RELIABILITY_PIPE {
     task.ext.when == null || task.ext.when
 
     script:
+    def args       = task.ext.args ?: ''
+    def prefix     = task.ext.prefix ?: "${meta.id}"
 
-    def tempname   = "${meta.id}.annotated.vcf"
-    def tempnamegz = "${meta.id}.annotated.vcf.gz"
-    
     """
     zcat < $ch_vcf | \\
     annotate_vcf.pl -a - -b $repeatmasker --bFileType=bed --columnName='REPEAT_MASKER' | \\
@@ -41,10 +40,11 @@ process INDEL_RELIABILITY_PIPE {
     annotate_vcf.pl -a - -b $hiseqdepth --bFileType=bed --columnName='HISEQDEPTH' | \\
     annotate_vcf.pl -a - -b $selfchain --bFileType=bed --columnName='SELFCHAIN' --bAdditionalColumns=4 --maxNrOfMatches=5 | \\
     annotate_vcf.pl -a - -b $mapability --bFileType=bed --columnName='MAPABILITY' --breakPointMode --aEndOffset=1 | \\
-    annotate_vcf.pl -a - -b $simpletandemrepeats --bFileType=bed --columnName='SIMPLE_TANDEMREPEATS' --bAdditionalColumns=4 > $tempname
+    annotate_vcf.pl -a - -b $simpletandemrepeats --bFileType=bed --columnName='SIMPLE_TANDEMREPEATS' --bAdditionalColumns=4 \\
+    > ${prefix}.annotated.vcf
 
-    bgzip -c $tempname > $tempnamegz
-    tabix $tempnamegz
+    bgzip -c ${prefix}.annotated.vcf > ${prefix}.annotated.vcf.gz
+    tabix ${prefix}.annotated.vcf.gz
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

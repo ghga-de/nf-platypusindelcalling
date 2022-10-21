@@ -8,7 +8,7 @@ process PLATYPUS {
     'platypus_0.8.1.1.3.sif' :
     'kubran/platypus:0.8.1.1-3'}"
 
-    publishDir params.outdir , mode: 'copy'
+ //   publishDir params.outdir , mode: 'copy'
 
     input:
     tuple val(meta), path(tumor), path(tumor_bai), path(control),  path(control_bai)
@@ -16,7 +16,7 @@ process PLATYPUS {
 
     output:
     tuple val(meta), path('indel_*.vcf.gz'), path('indel_*.vcf.gz.tbi')      , emit: vcf
-    tuple val(meta), path('indel_*.vcf')                                     , emit: vcf_temp
+    tuple val(meta), path('indel_*.vcf')                                     
     tuple val(meta), path('indel_*.log')                                     , emit: platypus_log
     path  "versions.yml"                                                     , emit: versions
 
@@ -24,23 +24,21 @@ process PLATYPUS {
     task.ext.when == null || task.ext.when
 
 script:
-
-    def out_vcf     = "indel_${meta.id}.vcf"
-    def out_vcfgz   = "indel_${meta.id}.vcf.gz"
-    def out_log     = "indel_${meta.id}.log"
+    def args    = task.ext.args ?: ''
+    def prefix  = task.ext.prefix ?: "${meta.id}"
     def bamlist = meta.iscontrol == '1' ? "${control},${tumor}" : "${tumor}"
 
     """
     platypus callVariants \\
         --nCPU=${task.cpus}\\
         --bamFiles=$bamlist \\
-        --output=$out_vcf \\
+        --output=indel_${prefix}.vcf \\
         --refFile=$ref \\
-        --logFileName=$out_log \\
-        ${params.platypus_params}
+        --logFileName=indel_${prefix}.log \\
+        $args
 
-    bgzip  --threads ${task.cpus} -c $out_vcf > $out_vcfgz
-    tabix $out_vcfgz
+    bgzip  --threads ${task.cpus} -c indel_${prefix}.vcf > indel_${prefix}.vcf.gz
+    tabix  indel_${prefix}.vcf.gz
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

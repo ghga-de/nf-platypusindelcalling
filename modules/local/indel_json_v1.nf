@@ -9,8 +9,8 @@ process INDEL_JSON {
     'odcf_indelcalling_v5.sif' :
     'kubran/odcf_indelcalling:v5' }"
 
-    publishDir params.outdir+ '/indel_json' , mode: 'copy'
-    errorStrategy 'ignore'
+ //   publishDir params.outdir+ '/indel_json' , mode: 'copy'
+ //   errorStrategy 'ignore'
     
     input:
     tuple val(meta), file(vcf)
@@ -23,10 +23,11 @@ process INDEL_JSON {
     task.ext.when == null || task.ext.when
 
     script:
-    def args = task.ext.args?: ''
+    def prefix = task.ext.prefix ?: "${meta.id}"
+    def args   = task.ext.args?: ''
 
     """
-    indel_json_v1.0.pl $vcf > ${meta.id}.indel.json
+    indel_json_v1.0.pl $vcf > ${prefix}.indel.json
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

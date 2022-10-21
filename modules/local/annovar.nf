@@ -11,16 +11,16 @@ process ANNOVAR {
     'odcf_indelcalling_v5.sif' :
     'kubran/odcf_indelcalling:v5' }"
 
-    publishDir params.outdir+'/annotate_vcf'                           , mode: 'copy'
+ //   publishDir params.outdir+'/annotate_vcf'                           , mode: 'copy'
     
     input:
-    tuple val(meta), file(annovar_bed)
-    tuple val(meta), file(ch_vcf)
+    tuple val(meta)           ,file(annovar_bed)
+    tuple val(meta)           , file(ch_vcf)
     each file(annovar_table)
     val(chrprefix)
 
     output:
-    tuple val(meta), path('*.temp.vcf.gz'), path('*.temp.vcf.gz.tbi')   , emit: vcf
+    tuple val(meta),path('*.temp.vcf.gz'), path('*.temp.vcf.gz.tbi')   , emit: vcf
     tuple val(meta), path('*.log')                                      , emit: log
     path  "versions.yml"                                                , emit: versions
     tuple val(meta), path('*_genomicSuperDups')                         
@@ -32,9 +32,11 @@ process ANNOVAR {
     task.ext.when == null || task.ext.when
 
     script:
-    def av_segdup        = "${meta.id}.${params.buildver}_genomicSuperDups"
-    def av_cytoband      = "${meta.id}.${params.buildver}_cytoBand"
-    def newcol           = "${meta.id}.newcol.tsv"
+    def args   = task.ext.args ?: ''
+    def prefix = task.ext.prefix ?: "${meta.id}"
+    def av_segdup        = "${prefix}.${params.buildver}_genomicSuperDups"
+    def av_cytoband      = "${prefix}.${params.buildver}_cytoBand"
+    def newcol           = "${prefix}.newcol.tsv"
     def chr_prefix  = chrprefix == "dummy" ? "" : chrprefix 
 
     """
@@ -42,12 +44,12 @@ process ANNOVAR {
         --buildver=${params.buildver} -dbtype ${params.dbtype} $annovar_bed $annovar_table
     ## segdup annotation with annovar
     perl ${params.annovar_path}/annotate_variation.pl \\
-        --buildver=${params.buildver} -regionanno -dbtype segdup --outfile=$meta.id $annovar_bed $annovar_table
+        --buildver=${params.buildver} -regionanno -dbtype segdup --outfile=$prefix $annovar_bed $annovar_table
     ## cytobad annotation with annovar
     perl ${params.annovar_path}/annotate_variation.pl \\
-        --buildver=${params.buildver} -regionanno -dbtype band --outfile=$meta.id $annovar_bed $annovar_table
+        --buildver=${params.buildver} -regionanno -dbtype band --outfile=$prefix $annovar_bed $annovar_table
     
-    processAnnovarOutput.pl "${meta.id}.ForAnnovar.bed.variant_function" "${meta.id}.ForAnnovar.bed.exonic_variant_function" > $newcol
+    processAnnovarOutput.pl ${prefix}.ForAnnovar.bed.variant_function ${prefix}.ForAnnovar.bed.exonic_variant_function > $newcol
 
     newCols2vcf.pl --vcfFile=$ch_vcf --newColFile=$newcol \\
         --newColHeader=${params.geneannocols} \\
@@ -63,10 +65,10 @@ process ANNOVAR {
         --newColHeader=${params.cytobandcol} \\
         --chrPrefix=$chr_prefix \\
         --chrSuffix="" \\
-        --reportColumns="1" --bChrPosEnd="2,7,8" > "${meta.id}.temp.vcf"
+        --reportColumns="1" --bChrPosEnd="2,7,8" > ${prefix}.temp.vcf
 
-    bgzip -c "${meta.id}.temp.vcf" > "${meta.id}.temp.vcf.gz"
-    tabix "${meta.id}.temp.vcf.gz"
+    bgzip -c ${prefix}.temp.vcf > ${prefix}.temp.vcf.gz
+    tabix ${prefix}.temp.vcf.gz
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
