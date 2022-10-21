@@ -10,13 +10,13 @@
 
 ## Pipeline tools
 
-- [Platypus] (https://www.well.ox.ac.uk/research/research-groups/lunter-group/lunter-group/platypus-a-haplotype-based-variant-caller-for-next-generation-sequence-data)
+- [Platypus](https://www.well.ox.ac.uk/research/research-groups/lunter-group/lunter-group/platypus-a-haplotype-based-variant-caller-for-next-generation-sequence-data)
 > Andy Rimmer, Hang Phan, Iain Mathieson, Zamin Iqbal, Stephen R. F. Twigg, WGS500 Consortium, Andrew O. M. Wilkie, Gil McVean, Gerton Lunter. Integrating mapping-, assembly- and haplotype-based approaches for calling variants in clinical sequencing applications. Nature Genetics (2014) doi:10.1038/ng.3036
 
 - [SAMtools](https://pubmed.ncbi.nlm.nih.gov/19505943/)
 > Li H, Handsaker B, Wysoker A, Fennell T, Ruan J, Homer N, Marth G, Abecasis G, Durbin R; 1000 Genome Project Data Processing Subgroup. The Sequence Alignment/Map format and SAMtools. Bioinformatics. 2009 Aug 15;25(16):2078-9. doi: 10.1093/bioinformatics/btp352. Epub 2009 Jun 8. PubMed PMID: 19505943; PubMed Central PMCID: PMC2723002.
 
--[BEDTools](https://academic.oup.com/bioinformatics/article/26/6/841/244688)
+- [BEDTools](https://academic.oup.com/bioinformatics/article/26/6/841/244688)
 > Aaron R. Quinlan, Ira M. Hall, BEDTools: a flexible suite of utilities for comparing genomic features, Bioinformatics, Volume 26, Issue 6, 15 March 2010, Pages 841–842, https://doi.org/10.1093/bioinformatics/btq033
 
 - [Tabix](https://academic.oup.com/bioinformatics/article/27/5/718/262743)
@@ -24,7 +24,7 @@
 
 - [Bgzip](https://github.com/madler/pigz)
 
-- [Annovar] (https://annovar.openbioinformatics.org/en/latest/)
+- [Annovar](https://annovar.openbioinformatics.org/en/latest/)
 > Wang K, Li M, Hakonarson H. ANNOVAR: Functional annotation of genetic variants from next-generation sequencing data Nucleic Acids Research, 38:e164, 2010
 
 - [MultiQC](https://pubmed.ncbi.nlm.nih.gov/27312411/)
@@ -32,45 +32,45 @@
 
 ## R packages
 
--[R](https://www.r-project.org/)
+- [R](https://www.r-project.org/)
 > R Core Team (2017). R: A language and environment for statistical computing. R Foundation for Statistical Computing, Vienna, Austria.
 
--[tidyverse](https://www.tidyverse.org/)
+- [tidyverse](https://www.tidyverse.org/)
 
--[optparse](https://cran.r-project.org/web/packages/optparse/index.html) 
+- [optparse](https://cran.r-project.org/web/packages/optparse/index.html) 
 
--[Grid](https://cran.r-project.org/web/packages/gridExtra/index.html)
+- [Grid](https://cran.r-project.org/web/packages/gridExtra/index.html)
 
--[gridExtra](https://cran.r-project.org/web/packages/gridExtra/index.html)
+- [gridExtra](https://cran.r-project.org/web/packages/gridExtra/index.html)
 
--[Canopy](https://cran.r-project.org/web/packages/Canopy/index.html)
+- [Canopy](https://cran.r-project.org/web/packages/Canopy/index.html)
 
-[jsonlite](https://cran.r-project.org/web/packages/jsonlite/citation.html)
+- [jsonlite](https://cran.r-project.org/web/packages/jsonlite/citation.html)
 >Ooms J (2014). “The jsonlite Package: A Practical and Consistent Mapping Between JSON Data and R Objects.” arXiv:1403.2805 [stat.CO]. https://arxiv.org/abs/1403.2805.
 
 ## Perl packages
 
--[Perl](https://www.perl.org/)
+- [Perl](https://www.perl.org/)
 > Wall, L., Christiansen, T., & Orwant, J. (2000). Programming perl. " O&#x27;Reilly Media, Inc."
 
--[JSON](https://metacpan.org/pod/JSON)
+- [JSON](https://metacpan.org/pod/JSON)
 
--[String](https://metacpan.org/pod/String::String)
+- [String](https://metacpan.org/pod/String::String)
 
 ## Pyhton packages
 
--[Python 2.7](https://python.readthedocs.io/en/v2.7.2/)
+- [Python 2.7](https://python.readthedocs.io/en/v2.7.2/)
 > Van Rossum, G., & Drake Jr, F. L. (1995). Python reference manual. Centrum voor Wiskunde en Informatica Amsterdam.
 
--[VCFparser](https://pypi.org/project/vcfparser/)
+- [VCFparser](https://pypi.org/project/vcfparser/)
 
--[pysam](https://pypi.org/project/pysam/)
+- [pysam](https://pypi.org/project/pysam/)
 
--[numpy](https://pypi.org/project/numpy/)
+- [numpy](https://pypi.org/project/numpy/)
 
--[scipy](https://pypi.org/search/?q=scipy)
+- [scipy](https://pypi.org/search/?q=scipy)
 
--[matplotlib](https://pypi.org/project/matplotlib/)
+- [matplotlib](https://pypi.org/project/matplotlib/)
 
 ## Software packaging/containerisation tools
 
