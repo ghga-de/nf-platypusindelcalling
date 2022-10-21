@@ -26,8 +26,7 @@ def checkPathParamList_annotation = [params.k_genome,
                                      params.table_folder,
                                      params.annovar_path]
 
-def checkParamList_runtinda=[params.chrlength_file,
-                             params.genemodel_bed,
+def checkParamList_runtinda=[params.genemodel_bed,
                              params.exomecapturekit_bed,
                              params.local_control_platypus_wgs,
                              params.local_control_platypus_wes]
@@ -51,8 +50,8 @@ if ((params.runIndelDeepAnnotation) && (!params.enchancer_file || !params.cpgisl
 
 // Input samplesheet
 if (params.input)                { ch_input = file(params.input) } else { exit 1, 'Input samplesheet not specified!' }
-if (params.reference)            { ref = Channel.fromPath([params.reference,params.reference +'.fai'], checkIfExists: true).collect() } else { exit 1, 'Input reference file does not exist' }
-if (params.chrlength_file)       { chrlength = Channel.fromPath(params.chrlength_file, checkIfExists: true) } else { chrlength = Channel.empty() }
+//if (params.reference)            { ref = Channel.fromPath([params.reference,params.reference +'.fai'], checkIfExists: true).collect() } else { exit 1, 'Input reference file does not exist' }
+//if (params.chrlength_file)       { chrlength = Channel.fromPath(params.chrlength_file, checkIfExists: true) } else { chrlength = Channel.empty() }
 
 // Annotation databases
 if (params.k_genome)             { kgenome = Channel.fromPath([params.k_genome,params.k_genome +'.tbi'], checkIfExists: true).collect() } else { kgenome = Channel.empty() }
@@ -98,17 +97,71 @@ if (params.local_control_platypus_wes)    { localcontrolplatypuswes = Channel.fr
 //    file(anno_readme).copyTo("${params.outdir}/genome/")
 //}
 
-// Initialize file channels based on params, defined in the params.genomes[params.genome] scope
-//fasta              = params.fasta              ? Channel.fromPath(params.fasta).collect()                    : Channel.empty()
-//fasta_fai          = params.fasta_fai          ? Channel.fromPath(params.fasta_fai).collect()                : Channel.empty()
+// Set up reference depending on the genome choice
+// NOTE: link will be defined by aoutomatic reference generation when the pipeline ready!
+
+if (params.ref_type == 'hg37')
+    { 
+    def fa_file = "/omics/odcf/reference_data/legacy/ngs_share/assemblies/hg19_GRCh37_1000genomes/sequence/1KGRef_Phix/hs37d5_PhiX.fa"
+    ref = Channel.fromPath([fa_file,fa_file +'.fai'], checkIfExists: true).collect() 
+    def chr_file = '/omics/odcf/reference_data/legacy/ngs_share/assemblies/hg19_GRCh37_1000genomes/stats/hg19_1-22_X_Y_M.fa.chrLenOnlyACGT.tab'
+    chrlength = Channel.fromPath(chr_file, checkIfExists: true) 
+    }
+if (params.ref_type == 'hg19') 
+    { 
+    def fa_file = "/omics/odcf/reference_data/legacy/ngs_share/assemblies/hg19_GRCh37_1000genomes/sequence/hg19_chr/hg19_1-22_X_Y_M.fa"
+    ref = Channel.fromPath([fa_file,fa_file +'.fai'], checkIfExists: true).collect()
+    def chr_file = '/omics/odcf/reference_data/legacy/ngs_share/assemblies/hg19_GRCh37_1000genomes/stats/hg19_1-22_X_Y_M.fa.chrLenOnlyACGT.tab'
+    chrlength = Channel.fromPath(chr_file, checkIfExists: true)  
+    }
+
 
 // TODO: Write a pretty log here, write the used parameters
 log.info """\
 DKFZ-ODCF/IndelCallingWorkflow: A Platypus-based workflow for indel calling
 ===================================
+    input                 : ${params.input}
+    outdir                : ${params.outdir}
+    ref_type              : ${params.ref_type}
 
+    Post Processes
+    runIndelAnnotation    : ${params.runIndelAnnotation}
+    runIndelDeepAnnotation: ${params.runIndelDeepAnnotation}
+    runIndelVCFFilter     : ${params.runIndelVCFFilter}
+    runTinda              : ${params.runTinda}
+
+    Annotate VCF
+    padding               : ${params.padding}
+    minoverlapfraction    : ${params.minoverlapfraction} 
+    maxborderdist         : ${params.maxborderdist} 
+    maxmatches            : ${params.maxmatches}
+
+    Annovar
+    table_folder          : ${params.table_folder}
+    annovar_path          : ${params.annovar_path}
+    buildver              : ${params.buildver}
+    dbtype                : ${params.dbtype}
+    cytobandcol           : ${params.cytobandcol}
+    segdupcol             : ${params.segdupcol}
+    geneannocols          : ${params.geneannocols} 
+
+    Filtering
+    min_confidence_score  : ${params.min_confidence_score}
+    filter_values         : ${params.filter_values}
+
+    Visualization
+    max_var_screenshots   : ${params.max_var_screenshots}
+    window_size           : ${params.window_size}
+
+    Tinda
+    normal_header_pattern : ${params.normal_header_pattern}
+    tumor_header_pattern  : ${params.tumor_header_pattern}
+    seqtype               : ${params.seqtype}
+    right_border          : ${params.right_border}
+    bottom_border         : ${params.bottom_border}
+    maf_threshold         : ${params.maf_threshold}
 """
-
+.stripIndent()
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -139,7 +192,7 @@ include {RUNTINDA               } from '../subworkflows/local/runtinda'
 //
 
 include {SET_CHR                } from '../modules/local/set_chr.nf'
-
+include {GREP_SAMPLENAME        } from '../modules/local/grep_samplename.nf'
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     IMPORT MODULES/SUBWORKFLOWS
@@ -166,8 +219,6 @@ workflow PLATYPUSINDELCALLING {
     //To gather all logs for MultiQC
     ch_logs = Channel.empty()
 
-    //TODO: MAKE REF PIPELINE!!
-
     //    
     // SUBWORKFLOW: Read in samplesheet, validate and stage input files
     //    
@@ -176,7 +227,7 @@ workflow PLATYPUSINDELCALLING {
         )
 
     sample_ch = INPUT_CHECK.out.ch_sample
-    sample_ch.view()
+//    sample_ch.view()
     ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
 
     //
@@ -187,9 +238,16 @@ workflow PLATYPUSINDELCALLING {
         )
 
     //
+    // MODULE: Extract sample name from BAM
+    //
+    GREP_SAMPLENAME(
+       sample_ch 
+        )
+
+    //
     // SUBWORKFLOW:indelCalling.sh
     //
-
+    
     INDEL_CALLING(
         sample_ch, ref
     )
@@ -207,7 +265,8 @@ workflow PLATYPUSINDELCALLING {
         localcontrolwes, gnomadgenomes, gnomadexomes, annodb, repeatmasker, dacblacklist,
         dukeexcluded, hiseqdepth, selfchain, mapability, simpletandemrepeats, enchangers,
         cpgislands, tfbscons, encode_dnase, mirnas_snornas, cosmic, mirbase, mir_targets,
-        cgi_mountains, phastconselem, encode_tfbs, SET_CHR.out.chr
+        cgi_mountains, phastconselem, encode_tfbs, SET_CHR.out.chr, 
+        GREP_SAMPLENAME.out.tumorname, GREP_SAMPLENAME.out.controlname 
         )
 
         ch_versions = ch_versions.mix(INDEL_ANNOTATION.out.versions)
@@ -231,7 +290,8 @@ workflow PLATYPUSINDELCALLING {
     if (params.runTinda) {
         RUNTINDA(
             INDEL_CALLING.out.vcf_ch, ref, chrlength, genemodel, localcontrolplatypuswgs, 
-            localcontrolplatypuswes, gnomadgenomes, gnomadexomes, SET_CHR.out.chr
+            localcontrolplatypuswes, gnomadgenomes, gnomadexomes, SET_CHR.out.chr,
+            GREP_SAMPLENAME.out.tumorname, GREP_SAMPLENAME.out.controlname
             )
         ch_versions = ch_versions.mix(RUNTINDA.out.versions)    
         ch_logs = ch_versions.mix(RUNTINDA.out.logs) 
@@ -259,11 +319,12 @@ workflow PLATYPUSINDELCALLING {
         ch_multiqc_files = ch_multiqc_files.mix(ch_multiqc_custom_config.collect().ifEmpty([]))
         ch_multiqc_files = ch_multiqc_files.mix(ch_workflow_summary.collectFile(name: 'workflow_summary_mqc.yaml'))
         ch_multiqc_files = ch_multiqc_files.mix(CUSTOM_DUMPSOFTWAREVERSIONS.out.mqc_yml.collect())
+        ch_multiqc_files = ch_multiqc_files.mix(ch_logs.collect{it[1]}.ifEmpty({[]}))
 
         MULTIQC (
-            ch_multiqc_files.collect(),
-            ch_logs.collect{it[1]}.ifEmpty({[]})
-        )
+            ch_multiqc_files.collect()
+            )
+        
         multiqc_report = MULTIQC.out.report.toList()
         ch_versions    = ch_versions.mix(MULTIQC.out.versions)
     }
