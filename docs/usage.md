@@ -7,6 +7,134 @@
 ## Introduction
 
 <!-- TODO nf-core: Add documentation about anything specific to running your pipeline. For general topics, please point to (and add to) the main nf-core website. -->
+## Data requirements and Paremeters
+
+Reference Files:
+
+- --reference: A reference directory .fa or .fasta (including index files in the same directory) should be defined.
+
+**Platypus Options**
+
+Platypus parameters must be given under platypus_params, fow whole list of options check assets/platypus_options.txt
+
+- --platypus_params    : " --genIndels=1 --genSNPs=1 --verbosity=1 --bufferSize=100000 --maxReads=5000000 --minFlank=0"
+
+**Annotation Step:** 
+
+If --runIndelAnnotation is true, the following files must be defined (with corresponding indexes):
+
+**1. annotate.vcf Options:**
+
+- --k_genome           : 1000k genome indel calls (vcf.gz)
+- --dbsnp_indel        : dbSNP indel calls (vcf.gz)
+- --dbsnp_snv          : dbSNP SV calls (vcf.gz)
+- --exac_file          : ExAC database calls (vcf.gz)
+- --evs_file           : EVS database calls (vcf.gz)
+- --local_control_wgs  : Extra Local Control files (vcf.gz)
+- --local_control_wes  : Extra Local Control files (vcf.gz) 
+- --gnomad_genomes     : Gnomed Genome sites (vcf.gz)
+- --gnomad_exomes      : Gnomed Exome sites (vcf.gz)
+
+- --padding            : integer
+- --minoverlapfraction : float
+- --maxborderdist      : integer
+- --maxmatches         : integer
+
+**2. Annovar Options:**
+
+Annovar must be downloaded locally and necessary build version must be generated through:
+
+annotate_variation.pl -downdb wgEncodeGencodeBasicV19 humandb/ -build hg19
+
+- --table_folder        :'/path/to/annovar/humandb/'
+- --annovar_path        :'/path/to/annovar'
+
+- --buildver            : hg19, hg38 or hg18
+- --dbtype              : wgEncodeGencodeCompV19,wgEncodeGencodeCompV18, wgEncodeGencodeCompV38, wgEncodeGencodeBasicV19, wgEncodeGencodeBasicV18, wgEncodeGencodeBasicV38, refGene, ensGene, knownGene or wgEncodeGencodeBasicV19
+- --segdupcol           : "SEGDUP_COL"
+- --cytobandcol         : "CYTOBAND_COL"
+- --geneannocols        : '"ANNOVAR_FUNCTION,GENE,EXONIC_CLASSIFICATION,ANNOVAR_TRANSCRIPTS"'
+
+**3. Indel Reability Options:**
+
+- --repeat_masker       : Repeat Masker file (bed.gz)
+- --dac_blacklist       : Black List (bed.gz)
+- --duke_excluded       : Excluded List (bed.gz)
+- --hiseq_depth         : Hiseq Deep sequencing regions (bed.gz)
+- --self_chain          : SeLf Chain regions (bed.gz)
+- --mapability_file     : Mappability regions (bed.gz)
+- --simple_tandemrepeats: Simple tandem repeats (bed.gz)
+
+**4. Confidence Annotation Options:**
+
+Confidence annotation parameters must be given under confidence_opts_indel, fow whole list of options check assets/confidenceAnnotation_Indel_options.txt
+
+- --confidence_opts_indel: " --hetcontr=-4.60517 --tumaltgen=0" 
+
+**5. Deep Annotation Options:**
+
+If --runIndelDeepAnnotation is true, at least one of the following files must be defined (with corresponding indexes):
+
+-  --enchancer_file      : Enhangers (bed.gz)
+-  --cpgislands_file     : CpG islands (bed.gz)
+-  --tfbscons_file       : TFBS noncoding sites (bed.gz)
+-  --encode_dnase_file   : Encode DNAse cluster (bed.gz)
+-  --mirnas_snornas_file : snoRNAs miRBase  (bed.gz)
+-  --mirbase_file        : miRBase (bed.gz)
+-  --cosmic_file         : Cosmic coding SNVs (bed.gz)
+-  --mir_targets_file    : miRNA target sites (bed.gz)
+-  --cgi_mountains_file  : Cgi Mountains (bed.gz)
+-  --phastconselem_file  : Phast Cons Elements (bed.gz)
+-  --encode_tfbs_file    :  Encode TFBS (bed.gz)
+
+**Filtration Step:** 
+
+If --runVCFFilter is true, the following parameters can be applied:
+
+**1. Filtering Options:**
+
+Filtering is only applied into the samples without control! Filtering options must be inserted into filter_values parameter. 
+
+Available filtering columns if the databases are provided: 
+add " EVS MAF VALUE+" to filter_values parameter for EVS db (1)
+
+add " ExAC AF VALUE+" to filter_values parameter for ExAC db (0.01)
+
+add " GNOMAD_EXOMES AF VALUE+" to filter_values parameterfor gnomAD exomes db (0.001)
+
+add " GNOMAD_GENOMES AF VALUE+" to filter_values parameter for gnomAD genomes db (0.001)
+
+add " DBSNP CLN,COMMON nonexist,exist" to filter_values parameter to filtering clinical variants
+
+add " 1K_GENOMES EUR_AF VALUE+" to filter_values parameter for 1k genomes db  for EUR (0.01)
+
+add " LocalControlAF_WGS AF VALUE+ LocalControlAF_WES AF VALUE+" to filter_values parameter for Local control (0.01)
+
+add " LocalControlAF_WGS . VALUE+" to filter_values parameter to filter recurrance (7)
+
+- --filter_values       : " GNOMAD_EXOMES AF 0.001+ GNOMAD_GENOMES AF 0.001+"
+
+**2. Indel Extraction Options:**
+
+- --min_confidence_score: integer
+
+**3. Visualize Options:**
+
+- --max_var_screenshots : integer
+- --window_size         : integer
+- --repeat_masker       : Repeat Masker file (bed.gz)
+
+**Swap Check Step:** 
+
+If --runTinda is true, the following parameters can be applied:
+
+- --chrlength_file      : Chromosome lenght file (associated with reference type) (.txt or .tab)
+- --genemodel_bed       : Genecode Exomes (bed.gz)
+- --exomecapturekit_bed : Exome capture kit UTR regions (bed.gz)
+- --local_control_wgs   : Extra Local Control files (vcf.gz)
+- --local_control_wes   : Extra Local Control files (vcf.gz) 
+- --gnomad_genomes      : Gnomed Genome sites (vcf.gz)
+- --gnomad_exomes       : Gnomed Exome sites (vcf.gz)
 
 ## Samplesheet input
 
