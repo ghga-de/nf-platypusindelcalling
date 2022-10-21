@@ -13,7 +13,7 @@ include { ANNOTATION_PIPES       } from '../../modules/local/annotation_pipes.nf
 
 workflow INDEL_ANNOTATION {
     take:
-    vcf_ch               // channel: [val(meta), vcf.gz, vcf.gz.tbi]
+    vcf_ch               // channel: [val(meta), val(tumorname), val(controlname), vcf.gz, vcf.gz.tbi ]
     kgenome              // channel: [file.vcf.gz, file.vcf.gz.tbi]
     dbsnpindel           // channel: [file.vcf.gz, file.vcf.gz.tbi]
     exac                 // channel: [file.vcf.gz, file.vcf.gz.tbi]
@@ -42,7 +42,9 @@ workflow INDEL_ANNOTATION {
     phastconselem        // channel: [file.bed.gz, file.bed.gz.tbi]
     encode_tfbs          // channel: [file.bed.gz, file.bed.gz.tbi]
     chr_prefix           // val channel: [prefix]
-  
+    tumorname            // val channel: [tumor sample name]   
+    controlname          // val channel: [control sample name]
+
     main:
 
     versions=Channel.empty()
@@ -69,7 +71,7 @@ workflow INDEL_ANNOTATION {
     versions = versions.mix(INDEL_RELIABILITY_PIPE.out.versions)
 
     CONFIDENCE_ANNOTATION(
-    INDEL_RELIABILITY_PIPE.out.vcf
+    INDEL_RELIABILITY_PIPE.out.vcf, tumorname, controlname
     )
     ann_vcf_ch  = CONFIDENCE_ANNOTATION.out.vcf_ann
     conf_vcf_ch = CONFIDENCE_ANNOTATION.out.vcf_conf

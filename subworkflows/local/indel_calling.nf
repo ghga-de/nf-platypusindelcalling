@@ -3,7 +3,7 @@
 //
 
 params.options = [:]
-
+ 
 include { PLATYPUS          } from '../../modules/local/platypus.nf'               addParams( options: params.options )
 include { CHECK_IF_CORRUPTED} from '../../modules/local/check_if_corrupted.nf'     addParams( options: params.options )
 
@@ -13,6 +13,9 @@ workflow INDEL_CALLING {
     ref       // reference channel [ref.fa, ref.fa.fai]
     
     main:
+
+
+
     PLATYPUS (
     sample_ch, ref
     )

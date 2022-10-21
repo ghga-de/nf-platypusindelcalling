@@ -4,7 +4,7 @@
 
 params.options = [:]
 
-include { SAMPLE_SWAP                                } from '../../modules/local/sample_swap.nf'     addParams( options: params.options )
+include { SAMPLE_SWAP  } from '../../modules/local/sample_swap.nf'     addParams( options: params.options )
 
 workflow RUNTINDA {
     take:
@@ -16,13 +16,16 @@ workflow RUNTINDA {
     localcontrolplatypuswes   // channel: [file.bed.gz, file.bed.gz.tbi]
     gnomadgenomes             // channel: [file.bed.gz, file.bed.gz.tbi]
     gnomadexomes              // channel: [file.bed.gz, file.bed.gz.tbi]
-    chrprefix                 // channel: val
+    chrprefix                 // channel: [prefix]
+    tumorname                 // val channel: [tumor sample name]   
+    controlname               // val channel: [control sample name]          
 
     main:
 
 
     SAMPLE_SWAP(
-    vcf_ch, ref, chrlength, genemodel, localcontrolplatypuswgs, localcontrolplatypuswes, gnomadgenomes, gnomadexomes, chrprefix
+    vcf_ch, ref, chrlength, genemodel, localcontrolplatypuswgs, localcontrolplatypuswes, 
+    gnomadgenomes, gnomadexomes, chrprefix, tumorname, controlname
     )
     versions = SAMPLE_SWAP.out.versions
     logs = SAMPLE_SWAP.out.log
