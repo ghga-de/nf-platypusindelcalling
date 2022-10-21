@@ -10,10 +10,67 @@
 
 ## Pipeline tools
 
-- [FastQC](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/)
+- [Platypus] (https://www.well.ox.ac.uk/research/research-groups/lunter-group/lunter-group/platypus-a-haplotype-based-variant-caller-for-next-generation-sequence-data)
+> Andy Rimmer, Hang Phan, Iain Mathieson, Zamin Iqbal, Stephen R. F. Twigg, WGS500 Consortium, Andrew O. M. Wilkie, Gil McVean, Gerton Lunter. Integrating mapping-, assembly- and haplotype-based approaches for calling variants in clinical sequencing applications. Nature Genetics (2014) doi:10.1038/ng.3036
+
+- [SAMtools](https://pubmed.ncbi.nlm.nih.gov/19505943/)
+> Li H, Handsaker B, Wysoker A, Fennell T, Ruan J, Homer N, Marth G, Abecasis G, Durbin R; 1000 Genome Project Data Processing Subgroup. The Sequence Alignment/Map format and SAMtools. Bioinformatics. 2009 Aug 15;25(16):2078-9. doi: 10.1093/bioinformatics/btp352. Epub 2009 Jun 8. PubMed PMID: 19505943; PubMed Central PMCID: PMC2723002.
+
+-[BEDTools](https://academic.oup.com/bioinformatics/article/26/6/841/244688)
+> Aaron R. Quinlan, Ira M. Hall, BEDTools: a flexible suite of utilities for comparing genomic features, Bioinformatics, Volume 26, Issue 6, 15 March 2010, Pages 841–842, https://doi.org/10.1093/bioinformatics/btq033
+
+- [Tabix](https://academic.oup.com/bioinformatics/article/27/5/718/262743)
+> Li H, Tabix: fast retrieval of sequence features from generic TAB-delimited files, Bioinformatics, Volume 27, Issue 5, 1 March 2011, Pages 718–719, doi: 10.1093/bioinformatics/btq671. PubMed PMID: 21208982. PubMed Central PMCID: PMC3042176.
+
+- [Bgzip](https://github.com/madler/pigz)
+
+- [Annovar] (https://annovar.openbioinformatics.org/en/latest/)
+> Wang K, Li M, Hakonarson H. ANNOVAR: Functional annotation of genetic variants from next-generation sequencing data Nucleic Acids Research, 38:e164, 2010
 
 - [MultiQC](https://pubmed.ncbi.nlm.nih.gov/27312411/)
   > Ewels P, Magnusson M, Lundin S, Käller M. MultiQC: summarize analysis results for multiple tools and samples in a single report. Bioinformatics. 2016 Oct 1;32(19):3047-8. doi: 10.1093/bioinformatics/btw354. Epub 2016 Jun 16. PubMed PMID: 27312411; PubMed Central PMCID: PMC5039924.
+
+## R packages
+
+-[R](https://www.r-project.org/)
+> R Core Team (2017). R: A language and environment for statistical computing. R Foundation for Statistical Computing, Vienna, Austria.
+
+-[tidyverse](https://www.tidyverse.org/)
+
+-[optparse](https://cran.r-project.org/web/packages/optparse/index.html) 
+
+-[Grid](https://cran.r-project.org/web/packages/gridExtra/index.html)
+
+-[gridExtra](https://cran.r-project.org/web/packages/gridExtra/index.html)
+
+-[Canopy](https://cran.r-project.org/web/packages/Canopy/index.html)
+
+[jsonlite](https://cran.r-project.org/web/packages/jsonlite/citation.html)
+>Ooms J (2014). “The jsonlite Package: A Practical and Consistent Mapping Between JSON Data and R Objects.” arXiv:1403.2805 [stat.CO]. https://arxiv.org/abs/1403.2805.
+
+## Perl packages
+
+-[Perl](https://www.perl.org/)
+> Wall, L., Christiansen, T., & Orwant, J. (2000). Programming perl. " O&#x27;Reilly Media, Inc."
+
+-[JSON](https://metacpan.org/pod/JSON)
+
+-[String](https://metacpan.org/pod/String::String)
+
+## Pyhton packages
+
+-[Python 2.7](https://python.readthedocs.io/en/v2.7.2/)
+> Van Rossum, G., & Drake Jr, F. L. (1995). Python reference manual. Centrum voor Wiskunde en Informatica Amsterdam.
+
+-[VCFparser](https://pypi.org/project/vcfparser/)
+
+-[pysam](https://pypi.org/project/pysam/)
+
+-[numpy](https://pypi.org/project/numpy/)
+
+-[scipy](https://pypi.org/search/?q=scipy)
+
+-[matplotlib](https://pypi.org/project/matplotlib/)
 
 ## Software packaging/containerisation tools
 
