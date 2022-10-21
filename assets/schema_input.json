@@ -12,17 +12,17 @@
                 "pattern": "^\\S+$",
                 "errorMessage": "Sample name must be provided and cannot contain spaces"
             },
-            "fastq_1": {
+            "tumor": {
                 "type": "string",
-                "pattern": "^\\S+\\.f(ast)?q\\.gz$",
-                "errorMessage": "FastQ file for reads 1 must be provided, cannot contain spaces and must have extension '.fq.gz' or '.fastq.gz'"
+                "pattern": "^\\S+\\.bam$",
+                "errorMessage": "BAM file for tumors must be provided'"
             },
-            "fastq_2": {
-                "errorMessage": "FastQ file for reads 2 cannot contain spaces and must have extension '.fq.gz' or '.fastq.gz'",
+            "control": {
+                "errorMessage": "BAM file for as control matching to tumor, if there is",
                 "anyOf": [
                     {
                         "type": "string",
-                        "pattern": "^\\S+\\.f(ast)?q\\.gz$"
+                        "pattern": "^\\S+\\.bam$"
                     },
                     {
                         "type": "string",
@@ -31,6 +31,6 @@
                 ]
             }
         },
-        "required": ["sample", "fastq_1"]
+        "required": ["sample", "tumor"]
     }
 }
