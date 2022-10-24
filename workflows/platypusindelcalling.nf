@@ -11,25 +11,25 @@ WorkflowPlatypusindelcalling.initialise(params, log)
 
 // Check input path parameters to see if they exist
 def checkPathParamList = [ params.input,
-                           params.multiqc_config,
-                           params.reference]
+                        params.multiqc_config,
+                        params.reference]
 
 def checkPathParamList_annotation = [params.k_genome,
-                                     params.dbsnp_indel,
-                                     params.dbsnp_snv,
-                                     params.exac_file,
-                                     params.evs_file,
-                                     params.local_control_wgs,
-                                     params.local_control_wes,
-                                     params.gnomad_genomes,
-                                     params.gnomad_exomes,
-                                     params.table_folder,
-                                     params.annovar_path]
+                                    params.dbsnp_indel,
+                                    params.dbsnp_snv,
+                                    params.exac_file,
+                                    params.evs_file,
+                                    params.local_control_wgs,
+                                    params.local_control_wes,
+                                    params.gnomad_genomes,
+                                    params.gnomad_exomes,
+                                    params.table_folder,
+                                    params.annovar_path]
 
 def checkParamList_runtinda=[params.genemodel_bed,
-                             params.exomecapturekit_bed,
-                             params.local_control_platypus_wgs,
-                             params.local_control_platypus_wes]
+                            params.exomecapturekit_bed,
+                            params.local_control_platypus_wgs,
+                            params.local_control_platypus_wes]
 
 for (param in checkPathParamList) { if (param) { file(param, checkIfExists: true) } }
 
@@ -99,22 +99,28 @@ if (params.local_control_platypus_wes)    { localcontrolplatypuswes = Channel.fr
 
 // Set up reference depending on the genome choice
 // NOTE: link will be defined by aoutomatic reference generation when the pipeline ready!
-
-if (params.ref_type == 'hg37')
-    { 
-    def fa_file = "/omics/odcf/reference_data/legacy/ngs_share/assemblies/hg19_GRCh37_1000genomes/sequence/1KGRef_Phix/hs37d5_PhiX.fa"
-    ref = Channel.fromPath([fa_file,fa_file +'.fai'], checkIfExists: true).collect() 
-    def chr_file = '/omics/odcf/reference_data/legacy/ngs_share/assemblies/hg19_GRCh37_1000genomes/stats/hg19_1-22_X_Y_M.fa.chrLenOnlyACGT.tab'
-    chrlength = Channel.fromPath(chr_file, checkIfExists: true) 
+if (params.ref_type)
+    {
+    if (params.ref_type == 'hg37')
+        { 
+        def fa_file = "/omics/odcf/reference_data/legacy/ngs_share/assemblies/hg19_GRCh37_1000genomes/sequence/1KGRef_Phix/hs37d5_PhiX.fa"
+        ref = Channel.fromPath([fa_file,fa_file +'.fai'], checkIfExists: true).collect() 
+        def chr_file = '/omics/odcf/reference_data/legacy/ngs_share/assemblies/hg19_GRCh37_1000genomes/stats/hs37d5.fa.chrLenOnlyACGT_realChromosomes.tab'
+        chrlength = Channel.fromPath(chr_file, checkIfExists: true) 
+        }
+    if (params.ref_type == 'hg19') 
+        { 
+        def fa_file = "/omics/odcf/reference_data/legacy/ngs_share/assemblies/hg19_GRCh37_1000genomes/sequence/hg19_chr/hg19_1-22_X_Y_M.fa"
+        ref = Channel.fromPath([fa_file,fa_file +'.fai'], checkIfExists: true).collect()
+        def chr_file = '/omics/odcf/reference_data/legacy/ngs_share/assemblies/hg19_GRCh37_1000genomes/stats/hg19_1-22_X_Y_M.fa.chrLenOnlyACGT.tab'
+        chrlength = Channel.fromPath(chr_file, checkIfExists: true)  
+        }
     }
-if (params.ref_type == 'hg19') 
-    { 
-    def fa_file = "/omics/odcf/reference_data/legacy/ngs_share/assemblies/hg19_GRCh37_1000genomes/sequence/hg19_chr/hg19_1-22_X_Y_M.fa"
-    ref = Channel.fromPath([fa_file,fa_file +'.fai'], checkIfExists: true).collect()
-    def chr_file = '/omics/odcf/reference_data/legacy/ngs_share/assemblies/hg19_GRCh37_1000genomes/stats/hg19_1-22_X_Y_M.fa.chrLenOnlyACGT.tab'
-    chrlength = Channel.fromPath(chr_file, checkIfExists: true)  
-    }
-
+else
+{
+    if (params.reference)      { ref = Channel.fromPath([params.reference,params.reference +'.fai'], checkIfExists: true).collect() } else { exit 1, 'Input reference file does not exist' }
+    if (params.chrlength_file) { chrlength = Channel.fromPath(params.chrlength_file, checkIfExists: true) } else { chrlength = Channel.empty() }
+}
 
 // TODO: Write a pretty log here, write the used parameters
 log.info """\
@@ -191,8 +197,9 @@ include {RUNTINDA               } from '../subworkflows/local/runtinda'
 // MODULE: Local Modules
 //
 
-include {SET_CHR                } from '../modules/local/set_chr.nf'
-include {GREP_SAMPLENAME        } from '../modules/local/grep_samplename.nf'
+include {SET_CHR            } from '../modules/local/set_chr.nf'
+include { GREP_SAMPLENAME   } from '../modules/local/grep_samplename.nf' 
+
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     IMPORT MODULES/SUBWORKFLOWS
@@ -227,7 +234,6 @@ workflow PLATYPUSINDELCALLING {
         )
 
     sample_ch = INPUT_CHECK.out.ch_sample
-//    sample_ch.view()
     ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
 
     //
@@ -241,7 +247,7 @@ workflow PLATYPUSINDELCALLING {
     // MODULE: Extract sample name from BAM
     //
     GREP_SAMPLENAME(
-       sample_ch 
+        sample_ch
         )
 
     //
@@ -255,18 +261,22 @@ workflow PLATYPUSINDELCALLING {
     ch_logs         = ch_logs.mix(INDEL_CALLING.out.ch_platypus_log)
     ch_versions     = ch_versions.mix(INDEL_CALLING.out.platypus_version)
 
+    // Prepare an input channel of vcf with sample names 
+    name_ch=GREP_SAMPLENAME.out.samplenames
+    vcf_ch=INDEL_CALLING.out.vcf_ch
+    ch_vcf=vcf_ch.join(name_ch).view()
+
     //
     //SUBWORKFLOW: platypusindelAnnotation.sh
     //
     // annotation has two part, first annotation for annovar, second is deep annotation includes for various genomic regions 
     if (params.runIndelAnnotation) {
         INDEL_ANNOTATION(
-        INDEL_CALLING.out.vcf_ch, kgenome, dbsnpindel, exac, evs, localcontrolwgs,
+        ch_vcf, kgenome, dbsnpindel, exac, evs, localcontrolwgs,
         localcontrolwes, gnomadgenomes, gnomadexomes, annodb, repeatmasker, dacblacklist,
         dukeexcluded, hiseqdepth, selfchain, mapability, simpletandemrepeats, enchangers,
         cpgislands, tfbscons, encode_dnase, mirnas_snornas, cosmic, mirbase, mir_targets,
-        cgi_mountains, phastconselem, encode_tfbs, SET_CHR.out.chr, 
-        GREP_SAMPLENAME.out.tumorname, GREP_SAMPLENAME.out.controlname 
+        cgi_mountains, phastconselem, encode_tfbs, SET_CHR.out.chr 
         )
 
         ch_versions = ch_versions.mix(INDEL_ANNOTATION.out.versions)
@@ -274,7 +284,9 @@ workflow PLATYPUSINDELCALLING {
         //
         //SUBWORKFLOW: FILTER VCF: filter_vcf.sh
         //
-        // filtering is only apply into the samples without control, indel extraction and visualization will apply both cases.  
+        // filtering is only apply into the samples without control, 
+        // indel extraction and visualization will apply both cases.  
+        
         if (params.runIndelVCFFilter) {
             FILTER_VCF(
             INDEL_ANNOTATION.out.ann_vcf_ch, ref, repeatmasker
@@ -289,9 +301,8 @@ workflow PLATYPUSINDELCALLING {
     // Checks sample swap in platypus output vcf
     if (params.runTinda) {
         RUNTINDA(
-            INDEL_CALLING.out.vcf_ch, ref, chrlength, genemodel, localcontrolplatypuswgs, 
-            localcontrolplatypuswes, gnomadgenomes, gnomadexomes, SET_CHR.out.chr,
-            GREP_SAMPLENAME.out.tumorname, GREP_SAMPLENAME.out.controlname
+            ch_vcf, ref, chrlength, genemodel, localcontrolplatypuswgs, 
+            localcontrolplatypuswes, gnomadgenomes, gnomadexomes, SET_CHR.out.chr
             )
         ch_versions = ch_versions.mix(RUNTINDA.out.versions)    
         ch_logs = ch_versions.mix(RUNTINDA.out.logs) 
