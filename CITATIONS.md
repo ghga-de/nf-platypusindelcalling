@@ -1,5 +1,12 @@
 # nf-core/platypusindelcalling: Citations
 
+The Indel workflow was in the pan-cancer analysis of whole genomes (PCAWG) and can be cited with the following publication:
+
+Pan-cancer analysis of whole genomes.
+The ICGC/TCGA Pan-Cancer Analysis of Whole Genomes Consortium.
+Nature volume 578, pages 82–93 (2020).
+DOI 10.1038/s41586-020-1969-6
+
 ## [nf-core](https://pubmed.ncbi.nlm.nih.gov/32055031/)
 
 > Ewels PA, Peltzer A, Fillinger S, Patel H, Alneberg J, Wilm A, Garcia MU, Di Tommaso P, Nahnsen S. The nf-core framework for community-curated bioinformatics pipelines. Nat Biotechnol. 2020 Mar;38(3):276-278. doi: 10.1038/s41587-020-0439-x. PubMed PMID: 32055031.

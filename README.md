@@ -24,12 +24,6 @@ This nextflow pipeline is the transition of [DKFZ-ODCF/IndelCallingWorkflow](htt
 
 <!-- TODO nf-core: Add full-sized test dataset and amend the paragraph below if applicable -->
 
-The Indel workflow was in the pan-cancer analysis of whole genomes (PCAWG) and can be cited with the following publication:
-
-Pan-cancer analysis of whole genomes.
-The ICGC/TCGA Pan-Cancer Analysis of Whole Genomes Consortium.
-Nature volume 578, pages 82–93 (2020).
-DOI 10.1038/s41586-020-1969-6
 
 
 ## Pipeline summary
@@ -44,7 +38,7 @@ DOI 10.1038/s41586-020-1969-6
 4. Reliability and confidation annotations: It is an optional step (--runIndelAnnotation) for Mapability, hiseq, selfchain and repeat regions checks for reliability and confidence of those scores.
 5. INDEL Deep Annotation: It is an optional step (runIndelDeepAnnotation) for number of extra indel annotations like enhancer, cosmic, mirBASE, encode databases.
 6. Filtering: It is an optional step (runIndelVCFFilter)for only applies for the tumor samples with no-control.
-7. Checks Sample Swap: Canopy Based Clustering and Bias Filter
+7. Checks Sample Swap: Canopy Based Clustering and Bias Filter, thi step can only be applied into the tumor samples with control. 
 
 
 ## Quick Start
@@ -69,7 +63,7 @@ DOI 10.1038/s41586-020-1969-6
 
    Note that some form of configuration will be needed so that Nextflow knows how to fetch the required software. This is usually done in the form of a config profile (`YOURPROFILE` in the example command above). You can chain multiple config profiles in a comma-separated string.
 
-   > - The pipeline comes with config profiles called `docker`, `singularity` and `conda` which instruct the pipeline to use the named tool for software management. For example, `-profile test,docker`.
+   > - The pipeline comes with config profiles called `docker` and `singularity` which instruct the pipeline to use the named tool for software management. For example, `-profile test,docker`.
    > - Please check [nf-core/configs](https://github.com/nf-core/configs#documentation) to see if a custom config file to run nf-core pipelines already exists for your Institute. If so, you can simply use `-profile <institute>` in your command. This will enable either `docker` or `singularity` and set the appropriate execution settings for your local compute environment.
    > - If you are using `singularity`, please use the [`nf-core download`](https://nf-co.re/tools/#downloading-pipelines-for-offline-use) command to download images first, before running the pipeline. Setting the [`NXF_SINGULARITY_CACHEDIR` or `singularity.cacheDir`](https://www.nextflow.io/docs/latest/singularity.html?#singularity-docker-hub) Nextflow options enables you to store and re-use the images from a central location for future pipeline runs.
    
@@ -78,7 +72,7 @@ DOI 10.1038/s41586-020-1969-6
    <!-- TODO nf-core: Update the example "typical command" below used to run the pipeline -->
 
    ```console
-   nextflow run nf-core/platypusindelcalling --input samplesheet.csv --outdir <OUTDIR> --profile <docker/singularity/institute>
+   nextflow run nf-core/platypusindelcalling --input samplesheet.csv --outdir <OUTDIR> --profile <docker/singularity> --config test/institute.config
    ```
 ## Samplesheet columns
 
@@ -125,5 +119,3 @@ For further information or help, don't hesitate to get in touch on the [Slack `#
 <!-- TODO nf-core: Add bibliography of tools and data used in your pipeline -->
 
 An extensive list of references for the tools used by the pipeline can be found in the [`CITATIONS.md`](CITATIONS.md) file.
-
-You can cite the `nf-core` publication as follows:
