@@ -1,3 +1,0 @@
-2022-08-08 14:49:46	-	chaotic_pare	-	e2e63e0518816985bf8b766a4433bae5	9086617c-8a44-41cc-bf74-337af6b8b9c7	nextflow run main.nf -profile test_full,docker --runTinda false
-2022-08-10 12:18:13	25.5s	zen_cori	ERR	e2e63e0518816985bf8b766a4433bae5	41cb4840-30fb-4307-93a4-b954895df587	nextflow run main.nf -profile dkfz_cluster,singularity --runTinda false
-2022-08-10 12:26:02	11.8s	distraught_marconi	ERR	e2e63e0518816985bf8b766a4433bae5	4d107b12-cc48-4399-9cc9-79103698a9e4	nextflow run main.nf -profile dkfz_cluster,singularity --runTinda false
