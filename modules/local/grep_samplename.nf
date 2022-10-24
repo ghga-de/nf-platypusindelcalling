@@ -11,15 +11,14 @@ process GREP_SAMPLENAME {
     tuple val(meta), path(tumor), path(tumor_bai), path(control),  path(control_bai)
 
     output:
-    env(tumorname)          , emit: tumorname
-    env(controlname)        , emit: controlname
+    tuple val(meta), env(tumorname)    , env(controlname)          , emit: samplenames
     path "versions.yml"     , emit: versions
 
     script: 
     def args       = task.ext.args ?: ''
     def prefix     = task.ext.prefix ?: "${meta.id}"
     
- if (meta.iscontrol == '1')
+    if (meta.iscontrol == '1')
     {
         """
         controlname=`samtools view -H $meta.control_bam | grep '^@RG' | sed "s/.*SM:\\([^\\t]*\\).*/\\1/g" | uniq`

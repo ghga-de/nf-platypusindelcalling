@@ -11,7 +11,7 @@ process ANNOTATE_VCF {
  //   publishDir params.outdir+'/annotate_vcf'                    , mode: 'copy'
 
     input:
-    tuple val(meta)            , file(vcf)               , file(vcf_tbi)
+    tuple val(meta)            , file(vcf)     , file(vcf_tbi), val(tumorname), val(controlname)
     tuple path(kgenome)        , path(kgenome_i)
     tuple path(dbsnpindel)     , path(dbsnpindel_i)
     tuple path(exac)           , path(exac_i)
@@ -56,7 +56,7 @@ process ANNOTATE_VCF {
     annotate_vcf.pl -a - -b $localcontrolwgs --columnName='LocalControlAF_WGS' \\
         --minOverlapFraction 1 --bFileType vcf --reportLevel 4 --reportMatchType | \\
     annotate_vcf.pl -a - -b $localcontrolwes --columnName='LocalControlAF_WES' \\
-         --minOverlapFraction 1 --bFileType vcf --reportLevel 4 --reportMatchType | \\
+        --minOverlapFraction 1 --bFileType vcf --reportLevel 4 --reportMatchType | \\
     tee ${prefix}.tmp | vcf_to_annovar.pl $chr_prefix "" > ${prefix}.ForAnnovar.bed
 
     mv ${prefix}.tmp ${prefix}.vcf

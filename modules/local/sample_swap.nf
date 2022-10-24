@@ -11,7 +11,7 @@ process SAMPLE_SWAP {
 //    publishDir params.outdir+'/sample_swap' , mode: 'copy'
 
     input:
-    tuple val(meta)                    , file(ch_vcf)                      , file(ch_vcf_i)
+    tuple val(meta)      , file(ch_vcf), file(ch_vcf_i),  val(tumorname), val(controlname)
     tuple path(ref)                    , path(ref_fai)
     each path(chrlength_file)
     tuple path(genemodel)              , path(genemodel_tbi)
@@ -20,8 +20,6 @@ process SAMPLE_SWAP {
     tuple path(gnomadgenomes)          , path(gnomadgenomes_tbi)
     tuple path(gnomadexomes)           , path(gnomadexomes_tbi)
     val chrprefix
-    val tumorname
-    val controlname
 
     output:
     tuple val(meta), path('indel_*.tinda.vcf')                           , optional: true

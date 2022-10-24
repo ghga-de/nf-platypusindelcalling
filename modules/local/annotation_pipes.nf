@@ -47,33 +47,20 @@ process ANNOTATION_PIPES {
     def encode_tfbs_seq    = encode_tfbs ? "-et ${encode_tfbs}" : ''
 
 
-    def pipe               = [enchangers ? "-en ${enchangers}" : '',
-                              cpgislands ? "-cp ${cpgislands}" : '',
-                              tfbscons ? "-tf ${tfbscons}" : '',
-                              mirnas_snornas ? "-ms ${mirnas_snornas}" : '',
-                              encode_dnase ? "-ed ${encode_dnase}" : '',
-                              mirbase ? "-mir ${mirbase}" : '',
-                              cosmic ? "-c ${cosmic}" : '',
-                              mir_targets ? "-mt ${mir_targets}" : '',
-                              cgi_mountains ? "-cm ${cgi_mountains}" : '',
-                              phastconselem ? "-p ${phastconselem}" : '',
-                              encode_tfbs ? "-et ${encode_tfbs}" : ''
-                            ].join(' ').trim()   
+    def pipe               = [enchangers_seq,
+                            cpgislands_seq,
+                            tfbscons_seq,
+                            mirnas_snornas_seq,
+                            encode_dnase_seq,
+                            mirbase_seq,
+                            cosmic_seq,
+                            mir_targets_seq,
+                            cgi_mountains_seq,
+                            phastconselem_seq,
+                            encode_tfbs_seq].join(' ').trim() 
 
     """
-    create_pipes.sh -i $vcf -id ${prefix} \\
-    $enchangers_seq \\
-    $cpgislands_seq \\
-    $tfbscons_seq \\
-    $mirnas_snornas_seq \\
-    $encode_dnase_seq \\
-    $mirbase_seq \\
-    $cosmic_seq \\
-    $mir_targets_seq \\
-    $cgi_mountains_seq \\
-    $phastconselem_seq \\
-    $encode_tfbs_seq \\
-    $pipe
+    create_pipes.sh -i $vcf -id ${prefix} $pipe
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

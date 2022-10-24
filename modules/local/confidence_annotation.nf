@@ -11,8 +11,7 @@ process CONFIDENCE_ANNOTATION {
     
     input:
     tuple val(meta), file(vcfgz), file(vcf_tbi)
-    val(tumorname)
-    val(controlname)
+    tuple val(meta), file(a), file(b), val(tumorname), val(controlname)
 
     output:
     tuple val(meta), path('*.conf.vcf.gz'),   path('*.conf.vcf.gz.tbi')   , emit: vcf_conf

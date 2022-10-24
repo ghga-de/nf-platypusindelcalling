@@ -14,8 +14,8 @@ process FILTER_BY_CRIT {
     tuple val(meta), file(vcfgz), file(vcf_tbi)
 
     output:
-     tuple val(meta), path('*Filtered.vcf.gz'),  path('*Filtered.vcf.gz.tbi')   , emit: vcf
-     path  "versions.yml"                                                       , emit: versions
+    tuple val(meta), path('*Filtered.vcf.gz'),  path('*Filtered.vcf.gz.tbi')   , emit: vcf
+    path  "versions.yml"                                                       , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -38,7 +38,8 @@ process FILTER_BY_CRIT {
         END_VERSIONS
         """
     }
-    else {
+    else
+         {
         if (params.filter_values != "") 
             {
             """
@@ -53,7 +54,7 @@ process FILTER_BY_CRIT {
                 gzip: \$(echo \$(gzip --version 2>&1) | sed 's/^.*gzip //; s/ .*\$//')
             END_VERSIONS
             """
-             }
+            }
         else
         {
             """
@@ -61,7 +62,7 @@ process FILTER_BY_CRIT {
             tabix ${prefix}_noFiltered.vcf.gz
             
             cat <<-END_VERSIONS > versions.yml
-             "${task.process}":
+            "${task.process}":
                 python: \$(python --version | sed 's/Python //g')
                 tabix: \$(echo \$(tabix -h 2>&1) | sed 's/^.*Version: //; s/ .*\$//')
                 gzip: \$(echo \$(gzip --version 2>&1) | sed 's/^.*gzip //; s/ .*\$//')
