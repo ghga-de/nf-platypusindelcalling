@@ -36,7 +36,6 @@ def create_bam_channel(LinkedHashMap row) {
         if (!file(row.tumor).exists()) {
             exit 1, "ERROR: Please check input samplesheet -> Tumor file does not exist!\n${row.tumor}"
         }
-
         if (row.iscontrol) {
             if (!file(row.control).exists()) {
                 if (row.control == 'dummy') {

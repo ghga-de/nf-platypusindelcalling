@@ -13,7 +13,7 @@ include { ANNOTATION_PIPES       } from '../../modules/local/annotation_pipes.nf
 
 workflow INDEL_ANNOTATION {
     take:
-    vcf_ch               // channel: [val(meta), val(tumorname), val(controlname), vcf.gz, vcf.gz.tbi ]
+    vcf_ch               // channel: [val(meta), , vcf.gz, vcf.gz.tbi ,val(tumorname), val(controlname) ]
     kgenome              // channel: [file.vcf.gz, file.vcf.gz.tbi]
     dbsnpindel           // channel: [file.vcf.gz, file.vcf.gz.tbi]
     exac                 // channel: [file.vcf.gz, file.vcf.gz.tbi]
@@ -42,8 +42,6 @@ workflow INDEL_ANNOTATION {
     phastconselem        // channel: [file.bed.gz, file.bed.gz.tbi]
     encode_tfbs          // channel: [file.bed.gz, file.bed.gz.tbi]
     chr_prefix           // val channel: [prefix]
-    tumorname            // val channel: [tumor sample name]   
-    controlname          // val channel: [control sample name]
 
     main:
 
@@ -52,7 +50,8 @@ workflow INDEL_ANNOTATION {
 
     // RUN annotate_vcf.pl
     ANNOTATE_VCF (
-    vcf_ch, kgenome, dbsnpindel, exac, evs, localcontrolwgs, localcontrolwes, gnomadgenomes, gnomadexomes, chr_prefix
+    vcf_ch, kgenome, dbsnpindel, exac, evs, localcontrolwgs,
+    localcontrolwes, gnomadgenomes, gnomadexomes, chr_prefix
     )
  //   logs      = logs.mix(ANNOTATE_VCF.out.log)  
     versions  = versions.mix(ANNOTATE_VCF.out.versions)
@@ -71,7 +70,7 @@ workflow INDEL_ANNOTATION {
     versions = versions.mix(INDEL_RELIABILITY_PIPE.out.versions)
 
     CONFIDENCE_ANNOTATION(
-    INDEL_RELIABILITY_PIPE.out.vcf, tumorname, controlname
+    INDEL_RELIABILITY_PIPE.out.vcf, vcf_ch
     )
     ann_vcf_ch  = CONFIDENCE_ANNOTATION.out.vcf_ann
     conf_vcf_ch = CONFIDENCE_ANNOTATION.out.vcf_conf
@@ -80,7 +79,9 @@ workflow INDEL_ANNOTATION {
     if (params.runIndelDeepAnnotation)
     {
         ANNOTATION_PIPES (
-        CONFIDENCE_ANNOTATION.out.vcf_ann, enchangers, cpgislands, tfbscons, encode_dnase, mirnas_snornas, cosmic, mirbase, mir_targets, cgi_mountains, phastconselem, encode_tfbs
+        CONFIDENCE_ANNOTATION.out.vcf_ann, enchangers, cpgislands, tfbscons, 
+        encode_dnase, mirnas_snornas, cosmic, mirbase, mir_targets, cgi_mountains, 
+        phastconselem, encode_tfbs
         )
         ann_vcf_ch  = ANNOTATION_PIPES.out.deep_vcf 
         versions    = versions.mix(ANNOTATION_PIPES.out.versions)

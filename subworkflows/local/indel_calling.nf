@@ -14,8 +14,6 @@ workflow INDEL_CALLING {
     
     main:
 
-
-
     PLATYPUS (
     sample_ch, ref
     )

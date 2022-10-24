@@ -8,7 +8,7 @@ include { SAMPLE_SWAP  } from '../../modules/local/sample_swap.nf'     addParams
 
 workflow RUNTINDA {
     take:
-    vcf_ch                    // channel: [val(meta), vcfgz, vcfgz_tbi]
+    vcf_ch                    // channel: [val(meta), vcfgz, vcfgz_tbi, tumorname, controlname]
     ref                       // reference channel [ref.fa, ref.fa.fai]
     chrlength                 // channel: [file.txt or file.tab]
     genemodel                 // channel: [file.bed.gz, file.bed.gz.tbi]
@@ -16,16 +16,14 @@ workflow RUNTINDA {
     localcontrolplatypuswes   // channel: [file.bed.gz, file.bed.gz.tbi]
     gnomadgenomes             // channel: [file.bed.gz, file.bed.gz.tbi]
     gnomadexomes              // channel: [file.bed.gz, file.bed.gz.tbi]
-    chrprefix                 // channel: [prefix]
-    tumorname                 // val channel: [tumor sample name]   
-    controlname               // val channel: [control sample name]          
+    chrprefix                 // channel: [prefix]          
 
     main:
 
 
     SAMPLE_SWAP(
     vcf_ch, ref, chrlength, genemodel, localcontrolplatypuswgs, localcontrolplatypuswes, 
-    gnomadgenomes, gnomadexomes, chrprefix, tumorname, controlname
+    gnomadgenomes, gnomadexomes, chrprefix
     )
     versions = SAMPLE_SWAP.out.versions
     logs = SAMPLE_SWAP.out.log
