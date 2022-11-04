@@ -92,7 +92,7 @@ All VCF and BED files need to be indexed with tabix and should be in the same fo
 ## Documentation
 
 **TODO**
-The nf-core/platypusindelcalling pipeline comes with documentation about the pipeline [usage](https://nf-co.re/platypusindelcalling/usage), [parameters](https://nf-co.re/platypusindelcalling/parameters) and [output](https://nf-co.re/platypusindelcalling/output).
+The nf-core/platypusindelcalling pipeline comes with documentation about the pipeline [usage](https://github.com/kubranarci/nf-platypusindelcalling/blob/main/docs/usage.md) and [output](https://github.com/kubranarci/nf-platypusindelcalling/blob/main/docs/output.md).
 
 
 ## Credits

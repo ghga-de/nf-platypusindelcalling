@@ -42,6 +42,460 @@
                 }
             }
         },
+        "post_processes": {
+            "title": "Post process options",
+            "type": "object",
+            "description": "Options for post-processing after indel call with platypus",
+            "default": "",
+            "properties": {
+                "runIndelAnnotation": {
+                    "type": "boolean",
+                    "default": "true",
+                    "fa_icon": "fas fa-post_processes",
+                    "description": "Enable Indel Annotation"
+                },
+                "runIndelDeepAnnotation": {
+                    "type": "boolean",
+                    "default": "true",
+                    "fa_icon": "fas fa-post_processes",
+                    "description": "Enable Indel Deep Annotation with extra annotation files" 
+                },
+                "runIndelVCFFilter": {
+                    "type": "boolean",
+                    "default": "true",
+                    "fa_icon": "fas fa-post_processes",
+                    "description": "Enable variant filtration" 
+                },
+                "runTinda": {
+                    "type": "boolean",
+                    "default": "true",
+                    "fa_icon": "fas fa-post_processes",
+                    "description": "Enable Sample Swap check" 
+                },
+                "skip_multiqc": {
+                    "type": "boolean",
+                    "default": "false",
+                    "fa_icon": "fas fa-post_processes",
+                    "description": "Skip MultiQC" 
+                }
+            }
+        },
+        "annotation_params": {
+            "title": "Annotation options",
+            "type": "object",
+            "description": "Options for Annotations",
+            "default": "",
+            "properties": {
+                "padding": {
+                    "type": "integer",
+                    "default": "10",
+                    "fa_icon": "fas fa-annotation",
+                    "description": "Padding option for annotate_vcf.pl"
+                },
+                "minoverlapfraction": {
+                    "type": "float",
+                    "default": "0.7",
+                    "fa_icon": "fas fa-annotation",
+                    "description": "Minimum overlap fraction for annotation" 
+                },
+                "maxborderdist": {
+                    "type": "integer",
+                    "default": "20",
+                    "fa_icon": "fas fa-annotation",
+                    "description": "Maximum distance from border for annotation" 
+                },
+                "maxmatches": {
+                    "type": "integer",
+                    "default": "5",
+                    "fa_icon": "fas fa-annotation",
+                    "description": "Maximum number of matches" 
+                },
+                "k_genome": {
+                    "type": "string",
+                    "format": "file-path",
+                    "mimetype": "text/plain",
+                    "pattern": "^\\S+\\.vcf(\\.gz)?$",
+                    "fa_icon": "fas fa-annotation",
+                    "description": "1K genome VCF file, should be indexed" 
+                },
+                "dbsnp_indel": {
+                    "type": "string",
+                    "format": "file-path",
+                    "mimetype": "text/plain",
+                    "pattern": "^\\S+\\.vcf(\\.gz)?$",
+                    "fa_icon": "fas fa-annotation",
+                    "description": "dbSNP INDEL VCF file, should be indexed" 
+                },
+                "exac_file": {
+                    "type": "string",
+                    "format": "file-path",
+                    "mimetype": "text/plain",
+                    "pattern": "^\\S+\\.vcf(\\.gz)?$",
+                    "fa_icon": "fas fa-annotation",
+                    "description": "ExAC VCF file, should be indexed" 
+                },
+                "evs_file": {
+                    "type": "string",
+                    "format": "file-path",
+                    "mimetype": "text/plain",
+                    "pattern": "^\\S+\\.vcf(\\.gz)?$",
+                    "fa_icon": "fas fa-annotation",
+                    "description": "EVS VCF file, should be indexed" 
+                },
+                "local_control_wgs": {
+                    "type": "string",
+                    "format": "file-path",
+                    "mimetype": "text/plain",
+                    "pattern": "^\\S+\\.vcf(\\.gz)?$",
+                    "fa_icon": "fas fa-annotation",
+                    "description": "Local Exclusion list, VCF file, should be indexed" 
+                },
+                "local_control_wes": {
+                    "type": "string",
+                    "format": "file-path",
+                    "mimetype": "text/plain",
+                    "pattern": "^\\S+\\.vcf(\\.gz)?$",
+                    "fa_icon": "fas fa-annotation",
+                    "description": "Local Exclusion list, VCF file, should be indexed" 
+                },
+                "gnomad_genomes": {
+                    "type": "string",
+                    "format": "file-path",
+                    "mimetype": "text/plain",
+                    "pattern": "^\\S+\\.vcf(\\.gz)?$",
+                    "fa_icon": "fas fa-annotation",
+                    "description": "Gnomad genomes VCF file, should be indexed. NOTE: This file also used in Sample Swap check!" 
+                },
+                "gnomad_exomes": {
+                    "type": "string",
+                    "format": "file-path",
+                    "mimetype": "text/plain",
+                    "pattern": "^\\S+\\.vcf(\\.gz)?$",
+                    "fa_icon": "fas fa-annotation",
+                    "description": "Gnomad exomes VCF file, should be indexed. NOTE: This file also used in Sample Swap check!" 
+                }
+            }
+        },
+        "annovar_params": {
+            "title": "Annovar options",
+            "type": "object",
+            "description": "Options for Annovar",
+            "default": "",
+            "properties": {
+                "buildver": {
+                    "type": "string",
+                    "default": "hg19",
+                    "fa_icon": "fas fa-annovar",
+                    "description": "Annovar build version"
+                },
+                "dbtype": {
+                    "type": "string",
+                    "default": "wgEncodeGencodeCompV19",
+                    "fa_icon": "fas fa-annovar",
+                    "description": "Annovar dbtype" 
+                },
+                "segdupcol": {
+                    "type": "string",
+                    "default": "SEGDUP",
+                    "fa_icon": "fas fa-annovar",
+                    "description": "Segmental duplication column name" 
+                },
+                "cytobandcol": {
+                    "type": "string",
+                    "default": "CYTOBAND",
+                    "fa_icon": "fas fa-annovar",
+                    "description": "Cytobad column name" 
+                },
+                "geneannocols": {
+                    "type": "string",
+                    "default": "ANNOVAR_FUNCTION,GENE,EXONIC_CLASSIFICATION,ANNOVAR_TRANSCRIPTS",
+                    "fa_icon": "fas fa-annovar",
+                    "description": "Column names seperated with ',' for annovar " 
+                },
+                "table_folder": {
+                    "type": "string",
+                    "format": "file-path",
+                    "mimetype": "text/plain",
+                    "fa_icon": "fas fa-annovar",
+                    "description": "File path to annovar database: annovar/annovar_Feb2016/humandb/" 
+                },
+                "annovar_path": {
+                    "type": "string",
+                    "format": "file-path",
+                    "mimetype": "text/plain",
+                    "fa_icon": "fas fa-annotation",
+                    "description": "File path to annovar execution file: annovar/annovar_Feb2016/" 
+                }
+            }
+        },
+        "indel_reliability_params": {
+            "title": "Indel Reability files",
+            "type": "object",
+            "description": "Options for indel reability",
+            "default": "",
+            "properties": {
+                "repeat_masker": {
+                    "type": "string",
+                    "format": "file-path",
+                    "mimetype": "text/plain",
+                    "pattern": "^\\S+\\.bed(\\.gz)?$",
+                    "fa_icon": "fas fa-annotation",
+                    "description": "UCSC repeat masker BED.GZ, should be indexed. NOTE: This file also used in Visualizations!" 
+                },
+                "dac_blacklist": {
+                    "type": "string",
+                    "format": "file-path",
+                    "mimetype": "text/plain",
+                    "pattern": "^\\S+\\.bed(\\.gz)?$",
+                    "fa_icon": "fas fa-annotation",
+                    "description": "UCSC DAC blacklist BED.GZ, should be indexed" 
+                },
+                "duke_excluded": {
+                    "type": "string",
+                    "format": "file-path",
+                    "mimetype": "text/plain",
+                    "pattern": "^\\S+\\.bed(\\.gz)?$",
+                    "fa_icon": "fas fa-annotation",
+                    "description": "UCSC Duke Excluded BED.GZ, should be indexed" 
+                },
+                "hiseq_depth": {
+                    "type": "string",
+                    "format": "file-path",
+                    "mimetype": "text/plain",
+                    "pattern": "^\\S+\\.bed(\\.gz)?$",
+                    "fa_icon": "fas fa-annotation",
+                    "description": "UCSC HiSeq Depth BED.GZ, should be indexed" 
+                },
+                "self_chain": {
+                    "type": "string",
+                    "format": "file-path",
+                    "mimetype": "text/plain",
+                    "pattern": "^\\S+\\.bed(\\.gz)?$",
+                    "fa_icon": "fas fa-annotation",
+                    "description": "UCSC self chain BED.GZ, should be indexed" 
+                },
+                "mapability_file": {
+                    "type": "string",
+                    "format": "file-path",
+                    "mimetype": "text/plain",
+                    "pattern": "^\\S+\\.bed(\\.gz)?$",
+                    "fa_icon": "fas fa-annotation",
+                    "description": "UCSC wg Encode Mapability BED.GZ, should be indexed" 
+                },
+                "simple_tandemrepeats": {
+                    "type": "string",
+                    "format": "file-path",
+                    "mimetype": "text/plain",
+                    "pattern": "^\\S+\\.bed(\\.gz)?$",
+                    "fa_icon": "fas fa-annotation",
+                    "description": "UCSC simple tandem repeats BED.GZ, should be indexed" 
+                }              
+            }
+        },
+        "deep_annotation_options": {
+            "title": "Indel Deep Annotation files",
+            "type": "object",
+            "description": "Options for runIndelDeepAnnotation",
+            "default": "",
+            "properties": {
+                "enchancer_file": {
+                    "type": "string",
+                    "format": "file-path",
+                    "mimetype": "text/plain",
+                    "pattern": "^\\S+\\.bed(\\.gz)?$",
+                    "fa_icon": "fas fa-annotation",
+                    "description": "UCSC Enhancers BED.GZ, should be indexed" 
+                },
+                "cpgislands_file": {
+                    "type": "string",
+                    "format": "file-path",
+                    "mimetype": "text/plain",
+                    "pattern": "^\\S+\\.bed(\\.gz)?$",
+                    "fa_icon": "fas fa-annotation",
+                    "description": "UCSC CpG islands BED.GZ, should be indexed" 
+                },
+                "tfbscons_file": {
+                    "type": "string",
+                    "format": "file-path",
+                    "mimetype": "text/plain",
+                    "pattern": "^\\S+\\.bed(\\.gz)?$",
+                    "fa_icon": "fas fa-annotation",
+                    "description": "UCSC TFBS sites BED.GZ, should be indexed" 
+                },
+                "encode_dnase_file": {
+                    "type": "string",
+                    "format": "file-path",
+                    "mimetype": "text/plain",
+                    "pattern": "^\\S+\\.bed(\\.gz)?$",
+                    "fa_icon": "fas fa-annotation",
+                    "description": "UCSC DNase cluster BED.GZ, should be indexed" 
+                },
+                "mirnas_snornas_file": {
+                    "type": "string",
+                    "format": "file-path",
+                    "mimetype": "text/plain",
+                    "pattern": "^\\S+\\.bed(\\.gz)?$",
+                    "fa_icon": "fas fa-annotation",
+                    "description": "mirBase snoRNAs BED.GZ, should be indexed" 
+                },
+                "mirbase_file": {
+                    "type": "string",
+                    "format": "file-path",
+                    "mimetype": "text/plain",
+                    "pattern": "^\\S+\\.bed(\\.gz)?$",
+                    "fa_icon": "fas fa-annotation",
+                    "description": "mirBase miRNAs BED.GZ, should be indexed" 
+                },
+                "cosmic_file": {
+                    "type": "string",
+                    "format": "file-path",
+                    "mimetype": "text/plain",
+                    "pattern": "^\\S+\\.bed(\\.gz)?$",
+                    "fa_icon": "fas fa-annotation",
+                    "description": "COSMIC db coding SNVs BED.GZ, should be indexed" 
+                },
+                "mir_targets_file": {
+                    "type": "string",
+                    "format": "file-path",
+                    "mimetype": "text/plain",
+                    "pattern": "^\\S+\\.bed(\\.gz)?$",
+                    "fa_icon": "fas fa-annotation",
+                    "description": "mirBase miRNA Target sites BED.GZ, should be indexed" 
+                },
+                "cgi_mountains_file": {
+                    "type": "string",
+                    "format": "file-path",
+                    "mimetype": "text/plain",
+                    "pattern": "^\\S+\\.bed(\\.gz)?$",
+                    "fa_icon": "fas fa-annotation",
+                    "description": "Cgi Mountains BED.GZ, should be indexed" 
+                },
+                "phastconselem_file": {
+                    "type": "string",
+                    "format": "file-path",
+                    "mimetype": "text/plain",
+                    "pattern": "^\\S+\\.bed(\\.gz)?$",
+                    "fa_icon": "fas fa-annotation",
+                    "description": "UCSC phast cons elements BED.GZ, should be indexed" 
+                } ,
+                "encode_tfbs_file": {
+                    "type": "string",
+                    "format": "file-path",
+                    "mimetype": "text/plain",
+                    "pattern": "^\\S+\\.bed(\\.gz)?$",
+                    "fa_icon": "fas fa-annotation",
+                    "description": "UCSC TFBS clusters BED.GZ, should be indexed" 
+                }                
+            }
+        },
+        "filtration_params": {
+            "title": "Filtration options",
+            "type": "object",
+            "description": "Options for VCF Filtering",
+            "default": "",
+            "properties": {
+                "min_confidence_score": {
+                    "type": "integer",
+                    "default": "8",
+                    "fa_icon": "fas fa-filter",
+                    "description": "Minimum confidence score for filtration"
+                },
+                "filter_values": {
+                    "type": "string",
+                    "default": "",
+                    "fa_icon": "fas fa-annotation",
+                    "description": "COL1 AF1 value1, COL2 AF2 value2 ... " 
+                }
+            }
+        },
+        "visualization_params": {
+            "title": "Visualization options",
+            "type": "object",
+            "description": "Options for screenshots",
+            "default": "",
+            "properties": {
+                "max_var_screenshots": {
+                    "type": "integer",
+                    "default": "100",
+                    "fa_icon": "fas fa-filter",
+                    "description": "Max number of screenshots, if exceeds no screenshots will be taken "
+                    },
+                "window_size": {
+                    "type": "integer",
+                    "default": "100",
+                    "fa_icon": "fas fa-annotation",
+                    "description": "Window size for screenshots " 
+                    }
+                }
+            },
+        "tinda_params": {
+            "title": "Sample swap options",
+            "type": "object",
+            "description": "Options for runTinda",
+            "default": "",
+            "properties": {
+                "normal_header_pattern": {
+                    "type": "string",
+                    "default": "blood",
+                    "fa_icon": "fas fa-filter",
+                    "description": "control/normal/blood"
+                },
+                "tumor_header_pattern": {
+                    "type": "string",
+                    "default": "tumor",
+                    "fa_icon": "fas fa-annotation",
+                    "description": "tumor/metastasis" 
+                },
+                "seqtype": {
+                    "type": "string",
+                    "default": "",
+                    "fa_icon": "fas fa-annotation",
+                    "description": "WGS/WES" 
+                },
+                "right_border": {
+                    "type": "float",
+                    "default": "0.45",
+                    "fa_icon": "fas fa-annotation",
+                    "description": "Right border for Canopy based clustering" 
+                }, 
+                "bottom_border": {
+                    "type": "float",
+                    "default": "0.01",
+                    "fa_icon": "fas fa-annotation",
+                    "description": "Bottom border for Canopy based clustering" 
+                },
+                "maf_threshold": {
+                    "type": "float",
+                    "default": "0.001",
+                    "fa_icon": "fas fa-annotation",
+                    "description": "MAF threshold for variants" 
+                },
+                "local_control_platypus_wgs": {
+                    "type": "string",
+                    "format": "file-path",
+                    "mimetype": "text/plain",
+                    "pattern": "^\\S+\\.vcf(\\.gz)?$",
+                    "fa_icon": "fas fa-annotation",
+                    "description": "Exclusion list of WGS for Tinda VCF.GZ, should be indexed" 
+                },
+                "local_control_platypus_wes": {
+                    "type": "string",
+                    "format": "file-path",
+                    "mimetype": "text/plain",
+                    "pattern": "^\\S+\\.vcf(\\.gz)?$",
+                    "fa_icon": "fas fa-annotation",
+                    "description": "Exclusion list of WES for Tinda VCF.GZ, should be indexed" 
+                },  
+                "genemodel_bed": {
+                    "type": "string",
+                    "format": "file-path",
+                    "mimetype": "text/plain",
+                    "pattern": "^\\S+\\.bed(\\.gz)?$",
+                    "fa_icon": "fas fa-annotation",
+                    "description": "Gencode Exons BED.GZ, should be indexed" 
+                }
+            }
+        },
         "reference_genome_options": {
             "title": "Reference genome options",
             "type": "object",
@@ -54,13 +508,19 @@
                     "fa_icon": "fas fa-book",
                     "help_text": "If using a reference genome configured in the pipeline using iGenomes, use this parameter to give the ID for the reference. This is then used to build the full paths for all required reference genome files e.g. `--genome GRCh38`. \n\nSee the [nf-core website docs](https://nf-co.re/usage/reference_genomes) for more details."
                 },
+                "ref_type": {
+                    "type": "string",
+                    "description": "Name of reference.",
+                    "fa_icon": "fas fa-book",
+                    "help_text": "If using a reference genome configured in ODCF cluster, use this parameter to give the ID for the reference.hg 37 or hg19."
+                },
                 "fasta": {
                     "type": "string",
                     "format": "file-path",
                     "mimetype": "text/plain",
                     "pattern": "^\\S+\\.fn?a(sta)?(\\.gz)?$",
                     "description": "Path to FASTA genome file.",
-                    "help_text": "This parameter is *mandatory* if `--genome` is not specified. If you don't have a BWA index available this will be generated for you automatically. Combine with `--save_reference` to save BWA index for future runs.",
+                    "help_text": "This parameter is *mandatory* if `--ref_type` is not specified.",
                     "fa_icon": "far fa-file-code"
                 },
                 "igenomes_base": {
