@@ -6,10 +6,7 @@ process INDEL_RELIABILITY_PIPE {
 
     conda     (params.enable_conda ? "" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-    'odcf_indelcalling_v5.sif' :
-    'kubran/odcf_indelcalling:v5' }"
-
- //   publishDir params.outdir+'/indel_reliability' , mode: 'copy'
+    'odcf_indelcalling_v7.sif' :'kubran/odcf_indelcalling:v7' }"
     
     input:
     tuple val(meta),                 file(ch_vcf),               file(ch_vcf_i)

@@ -5,24 +5,23 @@ process ANNOTATION_PIPES {
 
     conda     (params.enable_conda ? "" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-    'odcf_indelcalling_v5.sif' :
-    'kubran/odcf_indelcalling:v5' }"
+    'odcf_indelcalling_v7.sif' :'kubran/odcf_indelcalling:v7' }"
 
- //   publishDir params.outdir+'/annotation_pipe'                            , mode: 'copy'
-
+    debug true
+    
     input:
     tuple val(meta)           , file(vcf)             , file(vcf_tbi)
-    tuple path(enchangers)    , path(enchangers_i)
-    tuple path(cpgislands)    , path(cpgislands_i)
-    tuple path(tfbscons)      , path(tfbscons_i)
-    tuple path(encode_dnase)  , path(encode_dnase_i)
-    tuple path(mirnas_snornas), path(mirnas_snornas_i)
-    tuple path(cosmic)        , path(cosmic_i)
-    tuple path(mirbase)       , path(mirbase_i)
-    tuple path(mir_targets)   , path(mir_targets_i)
-    tuple path(cgi_mountains) , path(cgi_mountains_i)
-    tuple path(phastconselem) , path(phastconselem_i)
-    tuple path(encode_tfbs)   , path(encode_tfbs_i)
+    tuple file(enchangers)    , file(enchangers_i)
+    tuple file(cpgislands)    , file(cpgislands_i)
+    tuple file(tfbscons)      , file(tfbscons_i)
+    tuple file(encode_dnase)  , file(encode_dnase_i)
+    tuple file(mirnas_snornas), file(mirnas_snornas_i)
+    tuple file(cosmic)        , file(cosmic_i)
+    tuple file(mirbase)       , file(mirbase_i)
+    tuple file(mir_targets)   , file(mir_targets_i)
+    tuple file(cgi_mountains) , file(cgi_mountains_i)
+    tuple file(phastconselem) , file(phastconselem_i)
+    tuple file(encode_tfbs)   , file(encode_tfbs_i)
 
     output:
     tuple val(meta), path('*.deepanno.vcf.gz'), path('*.deepanno.vcf.gz.tbi') , emit: deep_vcf

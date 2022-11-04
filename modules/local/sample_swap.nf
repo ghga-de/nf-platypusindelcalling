@@ -5,10 +5,7 @@ process SAMPLE_SWAP {
 
     conda     (params.enable_conda ? "" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-    'odcf_indelcalling_v6.sif' :
-    'kubran/odcf_indelcalling:v6' }"
-
-//    publishDir params.outdir+'/sample_swap' , mode: 'copy'
+    'odcf_indelcalling_v7.sif' :'kubran/odcf_indelcalling:v7' }"
 
     input:
     tuple val(meta)      , file(ch_vcf), file(ch_vcf_i),  val(tumorname), val(controlname)

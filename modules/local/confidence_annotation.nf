@@ -4,17 +4,13 @@ process CONFIDENCE_ANNOTATION {
 
     conda     (params.enable_conda ? "" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-    'odcf_indelcalling_v5.sif' :
-    'kubran/odcf_indelcalling:v5' }"
-
- //   publishDir params.outdir+'/confidence_ann'                            , mode: 'copy'
+    'odcf_indelcalling_v7.sif' :'kubran/odcf_indelcalling:v7' }"
     
     input:
     tuple val(meta), file(vcfgz), file(vcf_tbi)
     tuple val(meta), file(a), file(b), val(tumorname), val(controlname)
 
     output:
-    tuple val(meta), path('*.conf.vcf.gz'),   path('*.conf.vcf.gz.tbi')   , emit: vcf_conf
     tuple val(meta), path('*.ann.vcf.gz') ,   path('*.ann.vcf.gz.tbi')    , emit: vcf_ann
     path  "versions.yml"                                                  , emit: versions
 
@@ -29,9 +25,6 @@ process CONFIDENCE_ANNOTATION {
     """
     confidenceAnnotation_Indels.py --infile=$vcfgz --skip_order_check \\
     $samples $args | tee ${prefix}.ann.vcf | cut -f 1-11 > ${prefix}.conf.vcf
-
-    bgzip -c ${prefix}.conf.vcf > ${prefix}.conf.vcf.gz
-    tabix ${prefix}.conf.vcf.gz
 
     bgzip -c ${prefix}.ann.vcf > ${prefix}.ann.vcf.gz
     tabix ${prefix}.ann.vcf.gz

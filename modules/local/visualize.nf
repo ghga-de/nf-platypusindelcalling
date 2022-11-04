@@ -5,12 +5,8 @@ process VISUALIZE {
 
     conda     (params.enable_conda ? "" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-    'odcf_indelcalling_v7.sif' :
-    'kubran/odcf_indelcalling:v7' }"
+    'odcf_indelcalling_v7.sif' :'kubran/odcf_indelcalling:v7' }"
 
- //   publishDir params.outdir+ '/visualize' , mode: 'copy'
- //   errorStrategy 'ignore'
-    
     input:
     tuple val(meta)          ,file(vcf)
     tuple path(ref)          ,path(ref_fai)

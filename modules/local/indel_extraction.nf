@@ -5,10 +5,7 @@ process INDEL_EXTRACTION {
 
     conda     (params.enable_conda ? "" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-    'odcf_indelcalling_v5.sif' :
-    'kubran/odcf_indelcalling:v5' }"
-
- //   publishDir params.outdir+'/indel_extract' , mode: 'copy'
+    'odcf_indelcalling_v7.sif' :'kubran/odcf_indelcalling:v7' }"
 
     input:
     tuple val(meta), file(ch_vcf), file(ch_vcf_i)
@@ -27,19 +24,19 @@ process INDEL_EXTRACTION {
     script:
     def prefix     = task.ext.prefix ?: "${meta.id}"
     def args       = task.ext.args ?: ''
-    def somatic_functional_indel_vcf  ="indel_${prefix}_somatic_functional_indels_conf_${params.min_confidence_score}_to_10.vcf"
 
     """
     indel_extractor_v1.pl \\
         --infile=$ch_vcf \\
         --somout=indel_${prefix}_somatic_indels_conf_${params.min_confidence_score}_to_10.vcf \\
-        --funcout=$somatic_functional_indel_vcf \\
+        --funcout=indel_${prefix}_somatic_functional_indels_conf_${params.min_confidence_score}_to_10.vcf \\
         --ncout=indel_${prefix}_somatic_ncRNA_indels_conf_${params.min_confidence_score}_to_10.vcf \\
         --germlineout=indel_${prefix}_germline_functional_indels_conf_${params.min_confidence_score}_to_10.vcf \\
         --minconf=${params.min_confidence_score} \\
         $args
         
-    cat $somatic_functional_indel_vcf | tail -n +2 | wc -l | cut -f1 -d " " > ${prefix}.functional_var_count.txt
+    cat indel_${prefix}_somatic_functional_indels_conf_${params.min_confidence_score}_to_10.vcf | \\
+    tail -n +2 | wc -l | cut -f1 -d " " > ${prefix}.functional_var_count.txt
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

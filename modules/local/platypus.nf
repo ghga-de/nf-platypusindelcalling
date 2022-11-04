@@ -5,10 +5,8 @@ process PLATYPUS {
 
     conda     (params.enable_conda ? "" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-    'platypus_0.8.1.1.3.sif' :
-    'kubran/platypus:0.8.1.1-3'}"
+    'platypus_0.8.1.1.3.sif' :'kubran/platypus:0.8.1.1-3'}"
 
- //   publishDir params.outdir , mode: 'copy'
 
     input:
     tuple val(meta), path(tumor), path(tumor_bai), path(control),  path(control_bai)

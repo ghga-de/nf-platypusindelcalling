@@ -8,10 +8,7 @@ process ANNOVAR {
 
     conda     (params.enable_conda ? "" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-    'odcf_indelcalling_v5.sif' :
-    'kubran/odcf_indelcalling:v5' }"
-
- //   publishDir params.outdir+'/annotate_vcf'                           , mode: 'copy'
+    'odcf_indelcalling_v7.sif' :'kubran/odcf_indelcalling:v7' }"
     
     input:
     tuple val(meta)           ,file(annovar_bed)
@@ -21,8 +18,8 @@ process ANNOVAR {
 
     output:
     tuple val(meta),path('*.temp.vcf.gz'), path('*.temp.vcf.gz.tbi')   , emit: vcf
-    tuple val(meta), path('*.log')                                      , emit: log
-    path  "versions.yml"                                                , emit: versions
+    tuple val(meta), path('*.log')                                     , emit: log
+    path  "versions.yml"                                               , emit: versions
     tuple val(meta), path('*_genomicSuperDups')                         
     tuple val(meta), path('*_cytoBand')                                 
     tuple val(meta), path('*variant_function')                          
@@ -49,7 +46,9 @@ process ANNOVAR {
     perl ${params.annovar_path}/annotate_variation.pl \\
         --buildver=${params.buildver} -regionanno -dbtype band --outfile=$prefix $annovar_bed $annovar_table
     
-    processAnnovarOutput.pl ${prefix}.ForAnnovar.bed.variant_function ${prefix}.ForAnnovar.bed.exonic_variant_function > $newcol
+    processAnnovarOutput.pl \\
+        ${prefix}.ForAnnovar.bed.variant_function \\
+        ${prefix}.ForAnnovar.bed.exonic_variant_function > $newcol
 
     newCols2vcf.pl --vcfFile=$ch_vcf --newColFile=$newcol \\
         --newColHeader=${params.geneannocols} \\

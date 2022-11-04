@@ -5,10 +5,7 @@ process ANNOTATE_VCF {
 
     conda     (params.enable_conda ? "" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-    'odcf_indelcalling_v5.sif' :
-    'kubran/odcf_indelcalling:v5' }"
-
- //   publishDir params.outdir+'/annotate_vcf'                    , mode: 'copy'
+    'odcf_indelcalling_v7.sif' :'kubran/odcf_indelcalling:v7' }"
 
     input:
     tuple val(meta)            , file(vcf)     , file(vcf_tbi), val(tumorname), val(controlname)

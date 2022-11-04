@@ -3,8 +3,7 @@ process SAMPLESHEET_CHECK {
 
     conda (params.enable_conda ? "conda-forge::python=3.8.3" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-    'odcf_indelcalling_v5.sif' :
-    'kubran/odcf_indelcalling:v5' }"
+    'odcf_indelcalling_v7.sif' :'kubran/odcf_indelcalling:v7' }"
 
 
     input:

@@ -5,10 +5,7 @@ process FILTER_BY_CRIT {
 
     conda     (params.enable_conda ? "" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-    'odcf_indelcalling_v5.sif' :
-    'kubran/odcf_indelcalling:v5' }"
-
- //    publishDir params.outdir+'/filter_by_crit' , mode: 'copy'
+    'odcf_indelcalling_v7.sif' :'kubran/odcf_indelcalling:v7' }"
 
     input:
     tuple val(meta), file(vcfgz), file(vcf_tbi)
@@ -39,7 +36,7 @@ process FILTER_BY_CRIT {
         """
     }
     else
-         {
+        {
         if (params.filter_values != "") 
             {
             """
