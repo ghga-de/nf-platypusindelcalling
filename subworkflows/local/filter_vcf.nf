@@ -7,7 +7,7 @@ params.options = [:]
 include { FILTER_BY_CRIT       } from '../../modules/local/filter_by_crit.nf'       addParams( options: params.options )
 include { INDEL_EXTRACTION     } from '../../modules/local/indel_extraction.nf'     addParams( options: params.options )
 include { VISUALIZE            } from '../../modules/local/visualize.nf'            addParams( options: params.options )
-include { INDEL_JSON           } from '../../modules/local/indel_json_v1.nf'        addParams( options: params.options )
+include { INDEL_JSON           } from '../../modules/local/indel_json.nf'           addParams( options: params.options )
 
 workflow FILTER_VCF {
     take:
