@@ -69,11 +69,10 @@ This nextflow pipeline is the transition of [DKFZ-ODCF/IndelCallingWorkflow](htt
    
 4. Start running your own analysis!
 
-   <!-- TODO nf-core: Update the example "typical command" below used to run the pipeline -->
-
    ```console
-   nextflow run nf-core/platypusindelcalling --input samplesheet.csv --outdir <OUTDIR> --profile <docker/singularity> --config test/institute.config
+   nextflow run main.nf --input samplesheet.csv --outdir <OUTDIR> --profile <docker/singularity> --config test/institute.config
    ```
+   
 ## Samplesheet columns
 
 **sample**: The sample name will be tagged to the job
@@ -91,7 +90,6 @@ All VCF and BED files need to be indexed with tabix and should be in the same fo
 
 ## Documentation
 
-**TODO**
 The nf-core/platypusindelcalling pipeline comes with documentation about the pipeline [usage](https://github.com/kubranarci/nf-platypusindelcalling/blob/main/docs/usage.md) and [output](https://github.com/kubranarci/nf-platypusindelcalling/blob/main/docs/output.md).
 
 
