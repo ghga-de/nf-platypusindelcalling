@@ -18,8 +18,15 @@ process FILTER_BY_CRIT {
     task.ext.when == null || task.ext.when
 
     script:
-    def args       = task.ext.args ?: ''
-    def prefix     = task.ext.prefix ?: "${meta.id}"
+    def args          = task.ext.args ?: ''
+    def prefix        = task.ext.prefix ?: "${meta.id}"
+    def filter_values = [ (params.filter_exac && params.crit_exac_maxmaf) ? "ExAC AF $params.crit_exac_maxmaf+": "",
+                        (params.filter_evs && params.crit_evs_maxmaf) ? "EVS MAF $params.crit_evs_maxmaf+": "",
+                        (params.filter_1kgenomes && params.crit_1kgenomes_maxmaf) ? "1K_GENOMES EUR_AF $params.crit_1kgenomes_maxmaf+": "",
+                        params.filter_non_clinic ? "DBSNP CLN,COMMON nonexist,exist": "", 
+                        (params.filter_localcontrol && params.crit_localcontrol_maxmaf) ? "LocalControlAF . $params.crit_localcontrol_maxmaf+": "",
+                        (params.filter_recurrance && params.crit_recurrance) ? "RecurrenceInPIDs . $params.crit_recurrance+": ""
+                        ].join(' ').trim() 
 
 // Filter variants only if there is no control, else do noting
     if (meta.iscontrol == '1') {
@@ -37,10 +44,10 @@ process FILTER_BY_CRIT {
     }
     else
         {
-        if (params.filter_values != "") 
+        if (filter_values) 
             {
             """
-            vcf_filter_by_crit.py $vcfgz ${prefix}_postFiltered.vcf ${params.filter_values}
+            vcf_filter_by_crit.py $vcfgz ${prefix}_postFiltered.vcf $filter_values
             bgzip -c ${prefix}_postFiltered.vcf > ${prefix}_postFiltered.vcf.gz
             tabix ${prefix}_postFiltered.vcf.gz
 

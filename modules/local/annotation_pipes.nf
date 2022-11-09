@@ -34,19 +34,22 @@ process ANNOTATION_PIPES {
     def args   = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
 
-    def pipe               = [enchangers.baseName !='input' ? "-en ${enchangers}" : '',
-                            cpgislands.baseName !='input' ? "-cp ${cpgislands}" : '',
-                            tfbscons.baseName !='input' ? "-tf ${tfbscons}" : '',
-                            mirnas_snornas.baseName !='input' ? "-ms ${mirnas_snornas}" : '',
-                            encode_dnase.baseName !='input' ? "-ed ${encode_dnase}" : '',
-                            mirbase.baseName !='input' ? "-mir ${mirbase}" : '',
-                            cosmic.baseName !='input' ? "-c ${cosmic}" : '',
-                            mir_targets.baseName !='input' ? "-mt ${mir_targets}" : '' ,
-                            cgi_mountains.baseName !='input' ? "-cm ${cgi_mountains}" : '',
-                            phastconselem.baseName !='input' ? "-p ${phastconselem}" : '',
-                            encode_tfbs.baseName !='input' ? "-et ${encode_tfbs}" : ''].join(' ').trim() 
+    def pipe  = [enchangers.baseName !='input' ? " | annotate_vcf.pl -a - -b ${enchangers} --bFileType=bed --columnName='Enhancers'" : '',
+                cpgislands.baseName !='input' ? " | annotate_vcf.pl -a - -b ${cpgislands} --bFileType=bed --columnName='CpGislands'" : '',
+                tfbscons.baseName !='input' ? " | annotate_vcf.pl -a - -b ${tfbscons} --bFileType=bed --columnName='TFBScons'" : '',
+                mirnas_snornas.baseName !='input' ? " | annotate_vcf.pl -a - -b ${mirnas_snornas} --bFileType=bed --columnName='miRNAs_snoRNAs'" : '',
+                encode_dnase.baseName !='input' ? " | annotate_vcf.pl -a - -b ${encode_dnase} --bFileType=bed --columnName='ENCODE_DNASE'" : '',
+                mirbase.baseName !='input' ? " | annotate_vcf.pl -a - -b ${mirbase} --bFileType=bed --columnName='miRBase18'" : '',
+                cosmic.baseName !='input' ? " | annotate_vcf.pl -a - -b ${cosmic} --bFileType=bed --columnName='COSMIC' --bAdditionalColumns=7,8,9 --reportLevel=1" : '',
+                mir_targets.baseName !='input' ? " | annotate_vcf.pl -a - -b ${mir_targets} --columnName='miRNAtargets'" : '' ,
+                cgi_mountains.baseName !='input' ? " | annotate_vcf.pl -a - -b ${cgi_mountains} --bFileType=bed --columnName='CgiMountains' --bAdditionalColumns=4" : '',
+                phastconselem.baseName !='input' ? " | annotate_vcf.pl -a - -b ${phastconselem} --bFileType=bed --columnName='phastConsElem20bp' --bAdditionalColumns=4" : '',
+                encode_tfbs.baseName !='input' ? " | annotate_vcf.pl -a - -b ${encode_tfbs} --columnName='ENCODE_TFBS'" : ''
+                ].join(' ').trim() 
     """
-    create_pipes.sh -i $vcf -id ${prefix} $pipe
+    zcat < $vcf $pipe > ${prefix}.deepanno.vcf
+    bgzip -c ${prefix}.deepanno.vcf > ${prefix}.deepanno.vcf.gz
+    tabix ${prefix}.deepanno.vcf.gz
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
