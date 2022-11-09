@@ -12,30 +12,64 @@ The directories listed below will be created in the results directory after the 
 
 The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes data using the following steps:
 
-- [Platypus](#platypus) - Indel calling
-- [MultiQC](#multiqc) - Aggregate report describing results and QC from the whole pipeline
+- [Platypus](#platypus) - Tool used to call variants. It can detect SNPs, MNPs, short indels, replacements, deletions up to several kb.
+- [Annotation](#annotation) - Several databases like gnomAD, dbSNP, mirBASE, COSMIC and ExAC as well as the sequencing regions like selfchains, enhangers, repeat regions or mappability beds are used to create annotations to the variants. Annovar tool is used to annotate and make classifications. 
+- [Filtering](#filtering) - Filtering can be applied to the annotated files for no-control samples. Extracted indels can be viewed by screenshots. 
+- [Check Sample Swap](#tinda) - Canopy Based Clustering and Bias Filter, thi step can only be applied into the tumor samples with control. 
 - [Pipeline information](#pipeline-information) - Report metrics generated during the workflow execution
+- [MultiQC] (#multiqc) - logs, reports and tool versions summarized using MultiQC tool. 
 
-### FastQC
+### Platypus
 
 <details markdown="1">
 <summary>Output files</summary>
 
-- `fastqc/`
-  - `*_fastqc.html`: FastQC report containing quality metrics.
-  - `*_fastqc.zip`: Zip archive containing the FastQC report, tab-delimited data file and plot images.
+- `metaid/`
+  - `indel_metaid.raw.vcf.gz`: Platypus called vcf file.
+  - `indel_metaid.vcf.gz.linesCorrupt` : Reports the corrupted lines if exist. 
+  - `indel_metaid.log`: Log of platypus
 
 </details>
 
-[FastQC](http://www.bioinformatics.babraham.ac.uk/projects/fastqc/) gives general quality metrics about your sequenced reads. It provides information about the quality score distribution across your reads, per base sequence content (%A/T/G/C), adapter contamination and overrepresented sequences. For further reading and documentation see the [FastQC help pages](http://www.bioinformatics.babraham.ac.uk/projects/fastqc/Help/).
+### Annotation
 
-![MultiQC - FastQC sequence counts plot](images/mqc_fastqc_counts.png)
+<details markdown="1">
+<summary>Output files</summary>
 
-![MultiQC - FastQC mean quality scores plot](images/mqc_fastqc_quality.png)
+- `metaid/`
+  - `indel_metaid.vcf.gz`: Annotated vcf file 
 
-![MultiQC - FastQC adapter content plot](images/mqc_fastqc_adapter.png)
+</details>
 
-> **NB:** The FastQC plots displayed in the MultiQC report shows _untrimmed_ reads. They may contain adapter sequence and potentially regions with low quality.
+### Filtration
+
+<details markdown="1">
+<summary>Output files</summary>
+
+- `metaid/`
+  - `indel_metaid_somatic_functional_indels_conf_*_to_10.vcf`: Functional somatic indels filtered through the confidence score
+  - `indel_metaid_somatic_indels_conf_*_to_10.vcf`: Somatic indels filtered through the confidence score
+  - `indel_metaid_somatic_ncRNA_indels_conf_*_to_10.vcf`: Somatic ncRNA indels filtered through the confidence score
+  - `indel_metaid_germline_functional_indels_conf_*_to_10.vcf`: Functional germline indels filtered through the confidence score
+- `metaid/screenshots/`
+  - `metaid_indel_somatic_funtional_combined.pdf`:  Screenshots of the variants from `indel_metaid_somatic_functional_indels_conf_*_to_10.vcf`
+  - `metaid_indel.json` : Indel lenght break down report from `indel_HCC1187_somatic_indels_conf_5_to_10.vcf`
+
+</details>
+
+### Check Sample Swap
+
+<details markdown="1">
+<summary>Output files</summary>
+
+- `metaid/`
+  - `indel_metaid.checkSampleSwap_TiN.log`: Tinda run log
+  - `indel_metaid.swap.json`: Report of number of compared variants
+  - `indel_metaid.tinda.vcf` : Tinda VCF file
+  - `snvs_metaid.GTfiltered_gnomAD.Germline.Rare.Rescue.txt` : Germline Rare SNVs
+  - `snvs_HCC1187.GTfiltered_gnomAD.Germline.Rare.Rescue.png` : Screenshots of Germline Rare SNVss
+
+</details>
 
 ### MultiQC
 

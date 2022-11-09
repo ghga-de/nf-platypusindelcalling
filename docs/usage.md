@@ -137,7 +137,7 @@ You will need to create a samplesheet with information about the samples you wou
 
 The pipeline will auto-detect whether a sample is single- or paired-end using the information provided in the samplesheet. The samplesheet can have as many columns as you desire, however, there is a strict requirement for the first 3 columns to match those defined in the table below.
 
-A final samplesheet file consisting of both single- and paired-end data may look something like the one below. This is for 6 samples, where `TREATMENT_REP3` has been sequenced twice.
+
 
 ```console
 sample,tumor,control
@@ -168,6 +168,12 @@ nextflow run main.nf --input samplesheet.csv --outdir <OUTDIR> -profile docker
 
 This will launch the pipeline with the `docker` configuration profile. See below for more information about profiles.
 
+In order to launch the workflow in DKFZ HPC, singularity must be used with proper config file which can be found in /conf directory
+
+```console
+nextflow run main.nf --input samplesheet.csv --outdir <OUTDIR> -profile dkfz_cluster,singularity
+```
+
 Note that the pipeline will create the following files in your working directory:
 
 ```console
@@ -177,12 +183,18 @@ work                # Directory containing the nextflow working files
 # Other nextflow hidden files, eg. history of pipeline runs and old logs.
 ```
 
-### Updating the pipeline
+### Installation of the pipeline
 
-When you run the above command, Nextflow automatically pulls the pipeline code from GitHub and stores it as a cached version. When running the pipeline after this, it will always use the cached version if available - even if the pipeline has been updated since. To make sure that you're running the latest version of the pipeline, make sure that you regularly update the cached version of the pipeline:
+The pipeline can be pulled from thus github directory and be used!
 
 ```console
-nextflow pull nf-core/platypusindelcalling
+git clone https://github.com/kubranarci/nf-platypusindelcalling.git
+```
+
+Make the bin directory readable:
+
+```console
+chmod +x bin/*
 ```
 
 ### `-profile`
@@ -226,13 +238,8 @@ Whilst the default requirements set within the pipeline will hopefully work for 
 
 The computational requirements for the modules can be found and be changed in conf/base.config file
 
-### nf-core/configs
-
-In most cases, you will only need to create a custom config as a one-off but if you and others within your organisation are likely to be running nf-core pipelines regularly and need to use the same settings regularly it may be a good idea to request that your custom config file is uploaded to the `nf-core/configs` git repository. Before you do this please can you test that the config file works with your pipeline of choice using the `-c` parameter. You can then create a pull request to the `nf-core/configs` repository with the addition of your config file, associated documentation file (see examples in [`nf-core/configs/docs`](https://github.com/nf-core/configs/tree/master/docs)), and amending [`nfcore_custom.config`](https://github.com/nf-core/configs/blob/master/nfcore_custom.config) to include your custom profile.
-
 See the main [Nextflow documentation](https://www.nextflow.io/docs/latest/config.html) for more information about creating your own configuration files.
 
-If you have any questions or issues please send us a message on [Slack](https://nf-co.re/join/slack) on the [`#configs` channel](https://nfcore.slack.com/channels/configs).
 
 ## Running in the background
 
