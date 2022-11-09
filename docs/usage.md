@@ -1,6 +1,5 @@
 # nf-core/platypusindelcalling: Usage
 
-## :warning: Please read this documentation on the nf-core website: [https://nf-co.re/platypusindelcalling/usage](https://nf-co.re/platypusindelcalling/usage)
 
 > _Documentation of pipeline parameters is generated automatically from the pipeline schema and can no longer be found in markdown files._
 
