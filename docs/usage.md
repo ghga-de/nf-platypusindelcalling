@@ -1,5 +1,7 @@
 # nf-core/platypusindelcalling: Usage
 
+## :warning: Please read this documentation on the nf-core website: [https://nf-co.re/platypusindelcalling/usage](https://nf-co.re/platypusindelcalling/usage)
+
 > _Documentation of pipeline parameters is generated automatically from the pipeline schema and can no longer be found in markdown files._
 
 ## Introduction
@@ -80,26 +82,19 @@ If --runVCFFilter is true, the following parameters can be applied:
 
 **1. Filtering Options:**
 
-Filtering is only applied into the samples without control! Filtering options must be inserted into filter_values parameter. 
+Filtering is only applied into the samples without control!
 
-Available filtering columns if the databases are provided: 
-add " EVS MAF VALUE+" to filter_values parameter for EVS db (1)
-
-add " ExAC AF VALUE+" to filter_values parameter for ExAC db (0.01)
-
-add " GNOMAD_EXOMES AF VALUE+" to filter_values parameterfor gnomAD exomes db (0.001)
-
-add " GNOMAD_GENOMES AF VALUE+" to filter_values parameter for gnomAD genomes db (0.001)
-
-add " DBSNP CLN,COMMON nonexist,exist" to filter_values parameter to filtering clinical variants
-
-add " 1K_GENOMES EUR_AF VALUE+" to filter_values parameter for 1k genomes db  for EUR (0.01)
-
-add " LocalControlAF_WGS AF VALUE+ LocalControlAF_WES AF VALUE+" to filter_values parameter for Local control (0.01)
-
-add " LocalControlAF_WGS . VALUE+" to filter_values parameter to filter recurrance (7)
-
-- --filter_values       : " GNOMAD_EXOMES AF 0.001+ GNOMAD_GENOMES AF 0.001+"
+- --filter_exac         : Filter or not by ExAC
+- --filter_evs          : Filter or not by EVS
+- --filter_1kgenomes    : Filter or not by 1KGENOMES
+- --filter_recurrance   : Filter or not by RECURRANCE
+- --filter_localcontrol : Filter or not by LOCAL CONTROL
+- --filter_non_clinic   : Filter or not by dbSNP
+- --crit_exac_maxmaf    : Max MAF for ExAC
+- --crit_evs_maxmaf     : Max MAF for EVC
+- --crit_1kgenomes_maxmaf : Max MAF for 1KGENOMES
+- --crit_recurrance     : Value for RECURRANCE
+- --crit_localcontrol_maxmaf : Max MAF for LOCAL CONTROL
 
 **2. Indel Extraction Options:**
 
