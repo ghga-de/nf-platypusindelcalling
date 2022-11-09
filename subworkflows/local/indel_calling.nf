@@ -14,6 +14,7 @@ workflow INDEL_CALLING {
     
     main:
 
+    // RUN platypus : calls variants
     PLATYPUS (
     sample_ch, ref
     )
@@ -21,7 +22,7 @@ workflow INDEL_CALLING {
     ch_platypus_log = PLATYPUS.out.platypus_log
     platypus_version = PLATYPUS.out.versions
 
-
+    // check if the VCF has the correct amount of columns. 
     CHECK_IF_CORRUPTED (
     vcf_ch
     )

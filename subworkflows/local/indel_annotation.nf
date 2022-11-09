@@ -48,40 +48,42 @@ workflow INDEL_ANNOTATION {
     versions=Channel.empty()
     logs=Channel.empty() 
 
-    // RUN annotate_vcf.pl
+    // RUN annotate_vcf.pl: Uses various databases (all mandatory) to annotate variants
     ANNOTATE_VCF (
     vcf_ch, kgenome, dbsnpindel, exac, evs, localcontrolwgs,
     localcontrolwes, gnomadgenomes, gnomadexomes, chr_prefix
     )
- //   logs      = logs.mix(ANNOTATE_VCF.out.log)  
     versions  = versions.mix(ANNOTATE_VCF.out.versions)
 
-    // RUN ANNOVAR and sub-scripts
+    // RUN annovar, processAnnovarOutput.pl and newCols2vcf.pl: annovar annotates and classifies the variants, 
+    // perl scripts re-creates vcfs. 
     ANNOVAR(
     ANNOTATE_VCF.out.forannovar, ANNOTATE_VCF.out.unziped_vcf, annodb, chr_prefix
     )
     logs     = logs.mix(ANNOVAR.out.log)
     versions = versions.mix(ANNOVAR.out.versions)
 
-    // RUN CREATEPIPES (annotate_vcf.pl)
+    // RUN annotate_vcf.pl : BED files are used to annotate variants
     INDEL_RELIABILITY_PIPE(
     ANNOVAR.out.vcf, repeatmasker, dacblacklist, dukeexcluded, hiseqdepth, selfchain, mapability, simpletandemrepeats
     )
     versions = versions.mix(INDEL_RELIABILITY_PIPE.out.versions)
 
+    // RUN: confidenceAnnotation_Indels.py : Confidence annotation will be added to the variants
     CONFIDENCE_ANNOTATION(
     INDEL_RELIABILITY_PIPE.out.vcf, vcf_ch
     )
     ann_vcf_ch  = CONFIDENCE_ANNOTATION.out.vcf_ann
     versions    = versions.mix(CONFIDENCE_ANNOTATION.out.versions)
 
+    // RUN annotate_vcf.pl : Uses optional databases to annotate variants, only given databases will be used. 
     if (params.runIndelDeepAnnotation)
     {
         ANNOTATION_PIPES (
         ann_vcf_ch, enchangers, cpgislands, tfbscons, encode_dnase, mirnas_snornas, cosmic, mirbase, mir_targets,
         cgi_mountains, phastconselem, encode_tfbs
         )
-        ann_vcf_ch  = ANNOTATION_PIPES.out.deep_vcf 
+        ann_vcf_ch  = ANNOTATION_PIPES.out.vcf 
         versions    = versions.mix(ANNOTATION_PIPES.out.versions)
 
     }

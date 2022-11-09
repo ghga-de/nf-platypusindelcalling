@@ -20,7 +20,8 @@ workflow RUNTINDA {
 
     main:
 
-
+    // RUN checkSampleSwap_TiN.pl : Processes raw VCF file to find if the variants are somatic or germline. 
+    // Can be applied only if control exist. 
     SAMPLE_SWAP(
     vcf_ch, ref, chrlength, genemodel, localcontrolplatypuswgs, localcontrolplatypuswes, 
     gnomadgenomes, gnomadexomes, chrprefix
