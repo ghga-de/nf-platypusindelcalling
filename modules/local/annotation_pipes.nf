@@ -24,7 +24,7 @@ process ANNOTATION_PIPES {
     tuple file(encode_tfbs)   , file(encode_tfbs_i)
 
     output:
-    tuple val(meta), path('*.deepanno.vcf.gz'), path('*.deepanno.vcf.gz.tbi') , emit: deep_vcf
+    tuple val(meta), path('*.deepanno.vcf.gz'), path('*.deepanno.vcf.gz.tbi') , emit: vcf
     path  "versions.yml"                                                      , emit: versions
 
     when:
@@ -33,31 +33,18 @@ process ANNOTATION_PIPES {
     script:
     def args   = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
-    def enchangers_seq     = enchangers ? "-en ${enchangers}" : ''
-    def cpgislands_seq     = cpgislands ? "-cp ${cpgislands}" : ''
-    def tfbscons_seq       = tfbscons ? "-tf ${tfbscons}" : ''
-    def mirnas_snornas_seq = mirnas_snornas ? "-ms ${mirnas_snornas}" : '' 
-    def encode_dnase_seq   = encode_dnase ? "-ed ${encode_dnase}" : ''
-    def mirbase_seq        = mirbase ? "-mir ${mirbase}" : ''
-    def cosmic_seq         = cosmic ? "-c ${cosmic}" : '' 
-    def mir_targets_seq    = mir_targets ? "-mt ${mir_targets}" : '' 
-    def cgi_mountains_seq  = cgi_mountains ? "-cm ${cgi_mountains}" : ''
-    def phastconselem_seq  = phastconselem ? "-p ${phastconselem}" : ''
-    def encode_tfbs_seq    = encode_tfbs ? "-et ${encode_tfbs}" : ''
 
-
-    def pipe               = [enchangers_seq,
-                            cpgislands_seq,
-                            tfbscons_seq,
-                            mirnas_snornas_seq,
-                            encode_dnase_seq,
-                            mirbase_seq,
-                            cosmic_seq,
-                            mir_targets_seq,
-                            cgi_mountains_seq,
-                            phastconselem_seq,
-                            encode_tfbs_seq].join(' ').trim() 
-
+    def pipe               = [enchangers.baseName !='input' ? "-en ${enchangers}" : '',
+                            cpgislands.baseName !='input' ? "-cp ${cpgislands}" : '',
+                            tfbscons.baseName !='input' ? "-tf ${tfbscons}" : '',
+                            mirnas_snornas.baseName !='input' ? "-ms ${mirnas_snornas}" : '',
+                            encode_dnase.baseName !='input' ? "-ed ${encode_dnase}" : '',
+                            mirbase.baseName !='input' ? "-mir ${mirbase}" : '',
+                            cosmic.baseName !='input' ? "-c ${cosmic}" : '',
+                            mir_targets.baseName !='input' ? "-mt ${mir_targets}" : '' ,
+                            cgi_mountains.baseName !='input' ? "-cm ${cgi_mountains}" : '',
+                            phastconselem.baseName !='input' ? "-p ${phastconselem}" : '',
+                            encode_tfbs.baseName !='input' ? "-et ${encode_tfbs}" : ''].join(' ').trim() 
     """
     create_pipes.sh -i $vcf -id ${prefix} $pipe
 

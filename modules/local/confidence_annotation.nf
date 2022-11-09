@@ -11,7 +11,7 @@ process CONFIDENCE_ANNOTATION {
     tuple val(meta), file(a), file(b), val(tumorname), val(controlname)
 
     output:
-    tuple val(meta), path('*.ann.vcf.gz') ,   path('*.ann.vcf.gz.tbi')    , emit: vcf_ann
+    tuple val(meta), path('*.vcf.gz') ,   path('*.vcf.gz.tbi')    , emit: vcf_ann
     path  "versions.yml"                                                  , emit: versions
 
     when:
@@ -26,8 +26,8 @@ process CONFIDENCE_ANNOTATION {
     confidenceAnnotation_Indels.py --infile=$vcfgz --skip_order_check \\
     $samples $args | tee ${prefix}.ann.vcf | cut -f 1-11 > ${prefix}.conf.vcf
 
-    bgzip -c ${prefix}.ann.vcf > ${prefix}.ann.vcf.gz
-    tabix ${prefix}.ann.vcf.gz
+    bgzip -c ${prefix}.ann.vcf > ${prefix}.vcf.gz
+    tabix ${prefix}.vcf.gz
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

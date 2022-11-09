@@ -15,7 +15,6 @@ process INDEL_EXTRACTION {
     tuple val(meta), path('indel_*_somatic_indels_conf_*_to_10.vcf')                     , emit: somatic_indel
     tuple val(meta), path('indel_*_somatic_ncRNA_indels_conf_*_to_10.vcf')               
     tuple val(meta), path('indel_*_germline_functional_indels_conf_*_to_10.vcf')         
-    tuple val(meta), path('*.functional_var_count.txt')                                  
     path  "versions.yml"                                                                 , emit: versions
 
     when:

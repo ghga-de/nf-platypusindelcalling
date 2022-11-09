@@ -6,6 +6,8 @@ process VISUALIZE {
     conda     (params.enable_conda ? "" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
     'odcf_indelcalling_v7.sif' :'kubran/odcf_indelcalling:v7' }"
+    
+    errorStrategy 'ignore'
 
     input:
     tuple val(meta)          ,file(vcf)
@@ -13,8 +15,8 @@ process VISUALIZE {
     tuple path(repeatmasker) ,path(repeatmasker_tbi)
 
     output:
-    tuple val(meta)          , path('*.pdf')                   , optional: true
-    path('versions.yml')                                       , emit: versions
+    tuple val(meta)          , path('*.indel_somatic_functional_combined.pdf')  , optional: true
+    path('versions.yml')                                                        , emit: versions
 
     when:
     task.ext.when == null || task.ext.when

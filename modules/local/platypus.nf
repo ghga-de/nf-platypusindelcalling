@@ -13,10 +13,9 @@ process PLATYPUS {
     tuple path(ref), path(ref_fai)
 
     output:
-    tuple val(meta), path('indel_*.vcf.gz'), path('indel_*.vcf.gz.tbi')      , emit: vcf
-    tuple val(meta), path('indel_*.vcf')                                     
-    tuple val(meta), path('indel_*.log')                                     , emit: platypus_log
-    path  "versions.yml"                                                     , emit: versions
+    tuple val(meta), path('indel_*.raw.vcf.gz'), path('indel_*.raw.vcf.gz.tbi')      , emit: vcf
+    tuple val(meta), path('indel_*.log')                                             , emit: platypus_log
+    path  "versions.yml"                                                             , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -30,13 +29,13 @@ script:
     platypus callVariants \\
         --nCPU=${task.cpus}\\
         --bamFiles=$bamlist \\
-        --output=indel_${prefix}.vcf \\
+        --output=indel_${prefix}.raw.vcf \\
         --refFile=$ref \\
         --logFileName=indel_${prefix}.log \\
         $args
 
-    bgzip  --threads ${task.cpus} -c indel_${prefix}.vcf > indel_${prefix}.vcf.gz
-    tabix  indel_${prefix}.vcf.gz
+    bgzip  --threads ${task.cpus} -c indel_${prefix}.raw.vcf > indel_${prefix}.raw.vcf.gz
+    tabix  indel_${prefix}.raw.vcf.gz
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

@@ -11,7 +11,6 @@ process CHECK_IF_CORRUPTED {
 
     output:
     path("*.linesCorrupt")                         , optional: true
-    path("*.11")                                   , optional: true
     path  "versions.yml"                           , emit: versions
 
     when:
