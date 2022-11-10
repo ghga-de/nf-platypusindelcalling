@@ -12,7 +12,7 @@ process CONFIDENCE_ANNOTATION {
 
     output:
     tuple val(meta), path('*.vcf.gz') ,   path('*.vcf.gz.tbi')    , emit: vcf_ann
-    path  "versions.yml"                                                  , emit: versions
+    path  "versions.yml"                                          , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -24,10 +24,10 @@ process CONFIDENCE_ANNOTATION {
 
     """
     confidenceAnnotation_Indels.py --infile=$vcfgz --skip_order_check \\
-    $samples $args | tee ${prefix}.ann.vcf | cut -f 1-11 > ${prefix}.conf.vcf
+    $samples $args | tee indel_${prefix}.ann.vcf | cut -f 1-11 > indel_${prefix}.conf.vcf
 
-    bgzip -c ${prefix}.ann.vcf > ${prefix}.vcf.gz
-    tabix ${prefix}.vcf.gz
+    bgzip -c indel_${prefix}.ann.vcf > indel_${prefix}.vcf.gz
+    tabix indel_${prefix}.vcf.gz
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
