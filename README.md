@@ -1,14 +1,10 @@
 
-
-[![GitHub Actions CI Status](https://github.com/kubranarci/nf-core-platypusindelcalling/workflows/nf-core%20CI/badge.svg)](https://github.com/nf-core/platypusindelcalling/actions?query=workflow%3A%22nf-core+CI%22)
-[![GitHub Actions Linting Status](https://github.com/kubranarci/nf-core-platypusindelcalling/workflows/nf-core%20linting/badge.svg)](https://github.com/nf-core/platypusindelcalling/actions?query=workflow%3A%22nf-core+linting%22)
-
 [![Nextflow](https://img.shields.io/badge/nextflow%20DSL2-%E2%89%A521.10.3-23aa62.svg)](https://www.nextflow.io/)
 [![run with docker](https://img.shields.io/badge/run%20with-docker-0db7ed?logo=docker)](https://www.docker.com/)
 [![run with singularity](https://img.shields.io/badge/run%20with-singularity-1d355c.svg)](https://sylabs.io/docs/)
 
 <p align="center">
-    <img title="nf-platypusindelcalling workflow" src="docs/images/nf-platypusindelcalling.png" width=80%>
+    <img title="nf-platypusindelcalling workflow" src="docs/images/nf-platypusindelcalling.png" width=60%>
 </p>
 
 
