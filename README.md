@@ -8,7 +8,7 @@
 [![run with singularity](https://img.shields.io/badge/run%20with-singularity-1d355c.svg)](https://sylabs.io/docs/)
 
 <p align="center">
-    <img title="nf-platypusindelcalling workflow" src="docs/images/nf-platypusindelcalling.png" width=30%>
+    <img title="nf-platypusindelcalling workflow" src="docs/images/nf-platypusindelcalling.png" width=80%>
 </p>
 
 
@@ -79,7 +79,7 @@ The pipeline has 6 main steps: Indel calling using platypus, basic annotations, 
 
 2. Install any of [`Docker`](https://docs.docker.com/engine/installation/) or [`Singularity`](https://www.sylabs.io/guides/3.0/user-guide/) (you can follow [this tutorial](https://singularity-tutorial.github.io/01-installation/))
 
-3. Download [Annovar](https://annovar.openbioinformatics.org/en/latest/user-guide/download/) and set-up suitable annotation table directory to perform annotation 
+3. Download [Annovar](https://annovar.openbioinformatics.org/en/latest/user-guide/download/) and set-up suitable annotation table directory to perform annotation. Example: 
 
  ```console
 annotate_variation.pl -downdb wgEncodeGencodeBasicV19 humandb/ -build hg19
@@ -87,7 +87,9 @@ annotate_variation.pl -downdb wgEncodeGencodeBasicV19 humandb/ -build hg19
 
 4. Download the pipeline and test it on a minimal dataset with a single command:
 
+ ```console
    git clone https://github.com/kubranarci/nf-platypusindelcalling.git
+    ```
 
   before run do this to bin directory, make it runnable!:
 
@@ -110,7 +112,7 @@ annotate_variation.pl -downdb wgEncodeGencodeBasicV19 humandb/ -build hg19
    <!-- TODO nf-core: Update the example "typical command" below used to run the pipeline -->
 
    ```console
-   nextflow run maain.nf --input samplesheet.csv --outdir <OUTDIR> --profile <docker/singularity> --config test/institute.config
+   nextflow run maan.nf --input samplesheet.csv --outdir <OUTDIR> --profile <docker/singularity> --config test/institute.config
    ```
 ## Samplesheet columns
 
@@ -130,17 +132,18 @@ All VCF and BED files need to be indexed with tabix and should be in the same fo
 ## Documentation
 
 **TODO**
-The nf-core/platypusindelcalling pipeline comes with documentation about the pipeline [usage](https://github.com/kubranarci/nf-platypusindelcalling/blob/main/docs/usage.md) and [output](https://github.com/kubranarci/nf-platypusindelcalling/blob/main/docs/output.md).
+The nf-platypusindelcalling pipeline comes with documentation about the pipeline [usage](https://github.com/kubranarci/nf-platypusindelcalling/blob/main/docs/usage.md) and [output](https://github.com/kubranarci/nf-platypusindelcalling/blob/main/docs/output.md).
 
 
 ## Credits
 
-nf-core/platypusindelcalling was originally written by Kuebra Narci kuebra.narci@dkfz-heidelberg.de.
+nf-platypusindelcalling was originally written by Kuebra Narci kuebra.narci@dkfz-heidelberg.de.
 
 The pipeline is originally written in workflow management language Roddy. [Inspired github page](https://github.com/DKFZ-ODCF/IndelCallingWorkflow)
 
 We thank the following people for their extensive assistance in the development of this pipeline:
 
+**TODO**
 <!-- TODO nf-core: If applicable, make list of people who have also contributed -->
 
 ## Contributions and Support
