@@ -62,7 +62,7 @@ if (params.local_control_wes)    { localcontrolwes = Channel.fromPath([params.lo
 if (params.gnomad_genomes)       { gnomadgenomes = Channel.fromPath([params.gnomad_genomes, params.gnomad_genomes + '.tbi'], checkIfExists: true).collect() } else { gnomadgenomes = Channel.empty() }
 if (params.gnomad_exomes)        { gnomadexomes = Channel.fromPath([params.gnomad_exomes, params.gnomad_exomes + '.tbi'], checkIfExists: true).collect() } else { gnomadexomes = Channel.empty() }
 // Annovar table folder
-if (params.table_folder)         { annodb = Channel.fromPath(params.table_folder, checkIfExists: true ) } else { annodb = Channel.empty() }
+if (params.annovar_path)         { annodb = Channel.fromPath(params.annovar_path + '/humandb/', checkIfExists: true ) } else { annodb = Channel.empty() }
 // Realiability files
 if (params.repeat_masker)        { repeatmasker = Channel.fromPath([params.repeat_masker, params.repeat_masker + '.tbi'], checkIfExists: true).collect() } else { repeatmasker = Channel.empty() }
 if (params.dac_blacklist)        { dacblacklist = Channel.fromPath([params.dac_blacklist, params.dac_blacklist + '.tbi'], checkIfExists: true).collect() } else { dacblacklist = Channel.empty() }
@@ -101,23 +101,26 @@ if (params.ref_type)
     {
     if (params.ref_type == 'hg37')
         { 
-        def fa_file = "/omics/odcf/reference_data/legacy/ngs_share/assemblies/hg19_GRCh37_1000genomes/sequence/1KGRef_Phix/hs37d5_PhiX.fa"
-        ref = Channel.fromPath([fa_file,fa_file +'.fai'], checkIfExists: true).collect() 
+        def fa_file  = "/omics/odcf/reference_data/legacy/ngs_share/assemblies/hg19_GRCh37_1000genomes/sequence/1KGRef_Phix/hs37d5_PhiX.fa"
+        ref          = Channel.fromPath([fa_file,fa_file +'.fai'], checkIfExists: true).collect() 
         def chr_file = '/omics/odcf/reference_data/legacy/ngs_share/assemblies/hg19_GRCh37_1000genomes/stats/hs37d5.fa.chrLenOnlyACGT_realChromosomes.tab'
-        chrlength = Channel.fromPath(chr_file, checkIfExists: true) 
+        chrlength    = Channel.fromPath(chr_file, checkIfExists: true)
+        chr_prefix   = Channel.of("")
         }
     if (params.ref_type == 'hg19') 
         { 
         def fa_file = "/omics/odcf/reference_data/legacy/ngs_share/assemblies/hg19_GRCh37_1000genomes/sequence/hg19_chr/hg19_1-22_X_Y_M.fa"
         ref = Channel.fromPath([fa_file,fa_file +'.fai'], checkIfExists: true).collect()
         def chr_file = '/omics/odcf/reference_data/legacy/ngs_share/assemblies/hg19_GRCh37_1000genomes/stats/hg19_1-22_X_Y_M.fa.chrLenOnlyACGT.tab'
-        chrlength = Channel.fromPath(chr_file, checkIfExists: true)  
+        chrlength = Channel.fromPath(chr_file, checkIfExists: true)
+        chr_prefix   = Channel.of("chr")  
         }
     }
 else
 {
     if (params.reference)      { ref = Channel.fromPath([params.reference,params.reference +'.fai'], checkIfExists: true).collect() } else { exit 1, 'Input reference file does not exist' }
-    if (params.chrlength_file) { chrlength = Channel.fromPath(params.chrlength_file, checkIfExists: true) } else { chrlength = Channel.empty() }
+    if (params.chrlength_file) { chrlength = Channel.fromPath(params.chrlength_file, checkIfExists: true) } else { exit 1, 'Chromosome length file does not exist'  }
+    if (params.chr_prefix)     {chr_prefix= Channel.of(params.chr_prefix)} else {chr_prefix= Channel.of("")}
 }
 
 // TODO: Write a pretty log here, write the used parameters
@@ -195,8 +198,9 @@ include {RUNTINDA               } from '../subworkflows/local/runtinda'
 // MODULE: Local Modules
 //
 
-include {SET_CHR            } from '../modules/local/set_chr.nf'
-include { GREP_SAMPLENAME   } from '../modules/local/grep_samplename.nf' 
+//include {SET_CHR            } from '../modules/local/set_chr.nf'
+include { GREP_SAMPLENAME   } from '../modules/local/grep_samplename.nf'
+include { SAMPLE_SWAP      } from '../modules/local/sample_swap.nf'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -237,9 +241,10 @@ workflow PLATYPUSINDELCALLING {
     //
     // MODULE: Set chr_prefix using sample BAM
     //
-    SET_CHR(
-        sample_ch
-        )
+    // DO WE NEED IT?
+    //SET_CHR(
+    //    sample_ch
+    //    )
 
     //
     // MODULE: Extract sample name from BAM
@@ -261,7 +266,7 @@ workflow PLATYPUSINDELCALLING {
     // Prepare an input channel of vcf with sample names 
     name_ch=GREP_SAMPLENAME.out.samplenames
     vcf_ch=INDEL_CALLING.out.vcf_ch
-    ch_vcf=vcf_ch.join(name_ch).view()
+    ch_vcf=vcf_ch.join(name_ch)
 
     //
     //SUBWORKFLOW: platypusindelAnnotation.sh
@@ -273,7 +278,7 @@ workflow PLATYPUSINDELCALLING {
         localcontrolwes, gnomadgenomes, gnomadexomes, annodb, repeatmasker, dacblacklist,
         dukeexcluded, hiseqdepth, selfchain, mapability, simpletandemrepeats, enchangers,
         cpgislands, tfbscons, encode_dnase, mirnas_snornas, cosmic, mirbase, mir_targets,
-        cgi_mountains, phastconselem, encode_tfbs, SET_CHR.out.chr 
+        cgi_mountains, phastconselem, encode_tfbs, chr_prefix 
         )
 
         ch_versions = ch_versions.mix(INDEL_ANNOTATION.out.versions)
@@ -297,12 +302,13 @@ workflow PLATYPUSINDELCALLING {
 
     // Checks sample swap in platypus output vcf
     if (params.runTinda) {
-        RUNTINDA(
+
+        SAMPLE_SWAP(
             ch_vcf, ref, chrlength, genemodel, localcontrolplatypuswgs, 
-            localcontrolplatypuswes, gnomadgenomes, gnomadexomes, SET_CHR.out.chr
+            localcontrolplatypuswes, gnomadgenomes, gnomadexomes, chr_prefix
             )
-        ch_versions = ch_versions.mix(RUNTINDA.out.versions)    
-        ch_logs = ch_versions.mix(RUNTINDA.out.logs) 
+        ch_versions = ch_versions.mix(SAMPLE_SWAP.out.versions)    
+        ch_logs = ch_versions.mix(SAMPLE_SWAP.out.log) 
     }
 
     // Info required for completion email and summary
