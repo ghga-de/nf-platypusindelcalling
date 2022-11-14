@@ -34,7 +34,6 @@ process ANNOVAR {
     def av_segdup        = "${prefix}.${params.buildver}_genomicSuperDups"
     def av_cytoband      = "${prefix}.${params.buildver}_cytoBand"
     def newcol           = "${prefix}.newcol.tsv"
-    def chr_prefix  = chrprefix == "dummy" ? "" : chrprefix 
 
     """
     perl ${params.annovar_path}/annotate_variation.pl \\
@@ -52,17 +51,17 @@ process ANNOVAR {
 
     newCols2vcf.pl --vcfFile=$ch_vcf --newColFile=$newcol \\
         --newColHeader=${params.geneannocols} \\
-        --chrPrefix=$chr_prefix \\
+        --chrPrefix=$chrprefix \\
         --chrSuffix="" \\
         --reportColumns="3,4,5,6" --bChrPosEnd="0,1,2" |
     newCols2vcf.pl --vcfFile="-" --newColFile=$av_segdup \\
         --newColHeader=${params.segdupcol} \\
-        --chrPrefix=$chr_prefix \\
+        --chrPrefix=$chrprefix \\
         --chrSuffix="" \\
         --reportColumns="1" --bChrPosEnd="2,7,8" |
     newCols2vcf.pl --vcfFile="-" --newColFile=$av_cytoband \\
         --newColHeader=${params.cytobandcol} \\
-        --chrPrefix=$chr_prefix \\
+        --chrPrefix=$chrprefix \\
         --chrSuffix="" \\
         --reportColumns="1" --bChrPosEnd="2,7,8" > ${prefix}.temp.vcf
 

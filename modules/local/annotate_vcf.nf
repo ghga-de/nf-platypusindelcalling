@@ -30,7 +30,6 @@ process ANNOTATE_VCF {
     script:
     def args        = task.ext.args ?: ''
     def prefix      = task.ext.prefix ?: "${meta.id}"
-    def chr_prefix  = chrprefix == "dummy" ? "" : chrprefix
 
     """
     zcat < $vcf | \\
@@ -54,10 +53,7 @@ process ANNOTATE_VCF {
         --minOverlapFraction 1 --bFileType vcf --reportLevel 4 --reportMatchType | \\
     annotate_vcf.pl -a - -b $localcontrolwes --columnName='LocalControlAF_WES' \\
         --minOverlapFraction 1 --bFileType vcf --reportLevel 4 --reportMatchType | \\
-    tee ${prefix}.tmp | vcf_to_annovar.pl $chr_prefix "" > ${prefix}.ForAnnovar.bed
-
-    mv ${prefix}.tmp ${prefix}.vcf
-
+    tee ${prefix}.vcf | vcf_to_annovar.pl $chrprefix "" > ${prefix}.ForAnnovar.bed
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

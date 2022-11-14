@@ -24,7 +24,7 @@ process VISUALIZE {
     script:
     def args       = task.ext.args ?: ''
     def prefix     = task.ext.prefix ?: "${meta.id}"
-    def control = meta.iscontrol == '1' ? 'true': 'false'
+    def control    = meta.iscontrol == '1' ? 'true': 'false'
 
     """
     check_variants_size.sh \\

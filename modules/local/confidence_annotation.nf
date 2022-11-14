@@ -24,7 +24,7 @@ process CONFIDENCE_ANNOTATION {
 
     """
     confidenceAnnotation_Indels.py --infile=$vcfgz --skip_order_check \\
-    $samples $args | tee indel_${prefix}.ann.vcf | cut -f 1-11 > indel_${prefix}.conf.vcf
+        $samples $args | tee indel_${prefix}.ann.vcf | cut -f 1-11 > indel_${prefix}.conf.vcf
 
     bgzip -c indel_${prefix}.ann.vcf > indel_${prefix}.vcf.gz
     tabix indel_${prefix}.vcf.gz

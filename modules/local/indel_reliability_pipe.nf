@@ -31,14 +31,14 @@ process INDEL_RELIABILITY_PIPE {
 
     """
     zcat < $ch_vcf | \\
-    annotate_vcf.pl -a - -b $repeatmasker --bFileType=bed --columnName='REPEAT_MASKER' | \\
-    annotate_vcf.pl -a - -b $dacblacklist --bFileType=bed --columnName='DAC_BLACKLIST' | \\
-    annotate_vcf.pl -a - -b $dukeexcluded --bFileType=bed --columnName='DUKE_EXCLUDED' | \\
-    annotate_vcf.pl -a - -b $hiseqdepth --bFileType=bed --columnName='HISEQDEPTH' | \\
-    annotate_vcf.pl -a - -b $selfchain --bFileType=bed --columnName='SELFCHAIN' --bAdditionalColumns=4 --maxNrOfMatches=5 | \\
-    annotate_vcf.pl -a - -b $mapability --bFileType=bed --columnName='MAPABILITY' --breakPointMode --aEndOffset=1 | \\
-    annotate_vcf.pl -a - -b $simpletandemrepeats --bFileType=bed --columnName='SIMPLE_TANDEMREPEATS' --bAdditionalColumns=4 \\
-    > ${prefix}.annotated.vcf
+        annotate_vcf.pl -a - -b $repeatmasker --bFileType=bed --columnName='REPEAT_MASKER' | \\
+        annotate_vcf.pl -a - -b $dacblacklist --bFileType=bed --columnName='DAC_BLACKLIST' | \\
+        annotate_vcf.pl -a - -b $dukeexcluded --bFileType=bed --columnName='DUKE_EXCLUDED' | \\
+        annotate_vcf.pl -a - -b $hiseqdepth --bFileType=bed --columnName='HISEQDEPTH' | \\
+        annotate_vcf.pl -a - -b $selfchain --bFileType=bed --columnName='SELFCHAIN' --bAdditionalColumns=4 --maxNrOfMatches=5 | \\
+        annotate_vcf.pl -a - -b $mapability --bFileType=bed --columnName='MAPABILITY' --breakPointMode --aEndOffset=1 | \\
+        annotate_vcf.pl -a - -b $simpletandemrepeats --bFileType=bed --columnName='SIMPLE_TANDEMREPEATS' --bAdditionalColumns=4 \\
+        > ${prefix}.annotated.vcf
 
     bgzip -c ${prefix}.annotated.vcf > ${prefix}.annotated.vcf.gz
     tabix ${prefix}.annotated.vcf.gz

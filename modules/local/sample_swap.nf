@@ -35,7 +35,6 @@ process SAMPLE_SWAP {
     task.ext.when == null || task.ext.when
 
     script:
-    def chr_prefix  = chrprefix == "dummy" ? " " : chrprefix
     def args        = task.ext.args ?: ''
     def prefix      = task.ext.prefix ?: "${meta.id}"
 
@@ -43,25 +42,25 @@ process SAMPLE_SWAP {
         
         """
         checkSampleSwap_TiN.pl \\
-        --pid=$prefix \\
-        --raw_file=$ch_vcf \\
-        --chr_prefix=$chr_prefix \\
-        --gnomAD_genome=$gnomadgenomes \\
-        --gnomAD_exome=$gnomadexomes \\
-        --localControl_WGS=$localcontrolplatypuswgs \\
-        --localControl_WES=$localcontrolplatypuswes \\
-        --TiNDA_rightBorder=${params.right_border} \\
-        --TiNDA_bottomBorder=${params.bottom_border} \\
-        --maf_thershold=${params.maf_threshold} \\
-        --chrLengthFile=$chrlength_file \\
-        --normal_header_col=$controlname \\
-        --tumor_header_col=$tumorname \\
-        --sequenceType=${params.seqtype} \\
-        --gene_model_bed=$genemodel \\
-        --reference=$ref \\
-        --outfile_tindaVCF=indel_${prefix}.tinda.vcf \\
-        --outfile_swapJSON=indel_${prefix}.swap.json \\
-        2>&1 | tee indel_${prefix}.checkSampleSwap_TiN.log
+            --pid=$prefix \\
+            --raw_file=$ch_vcf \\
+            --chr_prefix=$chrprefix \\
+            --gnomAD_genome=$gnomadgenomes \\
+            --gnomAD_exome=$gnomadexomes \\
+            --localControl_WGS=$localcontrolplatypuswgs \\
+            --localControl_WES=$localcontrolplatypuswes \\
+            --TiNDA_rightBorder=${params.right_border} \\
+            --TiNDA_bottomBorder=${params.bottom_border} \\
+            --maf_thershold=${params.maf_threshold} \\
+            --chrLengthFile=$chrlength_file \\
+            --normal_header_col=$controlname \\
+            --tumor_header_col=$tumorname \\
+            --sequenceType=${params.seqtype} \\
+            --gene_model_bed=$genemodel \\
+            --reference=$ref \\
+            --outfile_tindaVCF=indel_${prefix}.tinda.vcf \\
+            --outfile_swapJSON=indel_${prefix}.swap.json \\
+            2>&1 | tee indel_${prefix}.checkSampleSwap_TiN.log
 
         cat <<-END_VERSIONS > versions.yml
         "${task.process}":
