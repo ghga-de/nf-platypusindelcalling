@@ -2,13 +2,13 @@
 [![Nextflow](https://img.shields.io/badge/nextflow%20DSL2-%E2%89%A521.10.3-23aa62.svg)](https://www.nextflow.io/)
 [![run with docker](https://img.shields.io/badge/run%20with-docker-0db7ed?logo=docker)](https://www.docker.com/)
 [![run with singularity](https://img.shields.io/badge/run%20with-singularity-1d355c.svg)](https://sylabs.io/docs/)
-<p align="center">
+<p align="justify">
     <img title="nf-platypusindelcalling workflow" src="docs/images/nf-platypusindelcalling.png" width=50%>
 </p>
-<p align="left">
+<p align="right">
     <img title="GHGA" src="docs/images/GHGA_short_Logo_orange.png" width=10%>
 </p>
-<p align="left">
+<p align="right">
     <img title="denbi" src="docs/images/denbi.png" width=10%>
 </p>
 
