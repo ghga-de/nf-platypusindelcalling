@@ -136,6 +136,7 @@ DKFZ-ODCF/IndelCallingWorkflow: A Platypus-based workflow for indel calling
     runIndelDeepAnnotation: ${params.runIndelDeepAnnotation}
     runIndelVCFFilter     : ${params.runIndelVCFFilter}
     runTinda              : ${params.runTinda}
+    skip_multiqc          : ${params.skip_multiqc}
 
     Annotate VCF
     padding               : ${params.padding}
@@ -144,7 +145,6 @@ DKFZ-ODCF/IndelCallingWorkflow: A Platypus-based workflow for indel calling
     maxmatches            : ${params.maxmatches}
 
     Annovar
-    table_folder          : ${params.table_folder}
     annovar_path          : ${params.annovar_path}
     buildver              : ${params.buildver}
     dbtype                : ${params.dbtype}
@@ -154,15 +154,22 @@ DKFZ-ODCF/IndelCallingWorkflow: A Platypus-based workflow for indel calling
 
     Filtering
     min_confidence_score  : ${params.min_confidence_score}
-    filter_values         : ${params.filter_values}
+    filter_exac           : ${params.filter_exac}
+    filter_1kgenomes      : ${params.filter_1kgenomes}
+    filter_recurrance     : ${params.filter_recurrance}
+    filter_localcontrol   : ${params.filter_localcontrol}
+    filter_non_clinic     : ${params.filter_non_clinic}
+    crit_exac_maxmaf      : ${params.crit_exac_maxmaf}
+    crit_evs_maxmaf       : ${params.filter_exac}
+    crit_1kgenomes_maxmaf : ${params.crit_1kgenomes_maxmaf}
+    crit_recurrance       : ${params.crit_recurrance}
+    crit_localcontrol_maxmaf: ${params.crit_localcontrol_maxmaf}
 
     Visualization
     max_var_screenshots   : ${params.max_var_screenshots}
     window_size           : ${params.window_size}
 
     Tinda
-    normal_header_pattern : ${params.normal_header_pattern}
-    tumor_header_pattern  : ${params.tumor_header_pattern}
     seqtype               : ${params.seqtype}
     right_border          : ${params.right_border}
     bottom_border         : ${params.bottom_border}
