@@ -8,10 +8,25 @@
 <!-- TODO nf-core: Add documentation about anything specific to running your pipeline. For general topics, please point to (and add to) the main nf-core website. -->
 ## Data requirements and Paremeters
 
+Main Swiches:
+
+- --runIndelAnnotation: Run the annotation step or stop the workflow before it.
+
+- --runIndelDeepAnnotation: Run the deep annotation step or stop the workflow before it. Works only of the basic annotation is applied. 
+
+- --runIndelVCFFilter: Run the filter step or stop the workflow before it. Works only if the basic annotation is applied. 
+
+- --runTinda: Check for sample swaps with TiNDA.
+
+- --skip_multiqc: Skip MultiQC. 
+
 Reference Files:
+
 - --ref_type: (only for DKFZ Cluster!) Either hg19 or hg37 can be defined as reference type.
 
 - --reference: A reference directory .fa or .fasta (including index files in the same directory) should be defined.
+
+- --chrlength_file      : Chromosome length file (associated with reference type) (.txt or .tab)
 
 **Annotation Step:** 
 
@@ -40,7 +55,6 @@ Annovar must be downloaded locally and necessary build version must be generated
 
 annotate_variation.pl -downdb wgEncodeGencodeBasicV19 humandb/ -build hg19
 
-- --table_folder        :'/path/to/annovar/humandb/'
 - --annovar_path        :'/path/to/annovar'
 
 - --buildver            : hg19, hg38 or hg18
@@ -109,9 +123,7 @@ Filtering is only applied into the samples without control!
 
 If --runTinda is true, the following parameters can be applied:
 
-- --chrlength_file      : Chromosome lenght file (associated with reference type) (.txt or .tab)
 - --genemodel_bed       : Genecode Exomes (bed.gz)
-- --exomecapturekit_bed : Exome capture kit UTR regions (bed.gz)
 - --local_control_wgs   : Extra Local Control files (vcf.gz)
 - --local_control_wes   : Extra Local Control files (vcf.gz) 
 - --gnomad_genomes      : Gnomed Genome sites (vcf.gz)
@@ -148,7 +160,7 @@ sample7,sample7_tumor.bam,
 | `tumor` | Full path to BAM file for tumor samples. File has to be indexed.                                                             |
 | `control` | Full path to BAM file for control (optional). File has to be indexed.                                                             |
 
-An [example samplesheet](../assets/samplesheet.csv) has been provided with the pipeline.
+An [example samplesheet](../assets/samplesheet_test.csv) has been provided with the pipeline.
 
 ## Running the pipeline
 
@@ -163,7 +175,7 @@ This will launch the pipeline with the `docker` configuration profile. See below
 In order to launch the workflow in DKFZ HPC, singularity must be used with proper config file which can be found in /conf directory
 
 ```console
-nextflow run main.nf --input samplesheet.csv --outdir <OUTDIR> -profile dkfz_cluster,singularity
+nextflow run main.nf --input samplesheet_test.csv --outdir <OUTDIR> -profile dkfz_cluster,singularity
 ```
 
 Note that the pipeline will create the following files in your working directory:
@@ -188,6 +200,8 @@ Make the bin directory readable:
 ```console
 chmod +x bin/*
 ```
+
+[Annovar](https://annovar.openbioinformatics.org/en/latest/user-guide/download/) should be downloaded locally if annotation module will be used and should be linked to the appropriare directory in --annovar_path parameter. 
 
 ### `-profile`
 
