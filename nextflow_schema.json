@@ -212,13 +212,6 @@
                     "fa_icon": "fas fa-annovar",
                     "description": "Column names seperated with ',' for annovar " 
                 },
-                "table_folder": {
-                    "type": "string",
-                    "format": "file-path",
-                    "mimetype": "text/plain",
-                    "fa_icon": "fas fa-annovar",
-                    "description": "File path to annovar database: annovar/annovar_Feb2016/humandb/" 
-                },
                 "annovar_path": {
                     "type": "string",
                     "format": "file-path",

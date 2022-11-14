@@ -30,16 +30,48 @@ This nextflow pipeline is the transition of [DKFZ-ODCF/IndelCallingWorkflow](htt
 
 <!-- TODO nf-core: Fill in short bullet-pointed list of the default steps in the pipeline -->
 
-1. Platypus ([`Platypus`](https://www.well.ox.ac.uk/research/research-groups/lunter-group/lunter-group/platypus-a-haplotype-based-variant-caller-for-next-generation-sequence-data))
-   : Platypus tool is used to call variants using local realignmnets and local assemblies. It can detect SNPs, MNPs, short indels, replacements, deletions up to several kb. It can be both used with WGS and WES. The tool has been thoroughly tested on data mapped with Stampy and BWA.
-2. Basic Annotations: In-house scripts to annotate with several databases like gnomAD, dbSNP, and ExAC.
-3. ANNOVAR ([`Annovar`](https://annovar.openbioinformatics.org/en/latest/))
-   : annotate_variation.pl is used to annotate variants. The tool makes classifications for intergenic, intogenic, nonsynoymous SNP, frameshift deletion or large-scale duplication regions.
-4. Reliability and confidation annotations: It is an optional step (--runIndelAnnotation) for Mapability, hiseq, selfchain and repeat regions checks for reliability and confidence of those scores.
-5. INDEL Deep Annotation: It is an optional step (runIndelDeepAnnotation) for number of extra indel annotations like enhancer, cosmic, mirBASE, encode databases.
-6. Filtering: It is an optional step (runIndelVCFFilter)for only applies for the tumor samples with no-control.
-7. Checks Sample Swap: Canopy Based Clustering and Bias Filter, thi step can only be applied into the tumor samples with control. 
+The pipeline has 6 main steps: Indel calling using platypus, basic annotations, deep annotations, filtering, sample swap check and multiqc report. 
 
+1. Indel Calling: 
+   
+   Platypus ([`Platypus`](https://www.well.ox.ac.uk/research/research-groups/lunter-group/lunter-group/platypus-a-haplotype-based-variant-caller-for-next-generation-sequence-data))
+   : Platypus tool is used to call variants using local realignmnets and local assemblies. It can detect SNPs, MNPs, short indels, replacements, deletions up to several kb. It can be both used with WGS and WES. The tool has been thoroughly tested on data mapped with Stampy and BWA.
+2. Basic Annotations (--runIndelAnnotation):
+
+   If it is true:
+
+   In-house scripts to annotate with several databases like gnomAD, dbSNP, and ExAC.
+
+   ANNOVAR ([`Annovar`](https://annovar.openbioinformatics.org/en/latest/))
+   : annotate_variation.pl is used to annotate variants. The tool makes classifications for intergenic, intogenic, nonsynoymous SNP, frameshift deletion or large-scale duplication regions.
+   
+   Reliability and confidation annotations: It is an optional ste for Mapability, hiseq, selfchain and repeat regions checks for reliability and confidence of those scores.
+
+3. Deep Annotation (--runIndelDeepAnnotation): 
+
+   If it is true:
+   
+   If basic annotations are applied, an extra optional step for number of extra indel annotations like enhancer, cosmic, mirBASE, encode databases can be applied too.
+
+4. Filtering and Visualization (--runIndelVCFFilter): 
+
+   If it is true
+
+   It is an optional step. Filtering is only required for the tumor samples with no-control and filtering can only be applied if basic annotation is performed. 
+
+   Indel Extraction and Visualizations: INDELs can be extracted by certain minimum confidence level
+
+   Visualization and json reports: Extracted INDELs are visualized and analytics of INDEL categories are reported as JSON.
+
+5. Check Sample Swap (--runTinda): 
+
+   If it is true:
+
+   Canopy Based Clustering and Bias Filter, thi step can only be applied into the tumor samples with control. 
+
+6. MultiQC (--skipmultiqc):
+
+   If false, produces pipeline level analytics and reports. 
 
 ## Quick Start
 
@@ -47,7 +79,13 @@ This nextflow pipeline is the transition of [DKFZ-ODCF/IndelCallingWorkflow](htt
 
 2. Install any of [`Docker`](https://docs.docker.com/engine/installation/) or [`Singularity`](https://www.sylabs.io/guides/3.0/user-guide/) (you can follow [this tutorial](https://singularity-tutorial.github.io/01-installation/))
 
-3. Download the pipeline and test it on a minimal dataset with a single command:
+3. Download [Annovar](https://annovar.openbioinformatics.org/en/latest/user-guide/download/) and set-up suitable annotation table directory to perform annotation 
+
+ ```console
+annotate_variation.pl -downdb wgEncodeGencodeBasicV19 humandb/ -build hg19
+ ```
+
+4. Download the pipeline and test it on a minimal dataset with a single command:
 
    git clone https://github.com/kubranarci/nf-platypusindelcalling.git
 
@@ -67,12 +105,13 @@ This nextflow pipeline is the transition of [DKFZ-ODCF/IndelCallingWorkflow](htt
    > - Please check [nf-core/configs](https://github.com/nf-core/configs#documentation) to see if a custom config file to run nf-core pipelines already exists for your Institute. If so, you can simply use `-profile <institute>` in your command. This will enable either `docker` or `singularity` and set the appropriate execution settings for your local compute environment.
    > - If you are using `singularity`, please use the [`nf-core download`](https://nf-co.re/tools/#downloading-pipelines-for-offline-use) command to download images first, before running the pipeline. Setting the [`NXF_SINGULARITY_CACHEDIR` or `singularity.cacheDir`](https://www.nextflow.io/docs/latest/singularity.html?#singularity-docker-hub) Nextflow options enables you to store and re-use the images from a central location for future pipeline runs.
    
-4. Start running your own analysis!
+5. Start running your own analysis!
+
+   <!-- TODO nf-core: Update the example "typical command" below used to run the pipeline -->
 
    ```console
-   nextflow run main.nf --input samplesheet.csv --outdir <OUTDIR> --profile <docker/singularity> --config test/institute.config
+   nextflow run maain.nf --input samplesheet.csv --outdir <OUTDIR> --profile <docker/singularity> --config test/institute.config
    ```
-   
 ## Samplesheet columns
 
 **sample**: The sample name will be tagged to the job
@@ -90,6 +129,7 @@ All VCF and BED files need to be indexed with tabix and should be in the same fo
 
 ## Documentation
 
+**TODO**
 The nf-core/platypusindelcalling pipeline comes with documentation about the pipeline [usage](https://github.com/kubranarci/nf-platypusindelcalling/blob/main/docs/usage.md) and [output](https://github.com/kubranarci/nf-platypusindelcalling/blob/main/docs/output.md).
 
 
