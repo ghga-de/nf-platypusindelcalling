@@ -192,7 +192,6 @@ include {INPUT_CHECK            } from '../subworkflows/local/input_check'
 include {INDEL_CALLING          } from '../subworkflows/local/indel_calling'
 include {INDEL_ANNOTATION       } from '../subworkflows/local/indel_annotation'
 include {FILTER_VCF             } from '../subworkflows/local/filter_vcf'
-include {RUNTINDA               } from '../subworkflows/local/runtinda'
 
 //
 // MODULE: Local Modules
@@ -237,14 +236,6 @@ workflow PLATYPUSINDELCALLING {
 
     sample_ch = INPUT_CHECK.out.ch_sample
     ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
-
-    //
-    // MODULE: Set chr_prefix using sample BAM
-    //
-    // DO WE NEED IT?
-    //SET_CHR(
-    //    sample_ch
-    //    )
 
     //
     // MODULE: Extract sample name from BAM
