@@ -3,7 +3,7 @@
 [![run with docker](https://img.shields.io/badge/run%20with-docker-0db7ed?logo=docker)](https://www.docker.com/)
 [![run with singularity](https://img.shields.io/badge/run%20with-singularity-1d355c.svg)](https://sylabs.io/docs/)
 <p align="center">
-    <img title="nf-platypusindelcalling workflow" src="docs/images/nf-platypusindelcalling.png" width=50%>
+    <img title="nf-platypusindelcalling workflow" src="docs/images/nf-platypusindelcalling.png" width=70%>
 </p>
 <p align="right">
     <img title="GHGA" src="docs/images/GHGA_short_Logo_orange.png" width=10%>
