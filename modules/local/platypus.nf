@@ -3,9 +3,10 @@ process PLATYPUS {
     tag "$meta.id"
     label 'process_intermediate'
 
-    conda     (params.enable_conda ? "" : null)
+    conda     (params.enable_conda ? "conda::platypus-variant=0.8.1" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-    'platypus_0.8.1.1.3.sif' :'kubran/platypus:0.8.1.1-3'}"
+    'https://depot.galaxyproject.org/singularity/platypus-variant:0.8.1.2--py27hb698ca4_5' :
+    'quay.io/biocontainers/platypus-variant:0.8.1.2--py27hb698ca4_5'}"
 
 
     input:
