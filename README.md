@@ -4,13 +4,13 @@
 [![run with singularity](https://img.shields.io/badge/run%20with-singularity-1d355c.svg)](https://sylabs.io/docs/)
 
 <p align="center">
-    <img title="nf-platypusindelcalling workflow" src="docs/images/nf-platypusindelcalling.png" width=60%>
+    <img title="nf-platypusindelcalling workflow" src="docs/images/nf-platypusindelcalling.png" width=70%>
 </p>
 <p align="right">
-    <img title="GHGA" src="docs/images/GHGA_short_Logo_orange.png" width=10%>
+    <img title="GHGA" src="docs/images/GHGA_short_Logo_orange.png" width=20%>
 </p>
-<p align="right">
-    <img title="denbi" src="docs/images/denbi.png" width=10%>
+<p align="left">
+    <img title="denbi" src="docs/images/denbi.png" width=20%>
 </p>
 ## Introduction
 
@@ -87,7 +87,7 @@ annotate_variation.pl -downdb wgEncodeGencodeBasicV19 humandb/ -build hg19
 
 4. Download the pipeline and test it on a minimal dataset with a single command:
 
- ```console
+   ```console
    git clone https://github.com/kubranarci/nf-platypusindelcalling.git
     ```
 
@@ -107,7 +107,7 @@ annotate_variation.pl -downdb wgEncodeGencodeBasicV19 humandb/ -build hg19
    > - Please check [nf-core/configs](https://github.com/nf-core/configs#documentation) to see if a custom config file to run nf-core pipelines already exists for your Institute. If so, you can simply use `-profile <institute>` in your command. This will enable either `docker` or `singularity` and set the appropriate execution settings for your local compute environment.
    > - If you are using `singularity`, please use the [`nf-core download`](https://nf-co.re/tools/#downloading-pipelines-for-offline-use) command to download images first, before running the pipeline. Setting the [`NXF_SINGULARITY_CACHEDIR` or `singularity.cacheDir`](https://www.nextflow.io/docs/latest/singularity.html?#singularity-docker-hub) Nextflow options enables you to store and re-use the images from a central location for future pipeline runs.
 
- 5. Simple test run
+5. Simple test run
 
    ```console
    nextflow run main.nf --input samplesheet_test.csv --outdir results --profile docker,test
