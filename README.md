@@ -9,7 +9,7 @@
 <p align="right">
     <img title="GHGA" src="docs/images/GHGA_short_Logo_orange.png" width=20%>
 </p>
-<p align="left">
+<p align="right">
     <img title="denbi" src="docs/images/denbi.png" width=20%>
 </p>
 ## Introduction
