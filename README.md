@@ -2,8 +2,9 @@
 [![Nextflow](https://img.shields.io/badge/nextflow%20DSL2-%E2%89%A521.10.3-23aa62.svg)](https://www.nextflow.io/)
 [![run with docker](https://img.shields.io/badge/run%20with-docker-0db7ed?logo=docker)](https://www.docker.com/)
 [![run with singularity](https://img.shields.io/badge/run%20with-singularity-1d355c.svg)](https://sylabs.io/docs/)
+
 <p align="center">
-    <img title="nf-platypusindelcalling workflow" src="docs/images/nf-platypusindelcalling.png" width=70%>
+    <img title="nf-platypusindelcalling workflow" src="docs/images/nf-platypusindelcalling.png" width=60%>
 </p>
 <p align="right">
     <img title="GHGA" src="docs/images/GHGA_short_Logo_orange.png" width=10%>
@@ -11,7 +12,6 @@
 <p align="right">
     <img title="denbi" src="docs/images/denbi.png" width=10%>
 </p>
-
 ## Introduction
 
 **nf-platypusindelcalling**:A Platypus-based insertion/deletion-detection workflow with extensive quality control additions.  The workflow is based on DKFZ - ODCF OTP Indel Calling Pipeline.
@@ -106,13 +106,19 @@ annotate_variation.pl -downdb wgEncodeGencodeBasicV19 humandb/ -build hg19
    > - The pipeline comes with config profiles called `docker` and `singularity` which instruct the pipeline to use the named tool for software management. For example, `-profile test,docker`.
    > - Please check [nf-core/configs](https://github.com/nf-core/configs#documentation) to see if a custom config file to run nf-core pipelines already exists for your Institute. If so, you can simply use `-profile <institute>` in your command. This will enable either `docker` or `singularity` and set the appropriate execution settings for your local compute environment.
    > - If you are using `singularity`, please use the [`nf-core download`](https://nf-co.re/tools/#downloading-pipelines-for-offline-use) command to download images first, before running the pipeline. Setting the [`NXF_SINGULARITY_CACHEDIR` or `singularity.cacheDir`](https://www.nextflow.io/docs/latest/singularity.html?#singularity-docker-hub) Nextflow options enables you to store and re-use the images from a central location for future pipeline runs.
-   
-5. Start running your own analysis!
+
+ 5. Simple test run
+
+   ```console
+   nextflow run main.nf --input samplesheet_test.csv --outdir results --profile docker,test
+   ``` 
+
+6. Start running your own analysis!
 
    <!-- TODO nf-core: Update the example "typical command" below used to run the pipeline -->
 
    ```console
-   nextflow run maan.nf --input samplesheet.csv --outdir <OUTDIR> --profile <docker/singularity> --config test/institute.config
+   nextflow run main.nf --input samplesheet.csv --outdir <OUTDIR> --profile <docker/singularity> --config test/institute.config
    ```
 ## Samplesheet columns
 
