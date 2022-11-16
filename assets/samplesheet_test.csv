@@ -1,3 +1,3 @@
 sample,tumor,control
-test_withcontrol,data/tumor_test.bam,data/control_test.bam
-test_withoutcontrol,data/tumor_test.bam,
+test_withcontrol,testdata/tumor.bam,testdata/control.bam
+test_withoutcontrol,testdata/tumor.bam,
