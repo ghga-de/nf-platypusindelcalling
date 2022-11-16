@@ -5,7 +5,7 @@ process SAMPLE_SWAP {
 
     conda     (params.enable_conda ? "" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-    'odcf_indelcalling_v7.sif' :'kubran/odcf_indelcalling:v7' }"
+    'library://kubran/odcf/odcf_platypusindelcalling:v0' :'kubran/odcf_platypusindelcalling:v0' }"
 
     input:
     tuple val(meta)      , file(ch_vcf), file(ch_vcf_i),  val(tumorname), val(controlname)
@@ -19,8 +19,8 @@ process SAMPLE_SWAP {
     val chrprefix
 
     output:
-    tuple val(meta), path('indel_*.tinda.vcf')                           , optional: true
-    tuple val(meta), path('indel_*.swap.json')                           , optional: true
+    tuple val(meta), path('indel_*.tinda.vcf')                           , emit: vcf
+    tuple val(meta), path('indel_*.swap.json')                           , emit: json
     path  "snvs_*.GTfiltered_raw.vcf"                                    , optional: true
     path  "snvs_*.GTfiltered_gnomAD.vcf"                                 , optional: true
     path  "snvs_*.GTfiltered_gnomAD.SomaticIn.vcf"                       , optional: true   
@@ -73,7 +73,9 @@ process SAMPLE_SWAP {
     }
     else {
         """
-        touch indel_${prefix}.checkSampleSwap_TiN.log
+        touch indel_${prefix}.empty.checkSampleSwap_TiN.log
+        touch indel_${prefix}.empty.tinda.vcf
+        touch indel_${prefix}.empty.swap.json
 
         cat <<-END_VERSIONS > versions.yml
         "${task.process}":

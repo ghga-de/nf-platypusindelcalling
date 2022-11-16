@@ -2,11 +2,11 @@
 
 process INDEL_JSON {
     tag "$meta.id"
-    label 'process_low'
+    label 'process_medium'
 
-    conda (params.enable_conda ? "bioconda::samtools=1.15.1" : null)
+    conda     (params.enable_conda ? "" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-    'odcf_indelcalling_v7.sif' :'kubran/odcf_indelcalling:v7' }"
+    'library://kubran/odcf/odcf_platypusindelcalling:v0' :'kubran/odcf_platypusindelcalling:v0' }"
 
     
     input:

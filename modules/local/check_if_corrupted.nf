@@ -2,9 +2,10 @@ process CHECK_IF_CORRUPTED {
     tag "$meta.id"
     label 'process_low'
 
-    conda (params.enable_conda ? "" : null)
+    conda (params.enable_conda ? "conda-forge::sed=4.7" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-    'odcf_indelcalling_v7.sif' :'kubran/odcf_indelcalling:v7' }"
+        'https://depot.galaxyproject.org/singularity/ubuntu:20.04' :
+        'ubuntu:20.04' }"
 
     input:
     tuple val(meta), file(vcf), file(vcf_tbi)

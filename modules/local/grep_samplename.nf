@@ -2,9 +2,10 @@ process GREP_SAMPLENAME {
     tag "$meta.id"
     label 'process_low'
 
-    conda (params.enable_conda ? "" : null)
+    conda (params.enable_conda ? "bioconda::samtools=1.16.1" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-    'odcf_indelcalling_v7.sif' :'kubran/odcf_indelcalling:v7' }"
+        'https://depot.galaxyproject.org/singularity/samtools:1.16.1--h6899075_1' :
+        'quay.io/biocontainers/samtools:1.16.1--h6899075_1' }"
 
     input:
     tuple val(meta), path(tumor), path(tumor_bai), path(control),  path(control_bai)
