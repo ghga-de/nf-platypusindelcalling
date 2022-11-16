@@ -105,7 +105,7 @@ if (params.ref_type)
         ref          = Channel.fromPath([fa_file,fa_file +'.fai'], checkIfExists: true).collect() 
         def chr_file = '/omics/odcf/reference_data/legacy/ngs_share/assemblies/hg19_GRCh37_1000genomes/stats/hs37d5.fa.chrLenOnlyACGT_realChromosomes.tab'
         chrlength    = Channel.fromPath(chr_file, checkIfExists: true)
-        chr_prefix   = Channel.of("")
+        chr_prefix   = Channel.value("")
         }
     if (params.ref_type == 'hg19') 
         { 
@@ -113,14 +113,14 @@ if (params.ref_type)
         ref = Channel.fromPath([fa_file,fa_file +'.fai'], checkIfExists: true).collect()
         def chr_file = '/omics/odcf/reference_data/legacy/ngs_share/assemblies/hg19_GRCh37_1000genomes/stats/hg19_1-22_X_Y_M.fa.chrLenOnlyACGT.tab'
         chrlength = Channel.fromPath(chr_file, checkIfExists: true)
-        chr_prefix   = Channel.of("chr")  
+        chr_prefix   = Channel.value("chr")  
         }
     }
 else
 {
     if (params.reference)      { ref = Channel.fromPath([params.reference,params.reference +'.fai'], checkIfExists: true).collect() } else { exit 1, 'Input reference file does not exist' }
     if (params.chrlength_file) { chrlength = Channel.fromPath(params.chrlength_file, checkIfExists: true) } else { exit 1, 'Chromosome length file does not exist'  }
-    if (params.chr_prefix)     {chr_prefix= Channel.of(params.chr_prefix)} else {chr_prefix= Channel.of("")}
+    if (params.chr_prefix)     {chr_prefix= Channel.of(params.chr_prefix)} else {chr_prefix= Channel.value("")}
 }
 
 // TODO: Write a pretty log here, write the used parameters
@@ -285,7 +285,8 @@ workflow PLATYPUSINDELCALLING {
         //SUBWORKFLOW: FILTER VCF: filter_vcf.sh
         //
         // filtering is only apply into the samples without control, 
-        // indel extraction and visualization will apply both cases.  
+        // indel extraction and visualization will apply both cases.
+        // runIndelVCFFilter is only applicable if annotation done.  
         
         if (params.runIndelVCFFilter) {
             FILTER_VCF(
@@ -297,7 +298,6 @@ workflow PLATYPUSINDELCALLING {
     //
     //SUBWORKFLOW: RUNTINDA: checkSampleSawpTiN.sh
     //
-
     // Checks sample swap in platypus output vcf
     if (params.runTinda) {
 
