@@ -156,13 +156,11 @@ DKFZ-ODCF/IndelCallingWorkflow: A Platypus-based workflow for indel calling
     min_confidence_score  : ${params.min_confidence_score}
     filter_exac           : ${params.filter_exac}
     filter_1kgenomes      : ${params.filter_1kgenomes}
-    filter_recurrance     : ${params.filter_recurrance}
     filter_localcontrol   : ${params.filter_localcontrol}
     filter_non_clinic     : ${params.filter_non_clinic}
     crit_exac_maxmaf      : ${params.crit_exac_maxmaf}
     crit_evs_maxmaf       : ${params.filter_exac}
     crit_1kgenomes_maxmaf : ${params.crit_1kgenomes_maxmaf}
-    crit_recurrance       : ${params.crit_recurrance}
     crit_localcontrol_maxmaf: ${params.crit_localcontrol_maxmaf}
 
     Visualization
