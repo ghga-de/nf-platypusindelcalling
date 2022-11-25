@@ -1,7 +1,7 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema",
-    "$id": "https://raw.githubusercontent.com/nf-core/platypusindelcalling/master/nextflow_schema.json",
-    "title": "nf-core/platypusindelcalling pipeline parameters",
+    "$id": "https://raw.githubusercontent.com/nf-platypusindelcalling/master/nextflow_schema.json",
+    "title": "nf-platypusindelcalling pipeline parameters",
     "description": "ODCF indel calling pipeline",
     "type": "object",
     "definitions": {
@@ -423,12 +423,6 @@
                     "fa_icon": "fas fa-annotation",
                     "description": "Apply Local Control af filtration" 
                 },
-                "filter_recurrance": {
-                    "type": "boolean",
-                    "default": "",
-                    "fa_icon": "fas fa-annotation",
-                    "description": "Apply Recurrrance filtration" 
-                },
                 "crit_exac_maxmaf": {
                     "type": "number",
                     "default": "",
@@ -452,12 +446,6 @@
                     "default": "0.01",
                     "fa_icon": "fas fa-annotation",
                     "description": "Max MAF for Local Control filtration" 
-                },
-                "crit_recurrance": {
-                    "type": "integer",
-                    "default": "7",
-                    "fa_icon": "fas fa-annotation",
-                    "description": "Vlue for Recurrrance filtration" 
                 }
             }
         },
