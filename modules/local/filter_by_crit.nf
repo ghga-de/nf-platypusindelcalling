@@ -24,8 +24,7 @@ process FILTER_BY_CRIT {
                         (params.filter_evs && params.crit_evs_maxmaf) ? "EVS MAF $params.crit_evs_maxmaf+": "",
                         (params.filter_1kgenomes && params.crit_1kgenomes_maxmaf) ? "1K_GENOMES EUR_AF $params.crit_1kgenomes_maxmaf+": "",
                         params.filter_non_clinic ? "DBSNP CLN,COMMON nonexist,exist": "", 
-                        (params.filter_localcontrol && params.crit_localcontrol_maxmaf) ? "LocalControlAF . $params.crit_localcontrol_maxmaf+": "",
-                        (params.filter_recurrance && params.crit_recurrance) ? "RecurrenceInPIDs . $params.crit_recurrance+": ""
+                        (params.filter_localcontrol && params.crit_localcontrol_maxmaf) ? "LocalControlAF . $params.crit_localcontrol_maxmaf+": ""              
                         ].join(' ').trim() 
 
 // Filter variants only if there is no control, else do noting
