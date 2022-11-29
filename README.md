@@ -12,6 +12,8 @@
 <p align="right">
     <img title="denbi" src="docs/images/denbi.png" width=20%>
 </p>
+
+
 ## Introduction
 
 **nf-platypusindelcalling**:A Platypus-based insertion/deletion-detection workflow with extensive quality control additions.  The workflow is based on DKFZ - ODCF OTP Indel Calling Pipeline.
