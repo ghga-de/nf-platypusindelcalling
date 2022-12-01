@@ -112,7 +112,7 @@ annotate_variation.pl -downdb wgEncodeGencodeBasicV19 humandb/ -build hg19
 5. Simple test run
 
    ```console
-   nextflow run main.nf --input samplesheet_test.csv --outdir results --profile docker,test
+   nextflow run main.nf --input samplesheet_test.csv --outdir results --profile singularity,test
    ``` 
 
 6. Start running your own analysis!
