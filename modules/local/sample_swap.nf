@@ -5,7 +5,7 @@ process SAMPLE_SWAP {
 
     conda     (params.enable_conda ? "" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-    'library://kubran/odcf/odcf_platypusindelcalling:v0' :'kubran/odcf_platypusindelcalling:v0' }"
+    'docker://kubran/odcf_platypusindelcalling:v0' :'kubran/odcf_platypusindelcalling:v0' }"
 
     input:
     tuple val(meta)      , file(ch_vcf), file(ch_vcf_i),  val(tumorname), val(controlname)
