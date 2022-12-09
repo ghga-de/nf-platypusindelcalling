@@ -19,8 +19,7 @@ def checkPathParamList_annotation = [params.k_genome,
                                     params.dbsnp_snv,
                                     params.exac_file,
                                     params.evs_file,
-                                    params.local_control_wgs,
-                                    params.local_control_wes,
+                                    params.local_control,
                                     params.gnomad_genomes,
                                     params.gnomad_exomes,
                                     params.table_folder,
@@ -57,8 +56,7 @@ if (params.dbsnp_indel)          { dbsnpindel = Channel.fromPath([params.dbsnp_i
 if (params.dbsnp_snv)            { dbsnpsnv = Channel.fromPath([params.dbsnp_snv,params.dbsnp_snv +'.tbi' ], checkIfExists: true).collect() } else { dbsnpsnv = Channel.empty() }
 if (params.exac_file)            { exac = Channel.fromPath([params.exac_file, params.exac_file + '.tbi'], checkIfExists: true).collect() } else { exac = Channel.empty() }
 if (params.evs_file)             { evs = Channel.fromPath([params.evs_file, params.evs_file + '.tbi'], checkIfExists: true).collect() } else { evs = Channel.empty() }
-if (params.local_control_wgs)    { localcontrolwgs = Channel.fromPath([params.local_control_wgs,params.local_control_wgs + '.tbi' ], checkIfExists: true).collect() } else { localcontrolwgs = Channel.empty() }
-if (params.local_control_wes)    { localcontrolwes = Channel.fromPath([params.local_control_wes, params.local_control_wes + '.tbi'], checkIfExists: true).collect() } else { localcontrolwes = Channel.empty() }
+if (params.local_control)        { localcontrol = Channel.fromPath([params.local_control,params.local_control + '.tbi' ], checkIfExists: true).collect() } else { localcontrol = Channel.empty() }
 if (params.gnomad_genomes)       { gnomadgenomes = Channel.fromPath([params.gnomad_genomes, params.gnomad_genomes + '.tbi'], checkIfExists: true).collect() } else { gnomadgenomes = Channel.empty() }
 if (params.gnomad_exomes)        { gnomadexomes = Channel.fromPath([params.gnomad_exomes, params.gnomad_exomes + '.tbi'], checkIfExists: true).collect() } else { gnomadexomes = Channel.empty() }
 // Annovar table folder
@@ -270,8 +268,8 @@ workflow PLATYPUSINDELCALLING {
     // annotation has two part, first annotation for annovar, second is deep annotation includes for various genomic regions 
     if (params.runIndelAnnotation) {
         INDEL_ANNOTATION(
-        ch_vcf, kgenome, dbsnpindel, exac, evs, localcontrolwgs,
-        localcontrolwes, gnomadgenomes, gnomadexomes, annodb, repeatmasker, dacblacklist,
+        ch_vcf, kgenome, dbsnpindel, exac, evs, localcontrol,
+        gnomadgenomes, gnomadexomes, annodb, repeatmasker, dacblacklist,
         dukeexcluded, hiseqdepth, selfchain, mapability, simpletandemrepeats, enchangers,
         cpgislands, tfbscons, encode_dnase, mirnas_snornas, cosmic, mirbase, mir_targets,
         cgi_mountains, phastconselem, encode_tfbs, chr_prefix 
