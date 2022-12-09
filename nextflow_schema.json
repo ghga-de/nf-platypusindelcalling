@@ -142,15 +142,7 @@
                     "fa_icon": "fas fa-annotation",
                     "description": "EVS VCF file, should be indexed" 
                 },
-                "local_control_wgs": {
-                    "type": "string",
-                    "format": "file-path",
-                    "mimetype": "text/plain",
-                    "pattern": "^\\S+\\.vcf(\\.gz)?$",
-                    "fa_icon": "fas fa-annotation",
-                    "description": "Local Exclusion list, VCF file, should be indexed" 
-                },
-                "local_control_wes": {
+                "local_control": {
                     "type": "string",
                     "format": "file-path",
                     "mimetype": "text/plain",
