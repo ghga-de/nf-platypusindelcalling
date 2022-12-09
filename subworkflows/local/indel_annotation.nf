@@ -18,8 +18,7 @@ workflow INDEL_ANNOTATION {
     dbsnpindel           // channel: [file.vcf.gz, file.vcf.gz.tbi]
     exac                 // channel: [file.vcf.gz, file.vcf.gz.tbi]
     evs                  // channel: [file.vcf.gz, file.vcf.gz.tbi]
-    localcontrolwgs      // channel: [file.vcf.gz, file.vcf.gz.tbi]
-    localcontrolwes      // channel: [file.vcf.gz, file.vcf.gz.tbi]
+    localcontrol         // channel: [file.vcf.gz, file.vcf.gz.tbi]
     gnomadgenomes        // channel: [file.vcf.gz, file.vcf.gz.tbi]
     gnomadexomes         // channel: [file.vcf.gz, file.vcf.gz.tbi]
     annodb               // channel: [table_annovar_dir]
@@ -50,8 +49,8 @@ workflow INDEL_ANNOTATION {
 
     // RUN annotate_vcf.pl: Uses various databases (all mandatory) to annotate variants
     ANNOTATE_VCF (
-    vcf_ch, kgenome, dbsnpindel, exac, evs, localcontrolwgs,
-    localcontrolwes, gnomadgenomes, gnomadexomes, chr_prefix
+    vcf_ch, kgenome, dbsnpindel, exac, evs, localcontrol,
+    gnomadgenomes, gnomadexomes, chr_prefix
     )
     versions  = versions.mix(ANNOTATE_VCF.out.versions)
 
