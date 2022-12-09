@@ -39,8 +39,7 @@ If --runIndelAnnotation is true, the following files must be defined (with corre
 - --dbsnp_snv          : dbSNP SV calls (vcf.gz)
 - --exac_file          : ExAC database calls (vcf.gz)
 - --evs_file           : EVS database calls (vcf.gz)
-- --local_control_wgs  : Extra Local Control files (vcf.gz)
-- --local_control_wes  : Extra Local Control files (vcf.gz) 
+- --local_control      : Extra Local Control files (vcf.gz)
 - --gnomad_genomes     : Gnomed Genome sites (vcf.gz)
 - --gnomad_exomes      : Gnomed Exome sites (vcf.gz)
 
