@@ -13,8 +13,7 @@ process ANNOTATE_VCF {
     tuple path(dbsnpindel)     , path(dbsnpindel_i)
     tuple path(exac)           , path(exac_i)
     tuple path(evs)            , path(evs_i)
-    tuple path(localcontrolwgs), path(localcontrolwgs_i)
-    tuple path(localcontrolwes), path(localcontrolwes_i)
+    tuple path(localcontrol)   , path(localcontrol_i)
     tuple path(gnomadgenomes)  , path(gnomadgenomes_i)
     tuple path(gnomadexomes)   , path(gnomadexomes_i)
     val (chrprefix)
@@ -49,9 +48,7 @@ process ANNOTATE_VCF {
         --bFileType vcf --reportLevel 4 --reportMatchType| \\
     annotate_vcf.pl -a - -b $gnomadgenomes --columnName='GNOMAD_GENOMES' \\
         --bFileType vcf --reportLevel 4 --reportMatchType| \\
-    annotate_vcf.pl -a - -b $localcontrolwgs --columnName='LocalControlAF_WGS' \\
-        --minOverlapFraction 1 --bFileType vcf --reportLevel 4 --reportMatchType | \\
-    annotate_vcf.pl -a - -b $localcontrolwes --columnName='LocalControlAF_WES' \\
+    annotate_vcf.pl -a - -b $localcontrol --columnName='LocalControlAF' \\
         --minOverlapFraction 1 --bFileType vcf --reportLevel 4 --reportMatchType | \\
     tee ${prefix}.vcf | vcf_to_annovar.pl $chrprefix "" > ${prefix}.ForAnnovar.bed
 

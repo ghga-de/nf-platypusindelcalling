@@ -23,7 +23,7 @@ process CONFIDENCE_ANNOTATION {
     def samples    = meta.iscontrol == "1" ? "--controlColName=$controlname --tumorColName=$tumorname" : "--nocontrol --tumorColName=$tumorname"
 
     """
-    confidenceAnnotation_Indels.py --infile=$vcfgz --skip_order_check \\
+    confidenceAnnotation_Indels.py --infile=$vcfgz \\
         $samples $args | tee indel_${prefix}.ann.vcf | cut -f 1-11 > indel_${prefix}.conf.vcf
 
     bgzip -c indel_${prefix}.ann.vcf > indel_${prefix}.vcf.gz
