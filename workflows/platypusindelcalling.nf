@@ -255,7 +255,7 @@ workflow PLATYPUSINDELCALLING {
     )
 
     ch_logs         = ch_logs.mix(INDEL_CALLING.out.ch_platypus_log)
-    ch_versions     = ch_versions.mix(INDEL_CALLING.out.platypus_version)
+    ch_versions     = ch_versions.mix(INDEL_CALLING.out.versions)
 
     // Prepare an input channel of vcf with sample names 
     name_ch=GREP_SAMPLENAME.out.samplenames
