@@ -4,8 +4,10 @@
 
 params.options = [:]
  
-include { PLATYPUS          } from '../../modules/local/platypus.nf'               addParams( options: params.options )
-include { CHECK_IF_CORRUPTED} from '../../modules/local/check_if_corrupted.nf'     addParams( options: params.options )
+include { PLATYPUS          } from '../../modules/local/platypus.nf'                      addParams( options: params.options )
+include { CHECK_IF_CORRUPTED} from '../../modules/local/check_if_corrupted.nf'            addParams( options: params.options )
+include { BCFTOOLS_SORT     } from '../../modules/nf-core/modules/bcftools/sort/main'     addParams( options: params.options )
+
 
 workflow INDEL_CALLING {
     take:
@@ -14,21 +16,28 @@ workflow INDEL_CALLING {
     
     main:
 
+    versions=Channel.empty()
     // RUN platypus : calls variants
     PLATYPUS (
     sample_ch, ref
     )
     vcf_ch=PLATYPUS.out.vcf
     ch_platypus_log = PLATYPUS.out.platypus_log
-    platypus_version = PLATYPUS.out.versions
+    versions = versions.mix(PLATYPUS.out.versions)
 
-    // check if the VCF has the correct amount of columns. 
+    BCFTOOLS_SORT(
+        vcf_ch
+    )
+    versions = versions.mix(BCFTOOLS_SORT.out.versions)
+   
+    vcf_ch = BCFTOOLS_SORT.out.vcf 
+    //check if the VCF has the correct amount of columns. 
     CHECK_IF_CORRUPTED (
-    vcf_ch
+        vcf_ch
     )
 
     emit:
     vcf_ch
     ch_platypus_log
-    platypus_version
+    versions
 }
