@@ -7,8 +7,7 @@ process CONFIDENCE_ANNOTATION {
     'docker://kubran/odcf_platypusindelcalling:v0' :'kubran/odcf_platypusindelcalling:v0' }"
     
     input:
-    tuple val(meta), file(vcfgz), file(vcf_tbi)
-    tuple val(meta), file(a), file(b), val(tumorname), val(controlname)
+    tuple val(meta), file(a), file(b), val(tumorname), val(controlname), file(vcfgz), file(vcf_tbi)
 
     output:
     tuple val(meta), path('*.vcf.gz') ,   path('*.vcf.gz.tbi')    , emit: vcf_ann
