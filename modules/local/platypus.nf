@@ -8,13 +8,12 @@ process PLATYPUS {
     'https://depot.galaxyproject.org/singularity/platypus-variant:0.8.1.2--py27hb698ca4_5' :
     'quay.io/biocontainers/platypus-variant:0.8.1.2--py27hb698ca4_5'}"
 
-
     input:
-    tuple val(meta), path(tumor), path(tumor_bai), path(control),  path(control_bai)
+    tuple val(meta), path(tumor),  path(tumor_bai), path(control), path(control_bai)
     tuple path(ref), path(ref_fai)
 
     output:
-    tuple val(meta), path('indel_*.raw.vcf.gz'), path('indel_*.raw.vcf.gz.tbi')      , emit: vcf
+    tuple val(meta), path('indel_*.vcf.gz'), path('indel_*.vcf.gz.tbi')      , emit: vcf
     tuple val(meta), path('indel_*.log')                                             , emit: platypus_log
     path  "versions.yml"                                                             , emit: versions
 
@@ -30,13 +29,13 @@ script:
     platypus callVariants \\
         --nCPU=${task.cpus}\\
         --bamFiles=$bamlist \\
-        --output=indel_${prefix}.raw.vcf \\
+        --output=indel_${prefix}.vcf \\
         --refFile=$ref \\
         --logFileName=indel_${prefix}.log \\
         $args
 
-    bgzip  --threads ${task.cpus} -c indel_${prefix}.raw.vcf > indel_${prefix}.raw.vcf.gz
-    tabix  indel_${prefix}.raw.vcf.gz
+    bgzip  --threads ${task.cpus} -c indel_${prefix}.vcf > indel_${prefix}.vcf.gz
+    tabix  indel_${prefix}.vcf.gz
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
