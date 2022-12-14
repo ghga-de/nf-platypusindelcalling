@@ -56,8 +56,10 @@ workflow INDEL_ANNOTATION {
 
     // RUN annovar, processAnnovarOutput.pl and newCols2vcf.pl: annovar annotates and classifies the variants, 
     // perl scripts re-creates vcfs. 
+    ch_vcf = ANNOTATE_VCF.out.unziped_vcf
+    input_ch = ch_vcf.join(ANNOTATE_VCF.out.forannovar)
     ANNOVAR(
-    ANNOTATE_VCF.out.forannovar, ANNOTATE_VCF.out.unziped_vcf, annodb, chr_prefix
+    input_ch, annodb, chr_prefix
     )
     logs     = logs.mix(ANNOVAR.out.log)
     versions = versions.mix(ANNOVAR.out.versions)
@@ -69,8 +71,9 @@ workflow INDEL_ANNOTATION {
     versions = versions.mix(INDEL_RELIABILITY_PIPE.out.versions)
 
     // RUN: confidenceAnnotation_Indels.py : Confidence annotation will be added to the variants
+    input_ch = vcf_ch.join(INDEL_RELIABILITY_PIPE.out.vcf)
     CONFIDENCE_ANNOTATION(
-    INDEL_RELIABILITY_PIPE.out.vcf, vcf_ch
+    input_ch
     )
     ann_vcf_ch  = CONFIDENCE_ANNOTATION.out.vcf_ann
     versions    = versions.mix(CONFIDENCE_ANNOTATION.out.versions)
