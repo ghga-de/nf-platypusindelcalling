@@ -22,11 +22,7 @@ Main Swiches:
 
 Reference Files:
 
-- --ref_type: (only for DKFZ Cluster!) Either hg19 or hg37 can be defined as reference type.
-
-- --reference: A reference directory .fa or .fasta (including index files in the same directory) should be defined.
-
-- --chrlength_file      : Chromosome length file (associated with reference type) (.txt or .tab)
+- --ref_type: Mandatory! Either hg19, hg37 or hg38 can be defined as reference type.
 
 **Annotation Step:** 
 
@@ -39,7 +35,8 @@ If --runIndelAnnotation is true, the following files must be defined (with corre
 - --dbsnp_snv          : dbSNP SV calls (vcf.gz)
 - --exac_file          : ExAC database calls (vcf.gz)
 - --evs_file           : EVS database calls (vcf.gz)
-- --local_control      : Extra Local Control files (vcf.gz)
+- --local_control_wgs  : Extra Local Control WGS file (vcf.gz)
+- --local_control_wes  : Extra Local Control WES file (vcf.gz)
 - --gnomad_genomes     : Gnomed Genome sites (vcf.gz)
 - --gnomad_exomes      : Gnomed Exome sites (vcf.gz)
 
@@ -81,12 +78,13 @@ If --runIndelDeepAnnotation is true, at least one of the following files must be
 -  --tfbscons_file       : TFBS noncoding sites (bed.gz)
 -  --encode_dnase_file   : Encode DNAse cluster (bed.gz)
 -  --mirnas_snornas_file : snoRNAs miRBase  (bed.gz)
+-  --mirnas_sncrnas_file : sncRNAs miRBase  (bed.gz) 
 -  --mirbase_file        : miRBase (bed.gz)
 -  --cosmic_file         : Cosmic coding SNVs (bed.gz)
 -  --mir_targets_file    : miRNA target sites (bed.gz)
 -  --cgi_mountains_file  : Cgi Mountains (bed.gz)
 -  --phastconselem_file  : Phast Cons Elements (bed.gz)
--  --encode_tfbs_file    :  Encode TFBS (bed.gz)
+-  --encode_tfbs_file    : Encode TFBS (bed.gz)
 
 **Filtration Step:** 
 
@@ -96,17 +94,19 @@ If --runVCFFilter is true, the following parameters can be applied:
 
 Filtering is only applied into the samples without control!
 
-- --filter_exac         : Filter or not by ExAC
-- --filter_evs          : Filter or not by EVS
-- --filter_1kgenomes    : Filter or not by 1KGENOMES
-- --filter_recurrance   : Filter or not by RECURRANCE
-- --filter_localcontrol : Filter or not by LOCAL CONTROL
-- --filter_non_clinic   : Filter or not by dbSNP
-- --crit_exac_maxmaf    : Max MAF for ExAC
-- --crit_evs_maxmaf     : Max MAF for EVC
+- --filter_exac           : Filter or not by ExAC
+- --filter_evs            : Filter or not by EVS
+- --filter_1kgenomes      : Filter or not by 1KGENOMES
+- --filter_gnomad_genomes : Filter or not by gnomad GENOMES
+- --filter_gnomad_exomes  : Filter or not by gnomad EXOMES
+- --filter_localcontrol   : Filter or not by LOCAL CONTROL
+- --filter_non_clinic     : Filter or not by dbSNP
+- --crit_exac_maxmaf      : Max MAF for ExAC
+- --crit_evs_maxmaf       : Max MAF for EVC
 - --crit_1kgenomes_maxmaf : Max MAF for 1KGENOMES
-- --crit_recurrance     : Value for RECURRANCE
 - --crit_localcontrol_maxmaf : Max MAF for LOCAL CONTROL
+- --crit_gnomad_exomes_maxmaf: Max MAF for gnomad GENOMES
+- --crit_gnomad_exomes_maxmaf: Max MAF for gnomad EXOMES
 
 **2. Indel Extraction Options:**
 
@@ -122,11 +122,9 @@ Filtering is only applied into the samples without control!
 
 If --runTinda is true, the following parameters can be applied:
 
-- --genemodel_bed       : Genecode Exomes (bed.gz)
+- --genemodel_bed       : Genecode Exomes (bed.gz or bed)
 - --local_control_wgs   : Extra Local Control files (vcf.gz)
 - --local_control_wes   : Extra Local Control files (vcf.gz) 
-- --gnomad_genomes      : Gnomed Genome sites (vcf.gz)
-- --gnomad_exomes       : Gnomed Exome sites (vcf.gz)
 
 ## Samplesheet input
 
@@ -156,8 +154,8 @@ sample7,sample7_tumor.bam,
 | Column    | Description                                                                                                                                                                            |
 | --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `sample`  | Custom sample name. This entry will be used to name the output files and output directories |
-| `tumor` | Full path to BAM file for tumor samples. File has to be indexed.                                                             |
-| `control` | Full path to BAM file for control (optional). File has to be indexed.                                                             |
+| `tumor` | Full path to BAM file for tumor samples.                                                          |
+| `control` | Full path to BAM file for control (optional).                                                          |
 
 An [example samplesheet](../assets/samplesheet_test.csv) has been provided with the pipeline.
 
