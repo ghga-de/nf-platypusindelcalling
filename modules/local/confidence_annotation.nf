@@ -20,10 +20,15 @@ process CONFIDENCE_ANNOTATION {
     def args       = task.ext.args ?: ''
     def prefix     = task.ext.prefix ?: "${meta.id}"
     def samples    = meta.iscontrol == "1" ? "--controlColName=$controlname --tumorColName=$tumorname" : "--nocontrol --tumorColName=$tumorname"
-
+    def ref_spec   = params.ref_type == "hg38" ? "--gnomAD_WGS_maxMAF=${crit_gnomad_genomes_maxmaf} --gnomAD_WES_maxMAF=${crit_gnomad_exomes_maxmaf} --localControl_WGS_maxMAF=${crit_localcontrol_maxmaf} --localControl_WES_maxMAF=${crit_localcontrol_maxmaf} --1000genome_maxMAF=${crit_1kgenomes_maxmaf} --refgenome GRCh38 ftp://ftp.sanger.ac.uk/pub/cancer/dockstore/human/GRCh38_hla_decoy_ebv/core_ref_GRCh38_hla_decoy_ebv.tar.gz" : ""
+    
     """
     confidenceAnnotation_Indels.py --infile=$vcfgz \\
-        $samples $args | tee indel_${prefix}.ann.vcf | cut -f 1-11 > indel_${prefix}.conf.vcf
+        $samples \\
+        $ref_spec \\
+        $args \\
+        | tee indel_${prefix}.ann.vcf \\
+        | cut -f 1-11 > indel_${prefix}.conf.vcf
 
     bgzip -c indel_${prefix}.ann.vcf > indel_${prefix}.vcf.gz
     tabix indel_${prefix}.vcf.gz

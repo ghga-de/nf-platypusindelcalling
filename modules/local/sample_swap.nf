@@ -11,7 +11,7 @@ process SAMPLE_SWAP {
     tuple val(meta)      , file(ch_vcf), file(ch_vcf_i),  val(tumorname), val(controlname)
     tuple path(ref)                    , path(ref_fai)
     each path(chrlength_file)
-    tuple path(genemodel)              , path(genemodel_tbi)
+    path(genemodel)              
     tuple path(localcontrolplatypuswgs), path(localcontrolplatypuswgs_tbi)
     tuple path(localcontrolplatypuswes), path(localcontrolplatypuswes_tbi)
     tuple path(gnomadgenomes)          , path(gnomadgenomes_tbi)
