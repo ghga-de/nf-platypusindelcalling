@@ -142,13 +142,21 @@
                     "fa_icon": "fas fa-annotation",
                     "description": "EVS VCF file, should be indexed" 
                 },
-                "local_control": {
+                "local_control_wgs": {
                     "type": "string",
                     "format": "file-path",
                     "mimetype": "text/plain",
                     "pattern": "^\\S+\\.vcf(\\.gz)?$",
                     "fa_icon": "fas fa-annotation",
-                    "description": "Local Exclusion list, VCF file, should be indexed" 
+                    "description": "Local Exclusion list for WGS, VCF file, should be indexed" 
+                },
+                "local_control_wes": {
+                    "type": "string",
+                    "format": "file-path",
+                    "mimetype": "text/plain",
+                    "pattern": "^\\S+\\.vcf(\\.gz)?$",
+                    "fa_icon": "fas fa-annotation",
+                    "description": "Local Exclusion list for WES, VCF file, should be indexed" 
                 },
                 "gnomad_genomes": {
                     "type": "string",
@@ -323,6 +331,14 @@
                     "fa_icon": "fas fa-annotation",
                     "description": "mirBase snoRNAs BED.GZ, should be indexed" 
                 },
+                "mirnas_sncrnas_file": {
+                    "type": "string",
+                    "format": "file-path",
+                    "mimetype": "text/plain",
+                    "pattern": "^\\S+\\.bed(\\.gz)?$",
+                    "fa_icon": "fas fa-annotation",
+                    "description": "mirBase sncRNAs BED.GZ, should be indexed" 
+                },
                 "mirbase_file": {
                     "type": "string",
                     "format": "file-path",
@@ -387,31 +403,43 @@
                 },
                 "filter_exac": {
                     "type": "boolean",
-                    "default": "",
+                    "default": "false",
                     "fa_icon": "fas fa-annotation",
                     "description": "Apply ExAC filtration" 
                 },
                 "filter_evc": {
                     "type": "boolean",
-                    "default": "",
+                    "default": "false",
                     "fa_icon": "fas fa-annotation",
                     "description": "Apply EVC filtration" 
                 },
+                "filter_gnomad_genomes": {
+                    "type": "boolean",
+                    "default": "false",
+                    "fa_icon": "fas fa-annotation",
+                    "description": "Apply gnomad genomes filtration" 
+                },
+                "filter_gnomad_exomes": {
+                    "type": "boolean",
+                    "default": "false",
+                    "fa_icon": "fas fa-annotation",
+                    "description": "Apply gnomed exomes filtration" 
+                },
                 "filter_1kgenome": {
                     "type": "boolean",
-                    "default": "",
+                    "default": "false",
                     "fa_icon": "fas fa-annotation",
                     "description": "Apply 1K_GENOME filtration" 
                 },
                 "filter_non_clinic": {
                     "type": "boolean",
-                    "default": "",
+                    "default": "false",
                     "fa_icon": "fas fa-annotation",
                     "description": "Apply dbSNP filtration" 
                 },
                 "filter_localcontrol": {
                     "type": "boolean",
-                    "default": "",
+                    "default": "false",
                     "fa_icon": "fas fa-annotation",
                     "description": "Apply Local Control af filtration" 
                 },
@@ -433,9 +461,21 @@
                     "fa_icon": "fas fa-annotation",
                     "description": "Max MAF for 1K_GENOME filtration" 
                 },
+                "crit_gnomad_exomes_maxmaf": {
+                    "type": "number",
+                    "default": "",
+                    "fa_icon": "fas fa-annotation",
+                    "description": "Max MAF for gnomad genomes filtration" 
+                },
+                "crit_gnomad_genomes_maxmaf": {
+                    "type": "number",
+                    "default": "",
+                    "fa_icon": "fas fa-annotation",
+                    "description": "Max MAF for gnomad exomes filtration" 
+                },
                 "crit_localcontrol_maxmaf": {
                     "type": "number",
-                    "default": "0.01",
+                    "default": "",
                     "fa_icon": "fas fa-annotation",
                     "description": "Max MAF for Local Control filtration" 
                 }
