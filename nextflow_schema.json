@@ -331,7 +331,7 @@
                     "fa_icon": "fas fa-annotation",
                     "description": "mirBase snoRNAs BED.GZ, should be indexed" 
                 },
-                "mirnas_sncrnas_file": {
+                "mirna_sncrnas_file": {
                     "type": "string",
                     "format": "file-path",
                     "mimetype": "text/plain",
@@ -407,7 +407,7 @@
                     "fa_icon": "fas fa-annotation",
                     "description": "Apply ExAC filtration" 
                 },
-                "filter_evc": {
+                "filter_evs": {
                     "type": "boolean",
                     "default": "false",
                     "fa_icon": "fas fa-annotation",
@@ -425,7 +425,7 @@
                     "fa_icon": "fas fa-annotation",
                     "description": "Apply gnomed exomes filtration" 
                 },
-                "filter_1kgenome": {
+                "filter_1kgenomes": {
                     "type": "boolean",
                     "default": "false",
                     "fa_icon": "fas fa-annotation",
@@ -449,7 +449,7 @@
                     "fa_icon": "fas fa-annotation",
                     "description": "Max MAF for ExAC filtration" 
                 },
-                "crit_evc_maxmaf": {
+                "crit_evs_maxmaf": {
                     "type": "number",
                     "default": "",
                     "fa_icon": "fas fa-annotation",
