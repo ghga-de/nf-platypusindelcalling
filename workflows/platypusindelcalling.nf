@@ -116,6 +116,14 @@ if (params.ref_type)
         chr_prefix   = Channel.value("chr")  
         }
     }
+    if (params.ref_type == 'hg38') 
+        { 
+        def fa_file = "/omics/odcf/reference_data/legacy/ngs_share/assemblies/hg_GRCh38/sequence/GRCh38_decoy_ebv_phiX_alt_hla_chr.fa"
+        ref = Channel.fromPath([fa_file,fa_file +'.fai'], checkIfExists: true).collect()
+        def chr_file = '/omics/odcf/reference_data/legacy/ngs_share/assemblies/hg_GRCh38/stats/GRCh38_decoy_ebv_phiX_alt_hla_chr.fa.chrLenOnlyACGT_realChromosomes.tsv'
+        chrlength = Channel.fromPath(chr_file, checkIfExists: true)
+        chr_prefix   = Channel.value("chr")
+        }
 else
 {
     if (params.reference)      { ref = Channel.fromPath([params.reference,params.reference +'.fai'], checkIfExists: true).collect() } else { exit 1, 'Input reference file does not exist' }
@@ -125,53 +133,30 @@ else
 
 // TODO: Write a pretty log here, write the used parameters
 log.info """\
+
+
 DKFZ-ODCF/IndelCallingWorkflow: A Platypus-based workflow for indel calling
+
+Workflow spesific arguments
 ===================================
-    input                 : ${params.input}
-    outdir                : ${params.outdir}
-    ref_type              : ${params.ref_type}
+    Reference type        : ${params.ref_type}
+    Reference file        : ${ref}
+    Chromosomal lenghts   : ${chrlength}
+    Chromosome prefix     : ${chr_prefix} 
 
-    Post Processes
-    runIndelAnnotation    : ${params.runIndelAnnotation}
-    runIndelDeepAnnotation: ${params.runIndelDeepAnnotation}
-    runIndelVCFFilter     : ${params.runIndelVCFFilter}
-    runTinda              : ${params.runTinda}
-    skip_multiqc          : ${params.skip_multiqc}
+    Annotation Files 
+    DAC blacklist file    : ${params.dac_blacklist}
+    DUKE excluded list    : ${params.duke_excluded}
+    HiSeq depth file      : ${params.hiseq_depth}
+    Self chain file       : ${params.self_chain}
+    TFbs cons file        : ${params.tfbscons_file}
+    miRNAs sno file       : ${params.mirnas_snornas_file}
+    miRNAs snc file       : ${params.mirna_sncrnas_file}
+    miRNA targets file    : ${params.mir_targets_file}
+    Cgi mountains file    : ${params.cgi_mountains_file}
+    Phastconselem file    : ${params.phastconselem_file}
+    PATH to Annovar       : ${params.annovar_path}
 
-    Annotate VCF
-    padding               : ${params.padding}
-    minoverlapfraction    : ${params.minoverlapfraction} 
-    maxborderdist         : ${params.maxborderdist} 
-    maxmatches            : ${params.maxmatches}
-
-    Annovar
-    annovar_path          : ${params.annovar_path}
-    buildver              : ${params.buildver}
-    dbtype                : ${params.dbtype}
-    cytobandcol           : ${params.cytobandcol}
-    segdupcol             : ${params.segdupcol}
-    geneannocols          : ${params.geneannocols} 
-
-    Filtering
-    min_confidence_score  : ${params.min_confidence_score}
-    filter_exac           : ${params.filter_exac}
-    filter_1kgenomes      : ${params.filter_1kgenomes}
-    filter_localcontrol   : ${params.filter_localcontrol}
-    filter_non_clinic     : ${params.filter_non_clinic}
-    crit_exac_maxmaf      : ${params.crit_exac_maxmaf}
-    crit_evs_maxmaf       : ${params.filter_exac}
-    crit_1kgenomes_maxmaf : ${params.crit_1kgenomes_maxmaf}
-    crit_localcontrol_maxmaf: ${params.crit_localcontrol_maxmaf}
-
-    Visualization
-    max_var_screenshots   : ${params.max_var_screenshots}
-    window_size           : ${params.window_size}
-
-    Tinda
-    seqtype               : ${params.seqtype}
-    right_border          : ${params.right_border}
-    bottom_border         : ${params.bottom_border}
-    maf_threshold         : ${params.maf_threshold}
 """
 .stripIndent()
 
