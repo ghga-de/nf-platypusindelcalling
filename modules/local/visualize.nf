@@ -15,7 +15,7 @@ process VISUALIZE {
     tuple path(repeatmasker) ,path(repeatmasker_tbi)
 
     output:
-    tuple val(meta)          , path('*.indel_somatic_functional_combined.pdf')  , optional: true
+    tuple val(meta)          , path('*.indel_somatic_functional_combined.pdf')  , emit: pdf
     path('versions.yml')                                                        , emit: versions
 
     when:

@@ -5,7 +5,7 @@ process ANNOTATE_VCF {
 
     conda     (params.enable_conda ? "" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-    ' docker://kubran/odcf_platypusindelcalling:v0' :'kubran/odcf_platypusindelcalling:v0' }"
+    'docker://kubran/odcf_platypusindelcalling:v0' :'kubran/odcf_platypusindelcalling:v0' }"
 
     input:
     tuple val(meta)            , file(vcf)     , file(vcf_tbi), val(tumorname), val(controlname)
