@@ -18,7 +18,8 @@ workflow INDEL_ANNOTATION {
     dbsnpindel           // channel: [file.vcf.gz, file.vcf.gz.tbi]
     exac                 // channel: [file.vcf.gz, file.vcf.gz.tbi]
     evs                  // channel: [file.vcf.gz, file.vcf.gz.tbi]
-    localcontrol         // channel: [file.vcf.gz, file.vcf.gz.tbi]
+    localcontrol_wgs     // channel: [file.vcf.gz, file.vcf.gz.tbi]
+    localcontrol_wes     // channel: [file.vcf.gz, file.vcf.gz.tbi]
     gnomadgenomes        // channel: [file.vcf.gz, file.vcf.gz.tbi]
     gnomadexomes         // channel: [file.vcf.gz, file.vcf.gz.tbi]
     annodb               // channel: [table_annovar_dir]
@@ -40,6 +41,7 @@ workflow INDEL_ANNOTATION {
     cgi_mountains        // channel: [file.bed.gz, file.bed.gz.tbi]
     phastconselem        // channel: [file.bed.gz, file.bed.gz.tbi]
     encode_tfbs          // channel: [file.bed.gz, file.bed.gz.tbi]
+    mirnas_sncrnas       // channel: [file.bed.gz, file.bed.gz.tbi] 
     chr_prefix           // val channel: [prefix]
 
     main:
@@ -49,8 +51,8 @@ workflow INDEL_ANNOTATION {
 
     // RUN annotate_vcf.pl: Uses various databases (all mandatory) to annotate variants
     ANNOTATE_VCF (
-    vcf_ch, kgenome, dbsnpindel, exac, evs, localcontrol,
-    gnomadgenomes, gnomadexomes, chr_prefix
+    vcf_ch, kgenome, dbsnpindel, exac, evs, localcontrol_wgs,
+    localcontrol_wes, gnomadgenomes, gnomadexomes, chr_prefix
     )
     versions  = versions.mix(ANNOTATE_VCF.out.versions)
 
@@ -83,7 +85,7 @@ workflow INDEL_ANNOTATION {
     {
         ANNOTATION_PIPES (
         ann_vcf_ch, enchangers, cpgislands, tfbscons, encode_dnase, mirnas_snornas, cosmic, mirbase, mir_targets,
-        cgi_mountains, phastconselem, encode_tfbs
+        cgi_mountains, phastconselem, encode_tfbs, mirnas_sncrnas
         )
         ann_vcf_ch  = ANNOTATION_PIPES.out.vcf 
         versions    = versions.mix(ANNOTATION_PIPES.out.versions)
