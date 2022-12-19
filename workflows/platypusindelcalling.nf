@@ -11,8 +11,7 @@ WorkflowPlatypusindelcalling.initialise(params, log)
 
 // Check input path parameters to see if they exist
 def checkPathParamList = [ params.input,
-                        params.multiqc_config,
-                        params.reference]
+                        params.multiqc_config]
 
 def checkPathParamList_annotation = [params.annovar_path,
                                     params.local_control_wgs,
@@ -115,7 +114,7 @@ if (params.ref_type)
         chrlength = Channel.fromPath(chr_file, checkIfExists: true)
         chr_prefix   = Channel.value("chr")  
         }
-    }
+    
     if (params.ref_type == 'hg38') 
         { 
         def fa_file = "/omics/odcf/reference_data/legacy/ngs_share/assemblies/hg_GRCh38/sequence/GRCh38_decoy_ebv_phiX_alt_hla_chr.fa"
@@ -124,11 +123,12 @@ if (params.ref_type)
         chrlength = Channel.fromPath(chr_file, checkIfExists: true)
         chr_prefix   = Channel.value("chr")
         }
+    }
 else
 {
     if (params.reference)      { ref = Channel.fromPath([params.reference,params.reference +'.fai'], checkIfExists: true).collect() } else { exit 1, 'Input reference file does not exist' }
     if (params.chrlength_file) { chrlength = Channel.fromPath(params.chrlength_file, checkIfExists: true) } else { exit 1, 'Chromosome length file does not exist'  }
-    if (params.chr_prefix)     {chr_prefix= Channel.of(params.chr_prefix)} else {chr_prefix= Channel.value("")}
+    if (params.chr_prefix)     { chr_prefix= Channel.of(params.chr_prefix)} else {chr_prefix= Channel.value("")}
 }
 
 // TODO: Write a pretty log here, write the used parameters
@@ -189,7 +189,7 @@ include {FILTER_VCF             } from '../subworkflows/local/filter_vcf'
 
 //include {SET_CHR            } from '../modules/local/set_chr.nf'
 include { GREP_SAMPLENAME   } from '../modules/local/grep_samplename.nf'
-include { SAMPLE_SWAP      } from '../modules/local/sample_swap.nf'
+include { SAMPLE_SWAP       } from '../modules/local/sample_swap.nf'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
