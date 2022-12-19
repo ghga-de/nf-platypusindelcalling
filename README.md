@@ -100,7 +100,7 @@ annotate_variation.pl -downdb wgEncodeGencodeBasicV19 humandb/ -build hg19
   ```
 
    ```console
-   nextflow run main.nf -profile test,YOURPROFILE --outdir <OUTDIR>
+   nextflow run main.nf -profile test,YOURPROFILE --outdir <OUTDIR> --input <SAMPLESHEET>
    ```
 
    Note that some form of configuration will be needed so that Nextflow knows how to fetch the required software. This is usually done in the form of a config profile (`YOURPROFILE` in the example command above). You can chain multiple config profiles in a comma-separated string.
