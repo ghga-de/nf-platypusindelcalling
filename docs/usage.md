@@ -78,7 +78,7 @@ If --runIndelDeepAnnotation is true, at least one of the following files must be
 -  --tfbscons_file       : TFBS noncoding sites (bed.gz)
 -  --encode_dnase_file   : Encode DNAse cluster (bed.gz)
 -  --mirnas_snornas_file : snoRNAs miRBase  (bed.gz)
--  --mirnas_sncrnas_file : sncRNAs miRBase  (bed.gz) 
+-  --mirna_sncrnas_file : sncRNAs miRBase  (bed.gz) 
 -  --mirbase_file        : miRBase (bed.gz)
 -  --cosmic_file         : Cosmic coding SNVs (bed.gz)
 -  --mir_targets_file    : miRNA target sites (bed.gz)
@@ -172,7 +172,7 @@ This will launch the pipeline with the `docker` configuration profile. See below
 In order to launch the workflow in DKFZ HPC, singularity must be used with proper config file which can be found in /conf directory
 
 ```console
-nextflow run main.nf --input samplesheet_test.csv --outdir <OUTDIR> -profile dkfz_cluster,singularity
+nextflow run main.nf --input samplesheet_test.csv --outdir <OUTDIR> -profile test,singularity
 ```
 
 Note that the pipeline will create the following files in your working directory:
