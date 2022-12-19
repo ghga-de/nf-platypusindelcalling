@@ -84,7 +84,7 @@ if (params.cgi_mountains_file)   { cgi_mountains = Channel.fromPath([params.cgi_
 if (params.phastconselem_file)   { phastconselem = Channel.fromPath([params.phastconselem_file, params.phastconselem_file + '.tbi'], checkIfExists: true).collect() } else { phastconselem = Channel.of([],[]) }
 if (params.encode_tfbs_file)     { encode_tfbs = Channel.fromPath([params.encode_tfbs_file, params.encode_tfbs_file + '.tbi'], checkIfExists: true).collect() } else { encode_tfbs = Channel.of([],[]) }
 // Tinda files
-if (params.genemodel_bed)        { genemodel = Channel.fromPath(params.genemodel_bed, checkIfExists: true) } else { genemodel = Channel.empty() }
+if (params.genemodel_bed)        { genemodel = Channel.fromPath(params.genemodel_bed, checkIfExists: true).collect() } else { genemodel = Channel.empty() }
 if (params.local_control_platypus_wgs)    { localcontrolplatypuswgs = Channel.fromPath([params.local_control_platypus_wgs,params.local_control_platypus_wgs + '.tbi' ], checkIfExists: true).collect() } else { localcontrolplatypuswgs = Channel.empty() }
 if (params.local_control_platypus_wes)    { localcontrolplatypuswes = Channel.fromPath([params.local_control_platypus_wes, params.local_control_platypus_wes + '.tbi'], checkIfExists: true).collect() } else { localcontrolplatypuswes = Channel.empty() }
 
