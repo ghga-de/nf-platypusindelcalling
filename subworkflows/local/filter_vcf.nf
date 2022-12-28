@@ -32,16 +32,26 @@ workflow FILTER_VCF {
     )
     versions = versions.mix(INDEL_EXTRACTION.out.versions)
 
+    // filter out the lists if no variant exists for visualization
+    INDEL_EXTRACTION.out.somatic_functional
+        .filter{meta, somatic_functional -> WorkflowCommons.getNumLinesInFile(somatic_functional) > 1}
+        .set{functional_vars}
+
     // RUN: visualize.py : First,checks if there is functional somatic variants to visualize
     // and then checks the size if smaller than the limit creates a pdf wirk screenshots.
     VISUALIZE (
-    INDEL_EXTRACTION.out.somatic_functional, ref, repeatmasker
+    functional_vars, ref, repeatmasker
     )
     versions = versions.mix(VISUALIZE.out.versions)
 
+    // filter out the lists if no variant exists for reporting
+    INDEL_EXTRACTION.out.somatic_indel
+        .filter{meta, somatic_indel -> WorkflowCommons.getNumLinesInFile(somatic_indel) > 1}
+        .set{indel_vars}
+
     // RUN: indel_json_v1.0.pl : Prints indel stats
     INDEL_JSON(
-    INDEL_EXTRACTION.out.somatic_indel
+    indel_vars
     )
     versions = versions.mix(INDEL_JSON.out.versions)
 
