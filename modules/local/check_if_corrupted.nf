@@ -2,17 +2,18 @@ process CHECK_IF_CORRUPTED {
     tag "$meta.id"
     label 'process_low'
 
-    conda (params.enable_conda ? "conda-forge::sed=4.7" : null)
+    conda (params.enable_conda ? "" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/ubuntu:20.04' :
-        'ubuntu:20.04' }"
+        'docker://kubran/odcf_platypusindelcalling:v0' :'kubran/odcf_platypusindelcalling:v0' }"
 
     input:
-    tuple val(meta), file(vcf), file(vcf_tbi)
+    tuple val(meta), file(stats), file(vcf)
 
     output:
-    path("*.linesCorrupt")                         , optional: true
-    path  "versions.yml"                           , emit: versions
+    tuple val(meta),path("*.raw.vcf.gz"), path("*.raw.vcf.gz.tbi"), emit: vcf
+    path("*.linesCorrupt")                                        , optional: true
+    path("*.11")                                                  , optional: true
+    path  "versions.yml"                                          , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -26,10 +27,15 @@ process CHECK_IF_CORRUPTED {
 
     """
     corrupted.sh -i $vcf -c $nocontrol
-        
+
+    (zcat $vcf | grep '#' ; zcat $vcf | grep -v '#' | sort -V -k1,2) | bgzip -f > indel_${prefix}.raw.vcf.gz 
+    
+    tabix indel_${prefix}.raw.vcf.gz
+    
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        bcftools: \$(echo \$(bcftools -v 2>&1) | sed 's/^.*bcftools: //; s/ .*\$//')
+        tabix: \$(echo \$(tabix -h 2>&1) | sed 's/^.*Version: //; s/ .*\$//')
+        gzip: \$(echo \$(gzip --version 2>&1) | sed 's/^.*gzip //; s/ .*\$//')
     END_VERSIONS
     """
     
