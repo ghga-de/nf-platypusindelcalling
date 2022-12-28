@@ -14,7 +14,7 @@ process PLATYPUS {
 
     output:
     tuple val(meta), path('indel_*.vcf.gz')   , emit: vcf
-    tuple val(meta), path('indel_*.log')      , emit: platypus_log
+    tuple val(meta), path('indel_*.log')      , emit: log
     path  "versions.yml"                      , emit: versions
 
     when:
@@ -37,7 +37,7 @@ script:
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        platypus: 0.8.1.1.3
+        platypus: 0.8.1
     END_VERSIONS
 
     """

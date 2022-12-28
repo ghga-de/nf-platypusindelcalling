@@ -7,11 +7,12 @@ process CHECK_IF_CORRUPTED {
         'docker://kubran/odcf_platypusindelcalling:v0' :'kubran/odcf_platypusindelcalling:v0' }"
 
     input:
-    tuple val(meta), file(vcf)
+    tuple val(meta), file(stats), file(vcf)
 
     output:
     tuple val(meta),path("*.raw.vcf.gz"), path("*.raw.vcf.gz.tbi"), emit: vcf
     path("*.linesCorrupt")                                        , optional: true
+    path("*.11")                                                  , optional: true
     path  "versions.yml"                                          , emit: versions
 
     when:
