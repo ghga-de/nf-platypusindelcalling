@@ -1,3 +1,3 @@
 #!/bin/bash
-
-nextflow run main.nf -profile dkfz_cluster,singularity --outdir result_test -resume
+module load nextflow/22.07.1-edge
+nextflow run main.nf -profile dkfz_cluster_38,singularity --outdir result -resume

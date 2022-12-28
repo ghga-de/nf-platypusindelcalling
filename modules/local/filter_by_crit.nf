@@ -22,9 +22,12 @@ process FILTER_BY_CRIT {
     def prefix        = task.ext.prefix ?: "${meta.id}"
     def filter_values = [ (params.filter_exac && params.crit_exac_maxmaf) ? "ExAC AF $params.crit_exac_maxmaf+": "",
                         (params.filter_evs && params.crit_evs_maxmaf) ? "EVS MAF $params.crit_evs_maxmaf+": "",
-                        (params.filter_1kgenomes && params.crit_1kgenomes_maxmaf) ? "1K_GENOMES EUR_AF $params.crit_1kgenomes_maxmaf+": "",
+                        (params.filter_gnomad_genomes && params.crit_gnomad_genomes_maxmaf) ? "GNOMAD_GENOMES AF $crit_gnomad_genomes_maxmaf+": "",
+                        (params.filter_gnomad_exomes && params.crit_gnomad_exomes_maxmaf) ? "GNOMAD_EXOMES AF $crit_gnomad_exomes_maxmaf+": "",
+                        (params.filter_1kgenomes && params.crit_1kgenomes_maxmaf) ? "1K_GENOMES AF $params.crit_1kgenomes_maxmaf+": "",
                         params.filter_non_clinic ? "DBSNP CLN,COMMON nonexist,exist": "", 
-                        (params.filter_localcontrol && params.crit_localcontrol_maxmaf) ? "LocalControlAF . $params.crit_localcontrol_maxmaf+": ""              
+                        (params.filter_localcontrol && params.crit_localcontrol_maxmaf) ? "LocalControlAF_WGS AF $params.crit_localcontrol_maxmaf+": "",
+                        (params.filter_localcontrol && params.crit_localcontrol_maxmaf) ? "LocalControlAF_WES AF $params.crit_localcontrol_maxmaf+": ""              
                         ].join(' ').trim() 
 
 // Filter variants only if there is no control, else do noting
