@@ -52,7 +52,6 @@ if (params.input)                { ch_input = file(params.input) } else { exit 1
 // Annotation databases
 if (params.k_genome)             { kgenome = Channel.fromPath([params.k_genome,params.k_genome +'.tbi'], checkIfExists: true).collect() } else { kgenome = Channel.of([],[]) }
 if (params.dbsnp_indel)          { dbsnpindel = Channel.fromPath([params.dbsnp_indel, params.dbsnp_indel + '.tbi'], checkIfExists: true).collect() } else { dbsnpindel = Channel.of([],[]) }
-if (params.dbsnp_snv)            { dbsnpsnv = Channel.fromPath([params.dbsnp_snv,params.dbsnp_snv +'.tbi' ], checkIfExists: true).collect() } else { dbsnpsnv = Channel.of([],[]) }
 if (params.exac_file)            { exac = Channel.fromPath([params.exac_file, params.exac_file + '.tbi'], checkIfExists: true).collect() } else { exac = Channel.of([],[]) }
 if (params.evs_file)             { evs = Channel.fromPath([params.evs_file, params.evs_file + '.tbi'], checkIfExists: true).collect() } else { evs = Channel.of([],[]) }
 if (params.local_control_wgs)    { localcontrolwgs = Channel.fromPath([params.local_control_wgs,params.local_control_wgs + '.tbi' ], checkIfExists: true).collect() } else { localcontrolwgs = Channel.of([],[]) }
@@ -86,13 +85,6 @@ if (params.encode_tfbs_file)     { encode_tfbs = Channel.fromPath([params.encode
 if (params.genemodel_bed)        { genemodel = Channel.fromPath(params.genemodel_bed, checkIfExists: true).collect() } else { genemodel = Channel.empty() }
 if (params.local_control_platypus_wgs)    { localcontrolplatypuswgs = Channel.fromPath([params.local_control_platypus_wgs,params.local_control_platypus_wgs + '.tbi' ], checkIfExists: true).collect() } else { localcontrolplatypuswgs = Channel.empty() }
 if (params.local_control_platypus_wes)    { localcontrolplatypuswes = Channel.fromPath([params.local_control_platypus_wes, params.local_control_platypus_wes + '.tbi'], checkIfExists: true).collect() } else { localcontrolplatypuswes = Channel.empty() }
-
-// Save AWS IGenomes file containing annotation version
-//def anno_readme = params.genomes[params.genome]?.readme
-//if (anno_readme && file(anno_readme).exists()) {
-//    file("${params.outdir}/genome/").mkdirs()
-//    file(anno_readme).copyTo("${params.outdir}/genome/")
-//}
 
 // Set up reference depending on the genome choice
 // NOTE: link will be defined by aoutomatic reference generation when the pipeline ready!
@@ -130,35 +122,6 @@ else
     if (params.chrlength_file) { chrlength = Channel.fromPath(params.chrlength_file, checkIfExists: true) } else { exit 1, 'Chromosome length file does not exist'  }
     if (params.chr_prefix)     { chr_prefix= Channel.of(params.chr_prefix)} else {chr_prefix= Channel.value("")}
 }
-
-// TODO: Write a pretty log here, write the used parameters
-log.info """\
-
-
-DKFZ-ODCF/IndelCallingWorkflow: A Platypus-based workflow for indel calling
-
-Workflow spesific arguments
-===================================
-    Reference type        : ${params.ref_type}
-    Reference file        : ${ref}
-    Chromosomal lenghts   : ${chrlength}
-    Chromosome prefix     : ${chr_prefix} 
-
-    Annotation Files 
-    DAC blacklist file    : ${params.dac_blacklist}
-    DUKE excluded list    : ${params.duke_excluded}
-    HiSeq depth file      : ${params.hiseq_depth}
-    Self chain file       : ${params.self_chain}
-    TFbs cons file        : ${params.tfbscons_file}
-    miRNAs sno file       : ${params.mirnas_snornas_file}
-    miRNAs snc file       : ${params.mirna_sncrnas_file}
-    miRNA targets file    : ${params.mir_targets_file}
-    Cgi mountains file    : ${params.cgi_mountains_file}
-    Phastconselem file    : ${params.phastconselem_file}
-    PATH to Annovar       : ${params.annovar_path}
-
-"""
-.stripIndent()
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -241,7 +204,7 @@ workflow PLATYPUSINDELCALLING {
         sample_ch, ref
     )
 
-    ch_logs         = ch_logs.mix(INDEL_CALLING.out.ch_platypus_log)
+    ch_logs         = ch_logs.mix(INDEL_CALLING.out.log_ch)
     ch_versions     = ch_versions.mix(INDEL_CALLING.out.versions)
 
     // Prepare an input channel of vcf with sample names 
@@ -269,7 +232,7 @@ workflow PLATYPUSINDELCALLING {
         //
         // filtering is only apply into the samples without control, 
         // indel extraction and visualization will apply both cases.
-        // runIndelVCFFilter is only applicable if annotation done.  
+        // runIndelVCFFilter is only applicable if basic annotation done.  
         
         if (params.runIndelVCFFilter) {
             FILTER_VCF(
