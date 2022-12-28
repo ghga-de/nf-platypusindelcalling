@@ -24,13 +24,10 @@ The pipeline is built using [Nextflow](https://www.nextflow.io), a workflow tool
 
 This nextflow pipeline is the transition of [DKFZ-ODCF/IndelCallingWorkflow](https://github.com/DKFZ-ODCF/IndelCallingWorkflow). 
 
-<!-- TODO nf-core: Add full-sized test dataset and amend the paragraph below if applicable -->
-
 
 
 ## Pipeline summary
 
-<!-- TODO nf-core: Fill in short bullet-pointed list of the default steps in the pipeline -->
 
 The pipeline has 6 main steps: Indel calling using platypus, basic annotations, deep annotations, filtering, sample swap check and multiqc report. 
 
@@ -38,26 +35,20 @@ The pipeline has 6 main steps: Indel calling using platypus, basic annotations, 
    
    Platypus ([`Platypus`](https://www.well.ox.ac.uk/research/research-groups/lunter-group/lunter-group/platypus-a-haplotype-based-variant-caller-for-next-generation-sequence-data))
    : Platypus tool is used to call variants using local realignmnets and local assemblies. It can detect SNPs, MNPs, short indels, replacements, deletions up to several kb. It can be both used with WGS and WES. The tool has been thoroughly tested on data mapped with Stampy and BWA.
-2. Basic Annotations (--runIndelAnnotation):
-
-   If it is true:
+2. Basic Annotations (--runIndelAnnotation True):
 
    In-house scripts to annotate with several databases like gnomAD, dbSNP, and ExAC.
 
    ANNOVAR ([`Annovar`](https://annovar.openbioinformatics.org/en/latest/))
    : annotate_variation.pl is used to annotate variants. The tool makes classifications for intergenic, intogenic, nonsynoymous SNP, frameshift deletion or large-scale duplication regions.
    
-   Reliability and confidation annotations: It is an optional ste for Mapability, hiseq, selfchain and repeat regions checks for reliability and confidence of those scores.
+   Reliability and confidation annotations: It is an optional ste for mapability, hiseq, selfchain and repeat regions checks for reliability and confidence of those scores.
 
-3. Deep Annotation (--runIndelDeepAnnotation): 
-
-   If it is true:
+3. Deep Annotation (--runIndelDeepAnnotation True): 
    
    If basic annotations are applied, an extra optional step for number of extra indel annotations like enhancer, cosmic, mirBASE, encode databases can be applied too.
 
-4. Filtering and Visualization (--runIndelVCFFilter): 
-
-   If it is true
+4. Filtering and Visualization (--runIndelVCFFilter tRUE): 
 
    It is an optional step. Filtering is only required for the tumor samples with no-control and filtering can only be applied if basic annotation is performed. 
 
@@ -65,15 +56,13 @@ The pipeline has 6 main steps: Indel calling using platypus, basic annotations, 
 
    Visualization and json reports: Extracted INDELs are visualized and analytics of INDEL categories are reported as JSON.
 
-5. Check Sample Swap (--runTinda): 
-
-   If it is true:
+5. Check Sample Swap (--runTinda True): 
 
    Canopy Based Clustering and Bias Filter, thi step can only be applied into the tumor samples with control. 
 
-6. MultiQC (--skipmultiqc):
+6. MultiQC (--skipmultiqc False):
 
-   If false, produces pipeline level analytics and reports. 
+   Produces pipeline level analytics and reports. 
 
 ## Quick Start
 
@@ -139,7 +128,6 @@ All VCF and BED files need to be indexed with tabix and should be in the same fo
 
 ## Documentation
 
-**TODO**
 The nf-platypusindelcalling pipeline comes with documentation about the pipeline [usage](https://github.com/kubranarci/nf-platypusindelcalling/blob/main/docs/usage.md) and [output](https://github.com/kubranarci/nf-platypusindelcalling/blob/main/docs/output.md).
 
 
