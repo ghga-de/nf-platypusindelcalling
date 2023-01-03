@@ -30,8 +30,8 @@ process ANNOTATE_VCF {
     script:
     def args        = task.ext.args ?: ''
     def prefix      = task.ext.prefix ?: "${meta.id}"
-    def pipe  = [kgenome.baseName !='input' ? " | annotate_vcf.pl -a - -b ${dbsnpindel} --columnName='DBSNP' --reportMatchType --bAdditionalColumn=2 --reportBFeatCoord --padding=${params.padding} --minOverlapFraction=${params.minoverlapfraction} --maxBorderDistanceSum=${params.maxborderdist} --maxNrOfMatches=${params.maxmatches}" : '',
-                dbsnpindel.baseName !='input' ? " | annotate_vcf.pl -a - -b ${kgenome} --columnName='1K_GENOMES' --reportMatchType --bAdditionalColumn=2 --reportBFeatCoord --padding=${params.padding} --minOverlapFraction=${params.minoverlapfraction} --maxBorderDistanceSum=${params.maxborderdist} --maxNrOfMatches=${params.maxmatches}" : '',
+    def pipe  = [dbsnpindel.baseName !='input' ? " | annotate_vcf.pl -a - -b ${dbsnpindel} --columnName='DBSNP' --reportMatchType --bAdditionalColumn=2 --reportBFeatCoord --padding=${params.padding} --minOverlapFraction=${params.minoverlapfraction} --maxBorderDistanceSum=${params.maxborderdist} --maxNrOfMatches=${params.maxmatches}" : '',
+                kgenome.baseName !='input' ? " | annotate_vcf.pl -a - -b ${kgenome} --columnName='1K_GENOMES' --reportMatchType --bAdditionalColumn=2 --reportBFeatCoord --padding=${params.padding} --minOverlapFraction=${params.minoverlapfraction} --maxBorderDistanceSum=${params.maxborderdist} --maxNrOfMatches=${params.maxmatches}" : '',
                 exac.baseName !='input' ? " | annotate_vcf.pl -a - -b ${exac} --columnName='ExAC' --bFileType vcf --reportLevel 4 --reportMatchType" : '',
                 evs.baseName !='input' ? " | annotate_vcf.pl -a - -b ${evs} --columnName='EVS' --bFileType vcf --reportLevel 4 --reportMatchType" : '',
                 localcontrolwgs.baseName !='input' ? " | annotate_vcf.pl -a - -b ${localcontrolwgs} --columnName='LocalControlAF_WGS' --bFileType vcf --reportLevel 4 --reportMatchType" : '',
