@@ -164,7 +164,7 @@ An [example samplesheet](../assets/samplesheet_test.csv) has been provided with 
 The typical command for running the pipeline is as follows:
 
 ```console
-nextflow run main.nf --input samplesheet.csv --outdir <OUTDIR> -profile docker
+nextflow run main.nf --input samplesheet.csv --outdir <OUTDIR> --profile docker
 ```
 
 This will launch the pipeline with the `docker` configuration profile. See below for more information about profiles.
@@ -172,7 +172,7 @@ This will launch the pipeline with the `docker` configuration profile. See below
 In order to launch the workflow in DKFZ HPC, singularity must be used with proper config file which can be found in /conf directory
 
 ```console
-nextflow run main.nf --input samplesheet_test.csv --outdir <OUTDIR> -profile test,singularity
+nextflow run main.nf --input samplesheet_test.csv --outdir <OUTDIR> --profile test,singularity
 ```
 
 Note that the pipeline will create the following files in your working directory:
@@ -206,7 +206,7 @@ Use this parameter to choose a configuration profile. Profiles can give configur
 
 Generic profiles are bundled with the pipeline which instruct the pipeline to use software packaged using different methods (Docker or Singularity).
 
-Note that multiple profiles can be loaded, for example: `-profile test,docker` - the order of arguments is important!
+Note that multiple profiles can be loaded, for example: `--profile test,docker` - the order of arguments is important!
 They are loaded in sequence, so later profiles can overwrite earlier profiles.
 
 If `-profile` is not specified, the pipeline will run locally and expect all software to be installed and available on the `PATH`. This is _not_ recommended.
@@ -219,8 +219,9 @@ If `-profile` is not specified, the pipeline will run locally and expect all sof
 - `test`
   - A profile with a complete configuration for automated testing
   - Includes links to test data so needs no other parameters
+  - Test only works in dkfz-cluster now
 
-- `dkfz_cluster`
+- `dkfz_cluster_38`
   - A profile with a complete configuration for DKFZ cluster
   - Includes links to test data so needs no other parameters
 ### `-resume`
