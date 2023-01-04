@@ -169,10 +169,11 @@ nextflow run main.nf --input samplesheet.csv --outdir <OUTDIR> --profile docker
 
 This will launch the pipeline with the `docker` configuration profile. See below for more information about profiles.
 
-In order to launch the workflow in DKFZ HPC, singularity must be used with proper config file which can be found in /conf directory
+In order to launch the workflow in **DKFZ HPC**, **singularity** must be used with proper config file (text, dkfz_config or dkfz_config_38) which can be found in /conf directory. 
 
 ```console
-nextflow run main.nf --input samplesheet_test.csv --outdir <OUTDIR> --profile test,singularity
+module load  nextflow/22.07.1-edge
+nextflow run main.nf --input samplesheet_test.csv --outdir results --profile test,singularity
 ```
 
 Note that the pipeline will create the following files in your working directory:
@@ -200,7 +201,7 @@ chmod +x bin/*
 
 [Annovar](https://annovar.openbioinformatics.org/en/latest/user-guide/download/) should be downloaded locally if annotation module will be used and should be linked to the appropriare directory in --annovar_path parameter. 
 
-### `-profile`
+### `--profile`
 
 Use this parameter to choose a configuration profile. Profiles can give configuration presets for different compute environments.
 
@@ -224,6 +225,7 @@ If `-profile` is not specified, the pipeline will run locally and expect all sof
 - `dkfz_cluster_38`
   - A profile with a complete configuration for DKFZ cluster
   - Includes links to test data so needs no other parameters
+  
 ### `-resume`
 
 Specify this when restarting a pipeline. Nextflow will use cached results from any pipeline steps where the inputs are the same, continuing from where it got to previously. For input to be considered the same, not only the names must be identical but the files' contents as well. For more info about this parameter, see [this blog post](https://www.nextflow.io/blog/2019/demystifying-nextflow-resume.html).
