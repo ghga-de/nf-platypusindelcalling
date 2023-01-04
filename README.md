@@ -48,7 +48,7 @@ The pipeline has 6 main steps: Indel calling using platypus, basic annotations, 
    
    If basic annotations are applied, an extra optional step for number of extra indel annotations like enhancer, cosmic, mirBASE, encode databases can be applied too.
 
-4. Filtering and Visualization (--runIndelVCFFilter tRUE): 
+4. Filtering and Visualization (--runIndelVCFFilter True): 
 
    It is an optional step. Filtering is only required for the tumor samples with no-control and filtering can only be applied if basic annotation is performed. 
 
@@ -94,14 +94,14 @@ annotate_variation.pl -downdb wgEncodeGencodeBasicV19 humandb/ -build hg19
 
    Note that some form of configuration will be needed so that Nextflow knows how to fetch the required software. This is usually done in the form of a config profile (`YOURPROFILE` in the example command above). You can chain multiple config profiles in a comma-separated string.
 
-   > - The pipeline comes with config profiles called `docker` and `singularity` which instruct the pipeline to use the named tool for software management. For example, `--profile test,docker`.
+   > - The pipeline comes with config profiles called `docker` and `singularity` which instruct the pipeline to use the named tool for software management. For example, `-profile test,docker`.
    > - Please check [nf-core/configs](https://github.com/nf-core/configs#documentation) to see if a custom config file to run nf-core pipelines already exists for your Institute. If so, you can simply use `-profile <institute>` in your command. This will enable either `docker` or `singularity` and set the appropriate execution settings for your local compute environment.
    > - If you are using `singularity`, please use the [`nf-core download`](https://nf-co.re/tools/#downloading-pipelines-for-offline-use) command to download images first, before running the pipeline. Setting the [`NXF_SINGULARITY_CACHEDIR` or `singularity.cacheDir`](https://www.nextflow.io/docs/latest/singularity.html?#singularity-docker-hub) Nextflow options enables you to store and re-use the images from a central location for future pipeline runs.
 
 5. Simple test run
 
    ```console
-   nextflow run main.nf --outdir results --profile singularity,test
+   nextflow run main.nf --outdir results -profile singularity,test
    ``` 
 
 6. Start running your own analysis!
@@ -109,7 +109,7 @@ annotate_variation.pl -downdb wgEncodeGencodeBasicV19 humandb/ -build hg19
    <!-- TODO nf-core: Update the example "typical command" below used to run the pipeline -->
 
    ```console
-   nextflow run main.nf --input samplesheet.csv --outdir <OUTDIR> --profile <docker/singularity> --config test/institute.config
+   nextflow run main.nf --input samplesheet.csv --outdir <OUTDIR> -profile <docker/singularity> --config test/institute.config
    ```
    
 ## Samplesheet columns
