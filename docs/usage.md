@@ -164,7 +164,7 @@ An [example samplesheet](../assets/samplesheet_test.csv) has been provided with 
 The typical command for running the pipeline is as follows:
 
 ```console
-nextflow run main.nf --input samplesheet.csv --outdir <OUTDIR> --profile docker
+nextflow run main.nf --input samplesheet.csv --outdir <OUTDIR> -profile docker
 ```
 
 This will launch the pipeline with the `docker` configuration profile. See below for more information about profiles.
@@ -173,7 +173,7 @@ In order to launch the workflow in **DKFZ HPC**, **singularity** must be used wi
 
 ```console
 module load  nextflow/22.07.1-edge
-nextflow run main.nf --input samplesheet_test.csv --outdir results --profile test,singularity
+nextflow run main.nf --input samplesheet_test.csv --outdir results -profile test,singularity
 ```
 
 Note that the pipeline will create the following files in your working directory:
@@ -201,13 +201,13 @@ chmod +x bin/*
 
 [Annovar](https://annovar.openbioinformatics.org/en/latest/user-guide/download/) should be downloaded locally if annotation module will be used and should be linked to the appropriare directory in --annovar_path parameter. 
 
-### `--profile`
+### `-profile`
 
 Use this parameter to choose a configuration profile. Profiles can give configuration presets for different compute environments.
 
 Generic profiles are bundled with the pipeline which instruct the pipeline to use software packaged using different methods (Docker or Singularity).
 
-Note that multiple profiles can be loaded, for example: `--profile test,docker` - the order of arguments is important!
+Note that multiple profiles can be loaded, for example: `-profile test,docker` - the order of arguments is important!
 They are loaded in sequence, so later profiles can overwrite earlier profiles.
 
 If `-profile` is not specified, the pipeline will run locally and expect all software to be installed and available on the `PATH`. This is _not_ recommended.
