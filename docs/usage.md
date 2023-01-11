@@ -32,9 +32,8 @@ If --runIndelAnnotation is true, the following files must be defined (with corre
 
 - --k_genome           : 1000k genome indel calls (vcf.gz)
 - --dbsnp_indel        : dbSNP indel calls (vcf.gz)
-- --dbsnp_snv          : dbSNP SV calls (vcf.gz)
-- --exac_file          : ExAC database calls (vcf.gz)
-- --evs_file           : EVS database calls (vcf.gz)
+- --exac_file          : ExAC database calls (vcf.gz) (Optional)
+- --evs_file           : EVS database calls (vcf.gz) (Optional)
 - --local_control_wgs  : Extra Local Control WGS file (vcf.gz)
 - --local_control_wes  : Extra Local Control WES file (vcf.gz)
 - --gnomad_genomes     : Gnomed Genome sites (vcf.gz)
@@ -61,30 +60,30 @@ annotate_variation.pl -downdb wgEncodeGencodeBasicV19 humandb/ -build hg19
 
 **3. Indel Reability Options:**
 
-- --repeat_masker       : Repeat Masker file (bed.gz)
-- --dac_blacklist       : Black List (bed.gz)
-- --duke_excluded       : Excluded List (bed.gz)
-- --hiseq_depth         : Hiseq Deep sequencing regions (bed.gz)
-- --self_chain          : SeLf Chain regions (bed.gz)
-- --mapability_file     : Mappability regions (bed.gz)
-- --simple_tandemrepeats: Simple tandem repeats (bed.gz)
+- --repeat_masker       : UCSC Repeat Masker file (bed.gz)
+- --dac_blacklist       : UCSC DAC Black List (bed.gz) (Optional)
+- --duke_excluded       : UCSC DUKE Excluded List (bed.gz) (Optional)
+- --hiseq_depth         : UCSC Hiseq Deep sequencing regions (bed.gz) (Optional)
+- --self_chain          : UCSC SeLf Chain regions (bed.gz) (Optional)
+- --mapability_file     : UCSC Mappability regions (bed.gz)
+- --simple_tandemrepeats: UCSC Simple tandem repeats (bed.gz)
 
 **4. Deep Annotation Options:**
 
 If --runIndelDeepAnnotation is true, at least one of the following files must be defined (with corresponding indexes):
 
--  --enchancer_file      : Enhangers (bed.gz)
--  --cpgislands_file     : CpG islands (bed.gz)
--  --tfbscons_file       : TFBS noncoding sites (bed.gz)
--  --encode_dnase_file   : Encode DNAse cluster (bed.gz)
--  --mirnas_snornas_file : snoRNAs miRBase  (bed.gz)
--  --mirna_sncrnas_file : sncRNAs miRBase  (bed.gz) 
--  --mirbase_file        : miRBase (bed.gz)
--  --cosmic_file         : Cosmic coding SNVs (bed.gz)
--  --mir_targets_file    : miRNA target sites (bed.gz)
--  --cgi_mountains_file  : Cgi Mountains (bed.gz)
--  --phastconselem_file  : Phast Cons Elements (bed.gz)
--  --encode_tfbs_file    : Encode TFBS (bed.gz)
+-  --enchancer_file      : UCSC Enhangers (bed.gz)  (Optional)
+-  --cpgislands_file     : UCSC CpG islands (bed.gz) (Optional)
+-  --tfbscons_file       : UCSC TFBS noncoding sites (bed.gz) (Optional)
+-  --encode_dnase_file   : UCSC Encode DNAse cluster (bed.gz) (Optional)
+-  --mirnas_snornas_file : snoRNAs miRBase  (bed.gz) (Optional)
+-  --mirna_sncrnas_file : sncRNAs miRBase  (bed.gz) (Optional)
+-  --mirbase_file        : miRBase (bed.gz) (Optional)
+-  --cosmic_file         : Cosmic coding SNVs (bed.gz) (Optional)
+-  --mir_targets_file    : miRNA target sites (bed.gz) (Optional)
+-  --cgi_mountains_file  : Cgi Mountains (bed.gz) (Optional)
+-  --phastconselem_file  : UCSC Phast Cons Elements (bed.gz) (Optional)
+-  --encode_tfbs_file    : UCSC Encode TFBS (bed.gz) (Optional)
 
 **Filtration Step:** 
 
@@ -92,7 +91,9 @@ If --runVCFFilter is true, the following parameters can be applied:
 
 **1. Filtering Options:**
 
-Filtering is only applied into the samples without control!
+Filtering is only applied into the samples without control! 
+
+**BE CAREFULL** In order to apply below filtartions, annotations to the applied columns must be performed. 
 
 - --filter_exac           : Filter or not by ExAC
 - --filter_evs            : Filter or not by EVS
