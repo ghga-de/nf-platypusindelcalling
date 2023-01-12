@@ -28,10 +28,9 @@ process CONFIDENCE_ANNOTATION {
         $ref_spec \\
         --gnomAD_WGS_maxMAF=${params.crit_gnomad_genomes_maxmaf} \\
         --gnomAD_WES_maxMAF=${params.crit_gnomad_exomes_maxmaf} \\
-        --localControl_WGS_maxMAF=${params.crit_localcontrol_maxmaf} \\ 
+        --localControl_WGS_maxMAF=${params.crit_localcontrol_maxmaf} \\
         --localControl_WES_maxMAF=${params.crit_localcontrol_maxmaf} \\
         --1000genome_maxMAF=${params.crit_1kgenomes_maxmaf} \\
-        $args \\
         | tee indel_${prefix}.ann.vcf \\
         | cut -f 1-11 > indel_${prefix}.conf.vcf
 
