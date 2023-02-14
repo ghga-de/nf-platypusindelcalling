@@ -100,7 +100,7 @@ if (params.ref_type)
         }
     if (params.ref_type == 'hg19') 
         { 
-        def fa_file = "/omics/odcf/reference_data/legacy/ngs_share/assemblies/hg19_GRCh37_1000genomes/sequence/hg19_chr/hg19_1-22_X_Y_M.fa"
+        def def fa_file = "/omics/odcf/reference_data/legacy/ngs_share/assemblies/hg19_GRCh37_1000genomes/sequence/hg19_chr/hg19_1-22_X_Y_M.fa"
         ref = Channel.fromPath([fa_file,fa_file +'.fai'], checkIfExists: true).collect()
         def chr_file = '/omics/odcf/reference_data/legacy/ngs_share/assemblies/hg19_GRCh37_1000genomes/stats/hg19_1-22_X_Y_M.fa.chrLenOnlyACGT.tab'
         chrlength = Channel.fromPath(chr_file, checkIfExists: true)
@@ -109,9 +109,9 @@ if (params.ref_type)
     
     if (params.ref_type == 'hg38') 
         { 
-        def fa_file = "/omics/odcf/reference_data/legacy/ngs_share/assemblies/hg_GRCh38/sequence/GRCh38_decoy_ebv_phiX_alt_hla_chr.fa"
+        def fa_file = "/omics/odcf/reference_data/legacy/ngs_share/assemblies/hg_GRCh38/sequence/GRCh38_decoy_ebv_alt_hla_phiX.fa"
         ref = Channel.fromPath([fa_file,fa_file +'.fai'], checkIfExists: true).collect()
-        def chr_file = '/omics/odcf/reference_data/legacy/ngs_share/assemblies/hg_GRCh38/stats/GRCh38_decoy_ebv_phiX_alt_hla_chr.fa.chrLenOnlyACGT_realChromosomes.tsv'
+        def chr_file = '/omics/odcf/reference_data/legacy/ngs_share/assemblies/hg19_GRCh37_1000genomes/stats/hg19_1-22_X_Y_M.fa.chrLenOnlyACGT.tab'
         chrlength = Channel.fromPath(chr_file, checkIfExists: true)
         chr_prefix   = Channel.value("chr")
         }
