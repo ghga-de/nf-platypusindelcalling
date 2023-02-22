@@ -79,7 +79,7 @@ annotate_variation.pl -downdb wgEncodeGencodeBasicV19 humandb/ -build hg19
 4. Download the pipeline and test it on a minimal dataset with a single command:
 
    ```console
-   git clone https://github.com/kubranarci/nf-platypusindelcalling.git
+   git clone https://github.com/ghga-de/nf-platypusindelcalling.git
     ```
 
   before run do this to bin directory, make it runnable!:
@@ -101,7 +101,7 @@ annotate_variation.pl -downdb wgEncodeGencodeBasicV19 humandb/ -build hg19
 5. Simple test run
 
    ```console
-   nextflow run main.nf --outdir results -profile singularity,test
+   nextflow run main.nf --outdir results -profile singularity,dkfz_cluster_38
    ``` 
 
 6. Start running your own analysis!
@@ -129,7 +129,9 @@ All VCF and BED files need to be indexed with tabix and should be in the same fo
 
 ## Documentation
 
-The nf-platypusindelcalling pipeline comes with documentation about the pipeline [usage](https://github.com/kubranarci/nf-platypusindelcalling/blob/main/docs/usage.md) and [output](https://github.com/kubranarci/nf-platypusindelcalling/blob/main/docs/output.md).
+The nf-platypusindelcalling pipeline comes with documentation about the pipeline [usage](https://github.com/ghga-de/nf-platypusindelcalling/blob/main/docs/usage.md) and [output](https://github.com/ghga-de/nf-platypusindelcalling/blob/main/docs/output.md).
+
+Please read [usage](https://github.com/ghga-de/nf-platypusindelcalling/blob/main/docs/usage.md) document to learn how to perform sample analysis provided with this repository!
 
 ## Credits
 

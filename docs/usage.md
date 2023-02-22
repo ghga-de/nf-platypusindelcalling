@@ -1,4 +1,4 @@
-# nf-core/platypusindelcalling: Usage
+# nf-platypusindelcalling: Usage
 
 
 > _Documentation of pipeline parameters is generated automatically from the pipeline schema and can no longer be found in markdown files._
@@ -23,6 +23,7 @@ Main Swiches:
 Reference Files:
 
 - --ref_type: Mandatory! Either hg19, hg37 or hg38 can be defined as reference type.
+
 
 **Annotation Step:** 
 
@@ -191,7 +192,7 @@ work                # Directory containing the nextflow working files
 The pipeline can be pulled from thus github directory and be used!
 
 ```console
-git clone https://github.com/kubranarci/nf-platypusindelcalling.git
+git clone https://github.com/ghga-de/nf-platypusindelcalling.git
 ```
 
 Make the bin directory readable:

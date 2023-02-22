@@ -48,30 +48,61 @@ workflow INDEL_ANNOTATION {
 
     versions=Channel.empty()
     logs=Channel.empty() 
-
+    //
+    // MODULE: ANNOTATE_VCF
+    //
     // RUN annotate_vcf.pl: Uses various databases (all mandatory) to annotate variants
+    input_ch = vcf_ch.map{ it -> tuple( it[0], it[1], it[2])}
     ANNOTATE_VCF (
-    vcf_ch, kgenome, dbsnpindel, exac, evs, localcontrol_wgs,
-    localcontrol_wes, gnomadgenomes, gnomadexomes, chr_prefix
+    input_ch, 
+    kgenome, 
+    dbsnpindel, 
+    exac, 
+    evs, 
+    localcontrol_wgs,
+    localcontrol_wes, 
+    gnomadgenomes, 
+    gnomadexomes, 
+    chr_prefix
     )
     versions  = versions.mix(ANNOTATE_VCF.out.versions)
 
+    ANNOTATE_VCF.out.unziped_vcf
+        .join(ANNOTATE_VCF.out.forannovar)
+        .set{ input_ch}
+
+    //
+    // MODULE: ANNOVAR
+    //
     // RUN annovar, processAnnovarOutput.pl and newCols2vcf.pl: annovar annotates and classifies the variants, 
-    // perl scripts re-creates vcfs. 
-    ch_vcf = ANNOTATE_VCF.out.unziped_vcf
-    input_ch = ch_vcf.join(ANNOTATE_VCF.out.forannovar)
+    // perl scripts re-creates vcfs.
     ANNOVAR(
-    input_ch, annodb, chr_prefix
+    input_ch, 
+    annodb, 
+    chr_prefix
     )
     logs     = logs.mix(ANNOVAR.out.log)
     versions = versions.mix(ANNOVAR.out.versions)
 
+    //
+    // MODULE: INDEL_RELIABILITY_PIPE
+    //
     // RUN annotate_vcf.pl : BED files are used to annotate variants
     INDEL_RELIABILITY_PIPE(
-    ANNOVAR.out.vcf, repeatmasker, dacblacklist, dukeexcluded, hiseqdepth, selfchain, mapability, simpletandemrepeats
+    ANNOVAR.out.vcf, 
+    repeatmasker, 
+    dacblacklist, 
+    dukeexcluded, 
+    hiseqdepth, 
+    selfchain, 
+    mapability, 
+    simpletandemrepeats
     )
     versions = versions.mix(INDEL_RELIABILITY_PIPE.out.versions)
 
+    //
+    // MODULE: CONFIDENCE_ANNOTATION
+    //
     // RUN: confidenceAnnotation_Indels.py : Confidence annotation will be added to the variants
     input_ch = vcf_ch.join(INDEL_RELIABILITY_PIPE.out.vcf)
     CONFIDENCE_ANNOTATION(
@@ -83,13 +114,29 @@ workflow INDEL_ANNOTATION {
     // RUN annotate_vcf.pl : Uses optional databases to annotate variants, only given databases will be used. 
     if (params.runIndelDeepAnnotation)
     {
+        //
+        // MODULE: ANNOTATION_PIPES
+        //
         ANNOTATION_PIPES (
-        ann_vcf_ch, enchangers, cpgislands, tfbscons, encode_dnase, mirnas_snornas, cosmic, mirbase, mir_targets,
-        cgi_mountains, phastconselem, encode_tfbs, mirnas_sncrnas
+        ann_vcf_ch, 
+        enchangers, 
+        cpgislands, 
+        tfbscons, 
+        encode_dnase, 
+        mirnas_snornas, 
+        cosmic, 
+        mirbase, 
+        mir_targets,
+        cgi_mountains, 
+        phastconselem, 
+        encode_tfbs, 
+        mirnas_sncrnas
         )
         ann_vcf_ch  = ANNOTATION_PIPES.out.vcf 
         versions    = versions.mix(ANNOTATION_PIPES.out.versions)
-
+    }
+    else{
+        println "Skipping deep annotation since runIndelDeepAnnotation is set to false"
     }
 emit:
 logs

@@ -11,8 +11,8 @@ process GREP_SAMPLENAME {
     tuple val(meta), path(tumor), path(tumor_bai), path(control),  path(control_bai)
 
     output:
-    tuple val(meta), env(tumorname)    , env(controlname)          , emit: samplenames
-    path "versions.yml"     , emit: versions
+    tuple val(meta), env(tumorname), env(controlname)   , emit: samplenames
+    path "versions.yml"                                 , emit: versions
 
     script: 
     def args       = task.ext.args ?: ''
