@@ -5,10 +5,8 @@ process VISUALIZE {
 
     conda     (params.enable_conda ? "" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-    'docker://kubran/odcf_platypusindelcalling:v0' :'kubran/odcf_platypusindelcalling:v0' }"
+    'docker://kubran/odcf_platypusindelcalling:v1' :'kubran/odcf_platypusindelcalling:v1' }"
     
-    errorStrategy 'ignore'
-
     input:
     tuple val(meta)          ,file(vcf)
     tuple path(ref)          ,path(ref_fai)
@@ -40,7 +38,7 @@ process VISUALIZE {
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        python: \$(python --version | sed 's/Python //g')
+        python: \$(python2 --version 2>&1 | sed 's/Python //g')
         tabix: \$(echo \$(tabix -h 2>&1) | sed 's/^.*Version: //; s/ .*\$//')
         Ghostscript: \$(echo \$(gs -v 2>&1) | sed 's/^.*GPL Ghostscript //; s/ .*\$//')
     END_VERSIONS

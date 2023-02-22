@@ -1,4 +1,4 @@
-# nf-core/platypusindelcalling: Output
+# nf-platypusindelcalling: Output
 
 ## Introduction
 

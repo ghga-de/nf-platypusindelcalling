@@ -5,10 +5,10 @@ process ANNOTATE_VCF {
 
     conda     (params.enable_conda ? "" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-    'docker://kubran/odcf_platypusindelcalling:v0' :'kubran/odcf_platypusindelcalling:v0' }"
+    'docker://kubran/odcf_platypusindelcalling:v1' :'kubran/odcf_platypusindelcalling:v1' }"
 
     input:
-    tuple val(meta)            , file(vcf)     , file(vcf_tbi), val(tumorname), val(controlname)
+    tuple val(meta)            , file(vcf)     , file(vcf_tbi)
     tuple file(kgenome)        , file(kgenome_i)
     tuple file(dbsnpindel)     , file(dbsnpindel_i)
     tuple file(exac)           , file(exac_i)
@@ -46,7 +46,7 @@ process ANNOTATE_VCF {
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        perl: v5.28.1
+        perl: \$(echo \$(perl --version 2>&1) | sed 's/.*v\\(.*\\)) built.*/\\1/')
         tabix: \$(echo \$(tabix -h 2>&1) | sed 's/^.*Version: //; s/ .*\$//')
     END_VERSIONS
     """

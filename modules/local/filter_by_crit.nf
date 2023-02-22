@@ -5,7 +5,7 @@ process FILTER_BY_CRIT {
 
     conda     (params.enable_conda ? "" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-    'docker://kubran/odcf_platypusindelcalling:v0' :'kubran/odcf_platypusindelcalling:v0' }"
+    'docker://kubran/odcf_platypusindelcalling:v1' :'kubran/odcf_platypusindelcalling:v1' }"
 
     input:
     tuple val(meta), file(vcfgz), file(vcf_tbi)
@@ -38,7 +38,7 @@ process FILTER_BY_CRIT {
 
         cat <<-END_VERSIONS > versions.yml
         "${task.process}":
-            python: \$(python --version | sed 's/Python //g')
+            python: \$(python2 --version 2>&1 | sed 's/Python //g')
             tabix: \$(echo \$(tabix -h 2>&1) | sed 's/^.*Version: //; s/ .*\$//')
             gzip: \$(echo \$(gzip --version 2>&1) | sed 's/^.*gzip //; s/ .*\$//')
         END_VERSIONS
@@ -55,7 +55,7 @@ process FILTER_BY_CRIT {
 
             cat <<-END_VERSIONS > versions.yml
             "${task.process}":
-                python: \$(python --version | sed 's/Python //g')
+                python: \$(python2 --version 2>&1 | sed 's/Python //g')
                 tabix: \$(echo \$(tabix -h 2>&1) | sed 's/^.*Version: //; s/ .*\$//')
                 gzip: \$(echo \$(gzip --version 2>&1) | sed 's/^.*gzip //; s/ .*\$//')
             END_VERSIONS
@@ -69,7 +69,7 @@ process FILTER_BY_CRIT {
             
             cat <<-END_VERSIONS > versions.yml
             "${task.process}":
-                python: \$(python --version | sed 's/Python //g')
+                python: \$(python2 --version 2>&1 | sed 's/Python //g')
                 tabix: \$(echo \$(tabix -h 2>&1) | sed 's/^.*Version: //; s/ .*\$//')
                 gzip: \$(echo \$(gzip --version 2>&1) | sed 's/^.*gzip //; s/ .*\$//')
             END_VERSIONS

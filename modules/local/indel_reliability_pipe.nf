@@ -6,7 +6,7 @@ process INDEL_RELIABILITY_PIPE {
 
     conda     (params.enable_conda ? "" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-    'docker://kubran/odcf_platypusindelcalling:v0' :'kubran/odcf_platypusindelcalling:v0' }"
+    'docker://kubran/odcf_platypusindelcalling:v1' :'kubran/odcf_platypusindelcalling:v1' }"
     
     input:
     tuple val(meta),                 file(ch_vcf),               file(ch_vcf_i)
@@ -44,7 +44,7 @@ process INDEL_RELIABILITY_PIPE {
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        perl: v5.28.1
+        perl: \$(echo \$(perl --version 2>&1) | sed 's/.*v\\(.*\\)) built.*/\\1/')
         tabix: \$(echo \$(tabix -h 2>&1) | sed 's/^.*Version: //; s/ .*\$//')
     END_VERSIONS
     """
