@@ -1,0 +1,480 @@
+<!--
+  ~ Copyright 2013-2019, Centre for Genomic Regulation (CRG)
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<html>
+
+    <head>
+        <title>Nextflow Cytoscape.js with Dagre</title>
+
+        <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1, maximum-scale=1">
+
+        <script type="text/javascript">
+        var prot = (("https:" == document.location.protocol) ? "https://" : "http://");
+        document.write(unescape("%3Cscript src='" + prot + "code.jquery.com/jquery-2.0.3.min.js' type='text/javascript' %3E%3C/script%3E"));
+        document.write(unescape("%3Cscript src='" + prot + "cdnjs.cloudflare.com/ajax/libs/cytoscape/2.6.12/cytoscape.min.js' type='text/javascript' %3E%3C/script%3E"));
+        document.write(unescape("%3Cscript src='" + prot + "cdn.rawgit.com/cpettitt/dagre/v0.7.4/dist/dagre.min.js' type='text/javascript' %3E%3C/script%3E"));
+        document.write(unescape("%3Cscript src='" + prot + "cdn.rawgit.com/cytoscape/cytoscape.js-dagre/1.1.2/cytoscape-dagre.js' type='text/javascript' %3E%3C/script%3E"));
+        </script>
+
+        <style>
+            body {
+                font-family: helvetica;
+                font-size: 14px;
+            }
+
+            #cy {
+                width: 100%;
+                height: 100%;
+                position: absolute;
+                left: 0;
+                top: 0;
+                z-index: 999;
+            }
+
+            h1 {
+                opacity: 0.5;
+                font-size: 1em;
+            }
+        </style>
+
+        <script>
+            $(function(){
+                var cy = window.cy = cytoscape({
+                    container: document.getElementById('cy'),
+                    boxSelectionEnabled: false,
+                    autounselectify: true,
+
+                    layout: {
+                        name: 'dagre'
+                    },
+
+                    style: cytoscape.stylesheet()
+                        .selector( 'node')
+                            .css({
+                                'width': 10,
+                                'height': 10,
+                                'content': 'data(label)',
+                                'text-valign': 'center',
+                                'text-halign': 'center',
+                                'text-opacity': 0.5,
+                            })
+                        .selector('node.PROCESS')
+                            .css({
+                                'width': 100,
+                                'height': 50,
+                                'text-opacity': 0.9,
+                                'background-color': '#009911'
+                            })
+                        .selector('node.OPERATOR')
+                            .css({
+                                'background-color': '#11479e',
+                                'text-halign': 'right',
+                            })
+                        .selector('node.ORIGIN')
+                            .css({
+                                'background-color': '#999999',
+                                'text-halign': 'right',
+                            })
+                        .selector('node.TERMINATION')
+                            .css({
+                                'background-color': '#999999',
+                                'text-halign': 'right',
+                            })
+                        .selector('edge')
+                            .css({
+                                'content': 'data(label)',
+                                'text-opacity': 0.5,
+                                'width': 4,
+                                'target-arrow-shape': 'triangle',
+                                'line-color': '#9dbaea',
+                                'target-arrow-color': '#9dbaea'
+                            }),
+
+elements: {
+nodes: [
+{ data: { id: 'p0', label: 'Channel.fromPath'}, classes: 'ORIGIN' },
+{ data: { id: 'p1', label: 'collect'}, classes: 'OPERATOR' },
+{ data: { id: 'p2', label: 'Channel.fromPath'}, classes: 'ORIGIN' },
+{ data: { id: 'p3', label: 'collect'}, classes: 'OPERATOR' },
+{ data: { id: 'p4', label: 'Channel.of'}, classes: 'ORIGIN' },
+{ data: { id: 'p5', label: 'Channel.of'}, classes: 'ORIGIN' },
+{ data: { id: 'p6', label: 'Channel.fromPath'}, classes: 'ORIGIN' },
+{ data: { id: 'p7', label: 'collect'}, classes: 'OPERATOR' },
+{ data: { id: 'p8', label: 'Channel.fromPath'}, classes: 'ORIGIN' },
+{ data: { id: 'p9', label: 'collect'}, classes: 'OPERATOR' },
+{ data: { id: 'p10', label: 'Channel.fromPath'}, classes: 'ORIGIN' },
+{ data: { id: 'p11', label: 'collect'}, classes: 'OPERATOR' },
+{ data: { id: 'p12', label: 'Channel.fromPath'}, classes: 'ORIGIN' },
+{ data: { id: 'p13', label: 'collect'}, classes: 'OPERATOR' },
+{ data: { id: 'p14', label: 'Channel.fromPath'}, classes: 'ORIGIN' },
+{ data: { id: 'p15', label: 'Channel.fromPath'}, classes: 'ORIGIN' },
+{ data: { id: 'p16', label: 'collect'}, classes: 'OPERATOR' },
+{ data: { id: 'p17', label: 'Channel.of'}, classes: 'ORIGIN' },
+{ data: { id: 'p18', label: 'Channel.of'}, classes: 'ORIGIN' },
+{ data: { id: 'p19', label: 'Channel.of'}, classes: 'ORIGIN' },
+{ data: { id: 'p20', label: 'Channel.of'}, classes: 'ORIGIN' },
+{ data: { id: 'p21', label: 'Channel.fromPath'}, classes: 'ORIGIN' },
+{ data: { id: 'p22', label: 'collect'}, classes: 'OPERATOR' },
+{ data: { id: 'p23', label: 'Channel.fromPath'}, classes: 'ORIGIN' },
+{ data: { id: 'p24', label: 'collect'}, classes: 'OPERATOR' },
+{ data: { id: 'p25', label: 'Channel.fromPath'}, classes: 'ORIGIN' },
+{ data: { id: 'p26', label: 'collect'}, classes: 'OPERATOR' },
+{ data: { id: 'p27', label: 'Channel.fromPath'}, classes: 'ORIGIN' },
+{ data: { id: 'p28', label: 'collect'}, classes: 'OPERATOR' },
+{ data: { id: 'p29', label: 'Channel.of'}, classes: 'ORIGIN' },
+{ data: { id: 'p30', label: 'Channel.fromPath'}, classes: 'ORIGIN' },
+{ data: { id: 'p31', label: 'collect'}, classes: 'OPERATOR' },
+{ data: { id: 'p32', label: 'Channel.of'}, classes: 'ORIGIN' },
+{ data: { id: 'p33', label: 'Channel.fromPath'}, classes: 'ORIGIN' },
+{ data: { id: 'p34', label: 'collect'}, classes: 'OPERATOR' },
+{ data: { id: 'p35', label: 'Channel.fromPath'}, classes: 'ORIGIN' },
+{ data: { id: 'p36', label: 'collect'}, classes: 'OPERATOR' },
+{ data: { id: 'p37', label: 'Channel.fromPath'}, classes: 'ORIGIN' },
+{ data: { id: 'p38', label: 'collect'}, classes: 'OPERATOR' },
+{ data: { id: 'p39', label: 'Channel.of'}, classes: 'ORIGIN' },
+{ data: { id: 'p40', label: 'Channel.of'}, classes: 'ORIGIN' },
+{ data: { id: 'p41', label: 'Channel.of'}, classes: 'ORIGIN' },
+{ data: { id: 'p42', label: 'Channel.fromPath'}, classes: 'ORIGIN' },
+{ data: { id: 'p43', label: 'collect'}, classes: 'OPERATOR' },
+{ data: { id: 'p44', label: 'Channel.fromPath'}, classes: 'ORIGIN' },
+{ data: { id: 'p45', label: 'collect'}, classes: 'OPERATOR' },
+{ data: { id: 'p46', label: 'Channel.fromPath'}, classes: 'ORIGIN' },
+{ data: { id: 'p47', label: 'collect'}, classes: 'OPERATOR' },
+{ data: { id: 'p48', label: 'Channel.fromPath'}, classes: 'ORIGIN' },
+{ data: { id: 'p49', label: 'collect'}, classes: 'OPERATOR' },
+{ data: { id: 'p50', label: 'Channel.fromPath'}, classes: 'ORIGIN' },
+{ data: { id: 'p51', label: 'collect'}, classes: 'OPERATOR' },
+{ data: { id: 'p52', label: 'Channel.fromPath'}, classes: 'ORIGIN' },
+{ data: { id: 'p53', label: 'collect'}, classes: 'OPERATOR' },
+{ data: { id: 'p54', label: 'Channel.fromPath'}, classes: 'ORIGIN' },
+{ data: { id: 'p55', label: 'collect'}, classes: 'OPERATOR' },
+{ data: { id: 'p56', label: 'Channel.fromPath'}, classes: 'ORIGIN' },
+{ data: { id: 'p57', label: 'Channel.empty'}, classes: 'ORIGIN' },
+{ data: { id: 'p58', label: 'Channel.empty'}, classes: 'ORIGIN' },
+{ data: { id: 'p59', label: 'Channel.empty'}, classes: 'ORIGIN' },
+{ data: { id: 'p60'}, classes: 'ORIGIN' },
+{ data: { id: 'p61', label: 'NF_PLATYPUSINDELCALLING:PLATYPUSINDELCALLING:INPUT_CHECK:SAMPLESHEET_CHECK'}, classes: 'PROCESS' },
+{ data: { id: 'p62', label: 'splitCsv'}, classes: 'OPERATOR' },
+{ data: { id: 'p63', label: 'map'}, classes: 'OPERATOR' },
+{ data: { id: 'p64', label: 'mix'}, classes: 'OPERATOR' },
+{ data: { id: 'p65', label: 'NF_PLATYPUSINDELCALLING:PLATYPUSINDELCALLING:GREP_SAMPLENAME'}, classes: 'PROCESS' },
+{ data: { id: 'p66', label: 'mix'}, classes: 'OPERATOR' },
+{ data: { id: 'p67', label: 'Channel.empty'}, classes: 'ORIGIN' },
+{ data: { id: 'p68', label: 'NF_PLATYPUSINDELCALLING:PLATYPUSINDELCALLING:INDEL_CALLING:PLATYPUS'}, classes: 'PROCESS' },
+{ data: { id: 'p69', label: 'mix'}, classes: 'OPERATOR' },
+{ data: { id: 'p70'}, classes: 'ORIGIN' },
+{ data: { id: 'p71'}, classes: 'ORIGIN' },
+{ data: { id: 'p72'}, classes: 'ORIGIN' },
+{ data: { id: 'p73', label: 'NF_PLATYPUSINDELCALLING:PLATYPUSINDELCALLING:INDEL_CALLING:BCFTOOLS_STATS'}, classes: 'PROCESS' },
+{ data: { id: 'p74', label: 'mix'}, classes: 'OPERATOR' },
+{ data: { id: 'p75', label: 'join'}, classes: 'OPERATOR' },
+{ data: { id: 'p76', label: 'filter'}, classes: 'OPERATOR' },
+{ data: { id: 'p77', label: 'NF_PLATYPUSINDELCALLING:PLATYPUSINDELCALLING:INDEL_CALLING:CHECK_IF_CORRUPTED'}, classes: 'PROCESS' },
+{ data: { id: 'p78'}, classes: 'NODE' },
+{ data: { id: 'p79'}, classes: 'NODE' },
+{ data: { id: 'p80', label: 'mix'}, classes: 'OPERATOR' },
+{ data: { id: 'p81'}, classes: 'NODE' },
+{ data: { id: 'p82', label: 'mix'}, classes: 'OPERATOR' },
+{ data: { id: 'p83'}, classes: 'NODE' },
+{ data: { id: 'p84', label: 'mix'}, classes: 'OPERATOR' },
+{ data: { id: 'p85', label: 'join'}, classes: 'OPERATOR' },
+{ data: { id: 'p86', label: 'Channel.empty'}, classes: 'ORIGIN' },
+{ data: { id: 'p87', label: 'Channel.empty'}, classes: 'ORIGIN' },
+{ data: { id: 'p88', label: 'map'}, classes: 'OPERATOR' },
+{ data: { id: 'p89'}, classes: 'ORIGIN' },
+{ data: { id: 'p90', label: 'NF_PLATYPUSINDELCALLING:PLATYPUSINDELCALLING:INDEL_ANNOTATION:ANNOTATE_VCF'}, classes: 'PROCESS' },
+{ data: { id: 'p91', label: 'mix'}, classes: 'OPERATOR' },
+{ data: { id: 'p92', label: 'join'}, classes: 'OPERATOR' },
+{ data: { id: 'p93', label: 'NF_PLATYPUSINDELCALLING:PLATYPUSINDELCALLING:INDEL_ANNOTATION:ANNOVAR'}, classes: 'PROCESS' },
+{ data: { id: 'p94'}, classes: 'NODE' },
+{ data: { id: 'p95'}, classes: 'NODE' },
+{ data: { id: 'p96'}, classes: 'NODE' },
+{ data: { id: 'p97'}, classes: 'NODE' },
+{ data: { id: 'p98', label: 'mix'}, classes: 'OPERATOR' },
+{ data: { id: 'p99'}, classes: 'NODE' },
+{ data: { id: 'p100', label: 'mix'}, classes: 'OPERATOR' },
+{ data: { id: 'p101', label: 'NF_PLATYPUSINDELCALLING:PLATYPUSINDELCALLING:INDEL_ANNOTATION:INDEL_RELIABILITY_PIPE'}, classes: 'PROCESS' },
+{ data: { id: 'p102', label: 'mix'}, classes: 'OPERATOR' },
+{ data: { id: 'p103', label: 'join'}, classes: 'OPERATOR' },
+{ data: { id: 'p104', label: 'NF_PLATYPUSINDELCALLING:PLATYPUSINDELCALLING:INDEL_ANNOTATION:CONFIDENCE_ANNOTATION'}, classes: 'PROCESS' },
+{ data: { id: 'p105', label: 'mix'}, classes: 'OPERATOR' },
+{ data: { id: 'p106', label: 'NF_PLATYPUSINDELCALLING:PLATYPUSINDELCALLING:INDEL_ANNOTATION:ANNOTATION_PIPES'}, classes: 'PROCESS' },
+{ data: { id: 'p107', label: 'mix'}, classes: 'OPERATOR' },
+{ data: { id: 'p108', label: 'mix'}, classes: 'OPERATOR' },
+{ data: { id: 'p109', label: 'Channel.empty'}, classes: 'ORIGIN' },
+{ data: { id: 'p110', label: 'NF_PLATYPUSINDELCALLING:PLATYPUSINDELCALLING:FILTER_VCF:FILTER_BY_CRIT'}, classes: 'PROCESS' },
+{ data: { id: 'p111', label: 'mix'}, classes: 'OPERATOR' },
+{ data: { id: 'p112', label: 'NF_PLATYPUSINDELCALLING:PLATYPUSINDELCALLING:FILTER_VCF:INDEL_EXTRACTION'}, classes: 'PROCESS' },
+{ data: { id: 'p113'}, classes: 'NODE' },
+{ data: { id: 'p114'}, classes: 'NODE' },
+{ data: { id: 'p115', label: 'mix'}, classes: 'OPERATOR' },
+{ data: { id: 'p116', label: 'filter'}, classes: 'OPERATOR' },
+{ data: { id: 'p117', label: 'NF_PLATYPUSINDELCALLING:PLATYPUSINDELCALLING:FILTER_VCF:VISUALIZE'}, classes: 'PROCESS' },
+{ data: { id: 'p118'}, classes: 'NODE' },
+{ data: { id: 'p119', label: 'mix'}, classes: 'OPERATOR' },
+{ data: { id: 'p120', label: 'filter'}, classes: 'OPERATOR' },
+{ data: { id: 'p121', label: 'NF_PLATYPUSINDELCALLING:PLATYPUSINDELCALLING:FILTER_VCF:INDEL_JSON'}, classes: 'PROCESS' },
+{ data: { id: 'p122'}, classes: 'NODE' },
+{ data: { id: 'p123', label: 'mix'}, classes: 'OPERATOR' },
+{ data: { id: 'p124', label: 'mix'}, classes: 'OPERATOR' },
+{ data: { id: 'p125', label: 'NF_PLATYPUSINDELCALLING:PLATYPUSINDELCALLING:SAMPLE_SWAP'}, classes: 'PROCESS' },
+{ data: { id: 'p126'}, classes: 'NODE' },
+{ data: { id: 'p127'}, classes: 'NODE' },
+{ data: { id: 'p128'}, classes: 'NODE' },
+{ data: { id: 'p129'}, classes: 'NODE' },
+{ data: { id: 'p130'}, classes: 'NODE' },
+{ data: { id: 'p131'}, classes: 'NODE' },
+{ data: { id: 'p132'}, classes: 'NODE' },
+{ data: { id: 'p133'}, classes: 'NODE' },
+{ data: { id: 'p134'}, classes: 'NODE' },
+{ data: { id: 'p135', label: 'mix'}, classes: 'OPERATOR' },
+{ data: { id: 'p136', label: 'mix'}, classes: 'OPERATOR' },
+{ data: { id: 'p137', label: 'Channel.empty'}, classes: 'ORIGIN' },
+{ data: { id: 'p138'}, classes: 'NODE' },
+{ data: { id: 'p139', label: 'unique'}, classes: 'OPERATOR' },
+{ data: { id: 'p140', label: 'collectFile'}, classes: 'OPERATOR' },
+{ data: { id: 'p141', label: 'NF_PLATYPUSINDELCALLING:PLATYPUSINDELCALLING:CUSTOM_DUMPSOFTWAREVERSIONS'}, classes: 'PROCESS' },
+{ data: { id: 'p142'}, classes: 'NODE' },
+{ data: { id: 'p143'}, classes: 'NODE' },
+{ data: { id: 'p144', label: 'Channel.empty'}, classes: 'ORIGIN' },
+{ data: { id: 'p145', label: 'Channel.from'}, classes: 'ORIGIN' },
+{ data: { id: 'p146', label: 'mix'}, classes: 'OPERATOR' },
+{ data: { id: 'p147', label: 'collect'}, classes: 'OPERATOR' },
+{ data: { id: 'p148', label: 'ifEmpty'}, classes: 'OPERATOR' },
+{ data: { id: 'p149', label: 'mix'}, classes: 'OPERATOR' },
+{ data: { id: 'p150'}, classes: 'ORIGIN' },
+{ data: { id: 'p151', label: 'collectFile'}, classes: 'OPERATOR' },
+{ data: { id: 'p152', label: 'mix'}, classes: 'OPERATOR' },
+{ data: { id: 'p153', label: 'collect'}, classes: 'OPERATOR' },
+{ data: { id: 'p154', label: 'mix'}, classes: 'OPERATOR' },
+{ data: { id: 'p155', label: 'collect'}, classes: 'OPERATOR' },
+{ data: { id: 'p156', label: 'ifEmpty'}, classes: 'OPERATOR' },
+{ data: { id: 'p157', label: 'mix'}, classes: 'OPERATOR' },
+{ data: { id: 'p158', label: 'collect'}, classes: 'OPERATOR' },
+{ data: { id: 'p159', label: 'NF_PLATYPUSINDELCALLING:PLATYPUSINDELCALLING:MULTIQC'}, classes: 'PROCESS' },
+{ data: { id: 'p160'}, classes: 'NODE' },
+{ data: { id: 'p161'}, classes: 'NODE' },
+{ data: { id: 'p162', label: 'toList'}, classes: 'OPERATOR' },
+{ data: { id: 'p163'}, classes: 'NODE' },
+{ data: { id: 'p164', label: 'mix'}, classes: 'OPERATOR' },
+{ data: { id: 'p165'}, classes: 'NODE' },
+],
+edges: [
+{ data: { source: 'p0', target: 'p1'} },
+{ data: { source: 'p1', target: 'p90', label: 'kgenome' } },
+{ data: { source: 'p2', target: 'p3'} },
+{ data: { source: 'p3', target: 'p90', label: 'dbsnpindel' } },
+{ data: { source: 'p4', target: 'p90', label: 'exac' } },
+{ data: { source: 'p5', target: 'p90', label: 'evs' } },
+{ data: { source: 'p6', target: 'p7'} },
+{ data: { source: 'p7', target: 'p90', label: 'localcontrol_wgs' } },
+{ data: { source: 'p8', target: 'p9'} },
+{ data: { source: 'p9', target: 'p90', label: 'localcontrol_wes' } },
+{ data: { source: 'p10', target: 'p11'} },
+{ data: { source: 'p11', target: 'p90', label: 'gnomadgenomes' } },
+{ data: { source: 'p12', target: 'p13'} },
+{ data: { source: 'p13', target: 'p90', label: 'gnomadexomes' } },
+{ data: { source: 'p14', target: 'p93', label: 'annodb' } },
+{ data: { source: 'p15', target: 'p16'} },
+{ data: { source: 'p16', target: 'p101', label: 'repeatmasker' } },
+{ data: { source: 'p17', target: 'p101', label: 'dacblacklist' } },
+{ data: { source: 'p18', target: 'p101', label: 'dukeexcluded' } },
+{ data: { source: 'p19', target: 'p101', label: 'hiseqdepth' } },
+{ data: { source: 'p20', target: 'p101', label: 'selfchain' } },
+{ data: { source: 'p21', target: 'p22'} },
+{ data: { source: 'p22', target: 'p101', label: 'mapability' } },
+{ data: { source: 'p23', target: 'p24'} },
+{ data: { source: 'p24', target: 'p101', label: 'simpletandemrepeats' } },
+{ data: { source: 'p25', target: 'p26'} },
+{ data: { source: 'p26', target: 'p106', label: 'enchangers' } },
+{ data: { source: 'p27', target: 'p28'} },
+{ data: { source: 'p28', target: 'p106', label: 'cpgislands' } },
+{ data: { source: 'p29', target: 'p106', label: 'tfbscons' } },
+{ data: { source: 'p30', target: 'p31'} },
+{ data: { source: 'p31', target: 'p106', label: 'encode_dnase' } },
+{ data: { source: 'p32', target: 'p106', label: 'mirnas_snornas' } },
+{ data: { source: 'p33', target: 'p34'} },
+{ data: { source: 'p34', target: 'p106', label: 'mirnas_sncrnas' } },
+{ data: { source: 'p35', target: 'p36'} },
+{ data: { source: 'p36', target: 'p106', label: 'cosmic' } },
+{ data: { source: 'p37', target: 'p38'} },
+{ data: { source: 'p38', target: 'p106', label: 'mirbase' } },
+{ data: { source: 'p39', target: 'p106', label: 'mir_targets' } },
+{ data: { source: 'p40', target: 'p106', label: 'cgi_mountains' } },
+{ data: { source: 'p41', target: 'p106', label: 'phastconselem' } },
+{ data: { source: 'p42', target: 'p43'} },
+{ data: { source: 'p43', target: 'p106', label: 'encode_tfbs' } },
+{ data: { source: 'p44', target: 'p45'} },
+{ data: { source: 'p45', target: 'p125', label: 'genemodel' } },
+{ data: { source: 'p46', target: 'p47'} },
+{ data: { source: 'p47', target: 'p125', label: 'localcontroltindawgs' } },
+{ data: { source: 'p48', target: 'p49'} },
+{ data: { source: 'p49', target: 'p125', label: 'localcontroltindawes' } },
+{ data: { source: 'p50', target: 'p51'} },
+{ data: { source: 'p51', target: 'p125', label: 'gnomadgenomes_tinda' } },
+{ data: { source: 'p52', target: 'p53'} },
+{ data: { source: 'p53', target: 'p125', label: 'gnomadexomes_tinda' } },
+{ data: { source: 'p54', target: 'p55'} },
+{ data: { source: 'p55', target: 'p68', label: 'ref' } },
+{ data: { source: 'p56', target: 'p125', label: 'chrlength' } },
+{ data: { source: 'p57', target: 'p147', label: 'ch_multiqc_custom_config' } },
+{ data: { source: 'p58', target: 'p64', label: 'ch_versions' } },
+{ data: { source: 'p59', target: 'p82', label: 'ch_logs' } },
+{ data: { source: 'p60', target: 'p61', label: 'samplesheet' } },
+{ data: { source: 'p61', target: 'p62'} },
+{ data: { source: 'p61', target: 'p64', label: 'versions' } },
+{ data: { source: 'p62', target: 'p63'} },
+{ data: { source: 'p63', target: 'p65', label: 'sample_ch' } },
+{ data: { source: 'p64', target: 'p66', label: 'ch_versions' } },
+{ data: { source: 'p65', target: 'p85'} },
+{ data: { source: 'p65', target: 'p66'} },
+{ data: { source: 'p66', target: 'p84', label: 'ch_versions' } },
+{ data: { source: 'p67', target: 'p69', label: 'versions' } },
+{ data: { source: 'p63', target: 'p68', label: 'sample_ch' } },
+{ data: { source: 'p68', target: 'p73', label: 'vcf_ch' } },
+{ data: { source: 'p68', target: 'p82', label: 'log_ch' } },
+{ data: { source: 'p68', target: 'p69'} },
+{ data: { source: 'p69', target: 'p74', label: 'versions' } },
+{ data: { source: 'p70', target: 'p73', label: 'regions' } },
+{ data: { source: 'p71', target: 'p73', label: 'targets' } },
+{ data: { source: 'p72', target: 'p73', label: 'samples' } },
+{ data: { source: 'p73', target: 'p75'} },
+{ data: { source: 'p73', target: 'p74'} },
+{ data: { source: 'p74', target: 'p80', label: 'versions' } },
+{ data: { source: 'p68', target: 'p75', label: 'vcf_ch' } },
+{ data: { source: 'p75', target: 'p76'} },
+{ data: { source: 'p76', target: 'p77', label: 'ch_vcf' } },
+{ data: { source: 'p77', target: 'p85', label: 'vcf_ch' } },
+{ data: { source: 'p77', target: 'p79'} },
+{ data: { source: 'p77', target: 'p78'} },
+{ data: { source: 'p77', target: 'p80'} },
+{ data: { source: 'p80', target: 'p81'} },
+{ data: { source: 'p82', target: 'p83', label: 'ch_logs' } },
+{ data: { source: 'p74', target: 'p84', label: 'versions' } },
+{ data: { source: 'p84', target: 'p108', label: 'ch_versions' } },
+{ data: { source: 'p85', target: 'p88', label: 'vcf_ch' } },
+{ data: { source: 'p86', target: 'p91', label: 'versions' } },
+{ data: { source: 'p87', target: 'p98', label: 'logs' } },
+{ data: { source: 'p88', target: 'p90', label: 'input_ch' } },
+{ data: { source: 'p89', target: 'p90', label: 'chr_prefix' } },
+{ data: { source: 'p90', target: 'p92'} },
+{ data: { source: 'p90', target: 'p92'} },
+{ data: { source: 'p90', target: 'p91'} },
+{ data: { source: 'p91', target: 'p100', label: 'versions' } },
+{ data: { source: 'p92', target: 'p93', label: 'input_ch' } },
+{ data: { source: 'p89', target: 'p93', label: 'chr_prefix' } },
+{ data: { source: 'p93', target: 'p101'} },
+{ data: { source: 'p93', target: 'p98'} },
+{ data: { source: 'p93', target: 'p100'} },
+{ data: { source: 'p93', target: 'p97'} },
+{ data: { source: 'p93', target: 'p96'} },
+{ data: { source: 'p93', target: 'p95'} },
+{ data: { source: 'p93', target: 'p94'} },
+{ data: { source: 'p98', target: 'p99', label: 'logs' } },
+{ data: { source: 'p100', target: 'p102', label: 'versions' } },
+{ data: { source: 'p101', target: 'p103'} },
+{ data: { source: 'p101', target: 'p102'} },
+{ data: { source: 'p102', target: 'p105', label: 'versions' } },
+{ data: { source: 'p85', target: 'p103', label: 'vcf_ch' } },
+{ data: { source: 'p103', target: 'p104', label: 'input_ch' } },
+{ data: { source: 'p104', target: 'p106', label: 'ann_vcf_ch' } },
+{ data: { source: 'p104', target: 'p105'} },
+{ data: { source: 'p105', target: 'p107', label: 'versions' } },
+{ data: { source: 'p106', target: 'p110', label: 'vcf_ch' } },
+{ data: { source: 'p106', target: 'p107'} },
+{ data: { source: 'p107', target: 'p108', label: 'versions' } },
+{ data: { source: 'p108', target: 'p124', label: 'ch_versions' } },
+{ data: { source: 'p109', target: 'p111', label: 'versions' } },
+{ data: { source: 'p110', target: 'p112'} },
+{ data: { source: 'p110', target: 'p111'} },
+{ data: { source: 'p111', target: 'p115', label: 'versions' } },
+{ data: { source: 'p112', target: 'p116'} },
+{ data: { source: 'p112', target: 'p120'} },
+{ data: { source: 'p112', target: 'p114'} },
+{ data: { source: 'p112', target: 'p113'} },
+{ data: { source: 'p112', target: 'p115'} },
+{ data: { source: 'p115', target: 'p119', label: 'versions' } },
+{ data: { source: 'p116', target: 'p117', label: 'functional_vars' } },
+{ data: { source: 'p55', target: 'p117', label: 'ref' } },
+{ data: { source: 'p16', target: 'p117', label: 'repeatmasker' } },
+{ data: { source: 'p117', target: 'p118'} },
+{ data: { source: 'p117', target: 'p119'} },
+{ data: { source: 'p119', target: 'p123', label: 'versions' } },
+{ data: { source: 'p120', target: 'p121', label: 'indel_vars' } },
+{ data: { source: 'p121', target: 'p122'} },
+{ data: { source: 'p121', target: 'p123'} },
+{ data: { source: 'p123', target: 'p124', label: 'versions' } },
+{ data: { source: 'p124', target: 'p135', label: 'ch_versions' } },
+{ data: { source: 'p85', target: 'p125', label: 'vcf_ch' } },
+{ data: { source: 'p55', target: 'p125', label: 'ref' } },
+{ data: { source: 'p89', target: 'p125', label: 'chr_prefix' } },
+{ data: { source: 'p125', target: 'p134'} },
+{ data: { source: 'p125', target: 'p133'} },
+{ data: { source: 'p125', target: 'p132'} },
+{ data: { source: 'p125', target: 'p131'} },
+{ data: { source: 'p125', target: 'p130'} },
+{ data: { source: 'p125', target: 'p129'} },
+{ data: { source: 'p125', target: 'p128'} },
+{ data: { source: 'p125', target: 'p127'} },
+{ data: { source: 'p125', target: 'p126'} },
+{ data: { source: 'p125', target: 'p136'} },
+{ data: { source: 'p125', target: 'p135'} },
+{ data: { source: 'p135', target: 'p136', label: 'ch_versions' } },
+{ data: { source: 'p136', target: 'p155', label: 'ch_logs' } },
+{ data: { source: 'p137', target: 'p138', label: 'ch_version_yaml' } },
+{ data: { source: 'p135', target: 'p139', label: 'ch_versions' } },
+{ data: { source: 'p139', target: 'p140'} },
+{ data: { source: 'p140', target: 'p141'} },
+{ data: { source: 'p141', target: 'p143'} },
+{ data: { source: 'p141', target: 'p153'} },
+{ data: { source: 'p141', target: 'p142'} },
+{ data: { source: 'p144', target: 'p146', label: 'ch_multiqc_files' } },
+{ data: { source: 'p145', target: 'p146'} },
+{ data: { source: 'p146', target: 'p149', label: 'ch_multiqc_files' } },
+{ data: { source: 'p147', target: 'p148'} },
+{ data: { source: 'p148', target: 'p149'} },
+{ data: { source: 'p149', target: 'p152', label: 'ch_multiqc_files' } },
+{ data: { source: 'p150', target: 'p151', label: 'ch_workflow_summary' } },
+{ data: { source: 'p151', target: 'p152'} },
+{ data: { source: 'p152', target: 'p154', label: 'ch_multiqc_files' } },
+{ data: { source: 'p153', target: 'p154'} },
+{ data: { source: 'p154', target: 'p157', label: 'ch_multiqc_files' } },
+{ data: { source: 'p155', target: 'p156'} },
+{ data: { source: 'p156', target: 'p157'} },
+{ data: { source: 'p157', target: 'p158', label: 'ch_multiqc_files' } },
+{ data: { source: 'p158', target: 'p159'} },
+{ data: { source: 'p159', target: 'p162'} },
+{ data: { source: 'p159', target: 'p161'} },
+{ data: { source: 'p159', target: 'p160'} },
+{ data: { source: 'p159', target: 'p164'} },
+{ data: { source: 'p162', target: 'p163'} },
+{ data: { source: 'p135', target: 'p164', label: 'ch_versions' } },
+{ data: { source: 'p164', target: 'p165', label: 'ch_versions' } },
+],
+},
+
+                });
+
+            });
+        </script>
+    </head>
+
+    <body>
+        <h1>Nextflow Cytoscape.js with Dagre</h1>
+        <div id="cy"></div>
+    </body>
+
+</html>

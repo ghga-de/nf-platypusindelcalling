@@ -19,8 +19,8 @@ process SAMPLE_SWAP {
     val chrprefix
 
     output:
-    tuple val(meta), path('indel_*.tinda.vcf')                           , emit: vcf
-    tuple val(meta), path('indel_*.swap.json')                           , emit: json
+    tuple val(meta), path('indel_*.tinda.vcf')                           , emit: vcf  , optional: true
+    tuple val(meta), path('indel_*.swap.json')                           , emit: json , optional: true
     path  "snvs_*.GTfiltered_raw.vcf"                                    , optional: true
     path  "snvs_*.GTfiltered_gnomAD.vcf"                                 , optional: true
     path  "snvs_*.GTfiltered_gnomAD.SomaticIn.vcf"                       , optional: true   
@@ -72,10 +72,7 @@ process SAMPLE_SWAP {
     }
     else {
         """
-        touch indel_${prefix}.empty.checkSampleSwap_TiN.log
-        touch indel_${prefix}.empty.tinda.vcf
-        touch indel_${prefix}.empty.swap.json
-
+        touch indel_empty.checkSampleSwap_TiN.log
         cat <<-END_VERSIONS > versions.yml
         "${task.process}":
             r-base: \$(echo \$(R --version 2>&1) | sed 's/^.*R version //; s/ .*\$//')

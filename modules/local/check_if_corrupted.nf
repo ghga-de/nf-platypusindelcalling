@@ -27,8 +27,8 @@ process CHECK_IF_CORRUPTED {
 
     """
     corrupted.sh -i $vcf -c $nocontrol
-    (zcat $vcf | grep '#' ; zcat $vcf | grep -v '#' | sort -V -k1,2) | bgzip -f > indel_${prefix}.raw.vcf.gz 
-    
+    (zcat $vcf | grep '#' ; zcat $vcf | grep -v '#' | sort -V -k1,2 -T .) | bgzip -f > indel_${prefix}.raw.vcf.gz 
+
     tabix indel_${prefix}.raw.vcf.gz
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

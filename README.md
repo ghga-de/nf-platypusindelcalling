@@ -133,6 +133,10 @@ The nf-platypusindelcalling pipeline comes with documentation about the pipeline
 
 Please read [usage](https://github.com/ghga-de/nf-platypusindelcalling/blob/main/docs/usage.md) document to learn how to perform sample analysis provided with this repository!
 
+<p align="center">
+    <img title="nf-platypusindelcalling workflow" src="docs/images/pipeline_dag_2023-02-28_12-01-02.html" width=50%>
+</p>
+
 ## Credits
 
 nf-platypusindelcalling was originally written by Kuebra Narci kuebra.narci@dkfz-heidelberg.de.
@@ -150,8 +154,7 @@ If you would like to contribute to this pipeline, please see the [contributing g
 
 ## Citations
 
-<!-- TODO nf-core: Add citation for pipeline after first release. Uncomment lines below and update Zenodo doi and badge at the top of this file. -->
-<!-- If you use  nf-core/platypusindelcalling for your analysis, please cite it using the following doi: [10.5281/zenodo.XXXXXX](https://doi.org/10.5281/zenodo.XXXXXX) -->
+<!-- If you use  nf-platypusindelcalling for your analysis, please cite it using the following doi: [10.5281/zenodo.XXXXXX](https://doi.org/10.5281/zenodo.XXXXXX) -->
 
 <!-- TODO nf-core: Add bibliography of tools and data used in your pipeline -->
 
