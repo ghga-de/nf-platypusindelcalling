@@ -49,8 +49,9 @@ workflow INDEL_CALLING {
     // MODULE: CHECK_IF_CORRUPTED
     //
     //check if the VCF has the correct amount of columns. 
+    input_ch = ch_vcf.map{it -> tuple( it[0], it[2])}
     CHECK_IF_CORRUPTED (
-        ch_vcf
+        input_ch
     )
     vcf_ch=CHECK_IF_CORRUPTED.out.vcf
     versions.mix(CHECK_IF_CORRUPTED.out.versions)

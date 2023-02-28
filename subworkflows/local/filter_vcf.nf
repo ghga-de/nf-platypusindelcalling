@@ -25,7 +25,7 @@ workflow FILTER_VCF {
     //
     // RUN vcf_filter_bycrit.pl : filter only be apply on for no-control cases
     FILTER_BY_CRIT(
-    vcf_ch
+        vcf_ch
     )
     versions = versions.mix(FILTER_BY_CRIT.out.versions)
 
@@ -34,7 +34,7 @@ workflow FILTER_VCF {
     //
     // RUN indel_extractor_v1.pl : extract somatic, funtional and germline variants
     INDEL_EXTRACTION(
-    FILTER_BY_CRIT.out.vcf
+        FILTER_BY_CRIT.out.vcf
     )
     versions = versions.mix(INDEL_EXTRACTION.out.versions)
 
@@ -49,9 +49,9 @@ workflow FILTER_VCF {
     // RUN: visualize.py : First,checks if there is functional somatic variants to visualize
     // and then checks the size if smaller than the limit creates a pdf wirk screenshots.
     VISUALIZE (
-    functional_vars, 
-    ref, 
-    repeatmasker
+        functional_vars, 
+        ref, 
+        repeatmasker
     )
     versions = versions.mix(VISUALIZE.out.versions)
 
@@ -65,7 +65,7 @@ workflow FILTER_VCF {
     //
     // RUN: indel_json_v1.0.pl : Prints indel stats
     INDEL_JSON(
-    indel_vars
+        indel_vars
     )
     versions = versions.mix(INDEL_JSON.out.versions)
 
