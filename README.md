@@ -134,7 +134,7 @@ The nf-platypusindelcalling pipeline comes with documentation about the pipeline
 Please read [usage](https://github.com/ghga-de/nf-platypusindelcalling/blob/main/docs/usage.md) document to learn how to perform sample analysis provided with this repository!
 
 <p align="center">
-    <img title="nf-platypusindelcalling workflow" src="docs/images/pipeline_dag_2023-02-28_12-01-02.html" width=50%>
+    <img title="nf-platypusindelcalling workflow" src="docs/images/pipeline_dag_2023-02-28_12-01-02.png" width=50%>
 </p>
 
 ## Credits
