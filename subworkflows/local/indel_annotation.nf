@@ -13,7 +13,7 @@ include { ANNOTATION_PIPES       } from '../../modules/local/annotation_pipes.nf
 
 workflow INDEL_ANNOTATION {
     take:
-    vcf_ch               // channel: [val(meta), , vcf.gz, vcf.gz.tbi ,val(tumorname), val(controlname) ]
+    vcf_ch               // channel: [val(meta), vcf.gz, vcf.gz.tbi ,val(tumorname), val(controlname) ]
     kgenome              // channel: [file.vcf.gz, file.vcf.gz.tbi]
     dbsnpindel           // channel: [file.vcf.gz, file.vcf.gz.tbi]
     exac                 // channel: [file.vcf.gz, file.vcf.gz.tbi]
@@ -54,16 +54,16 @@ workflow INDEL_ANNOTATION {
     // RUN annotate_vcf.pl: Uses various databases (all mandatory) to annotate variants
     input_ch = vcf_ch.map{ it -> tuple( it[0], it[1], it[2])}
     ANNOTATE_VCF (
-    input_ch, 
-    kgenome, 
-    dbsnpindel, 
-    exac, 
-    evs, 
-    localcontrol_wgs,
-    localcontrol_wes, 
-    gnomadgenomes, 
-    gnomadexomes, 
-    chr_prefix
+        input_ch, 
+        kgenome, 
+        dbsnpindel, 
+        exac, 
+        evs, 
+        localcontrol_wgs,
+        localcontrol_wes, 
+        gnomadgenomes, 
+        gnomadexomes, 
+        chr_prefix
     )
     versions  = versions.mix(ANNOTATE_VCF.out.versions)
 
@@ -77,9 +77,9 @@ workflow INDEL_ANNOTATION {
     // RUN annovar, processAnnovarOutput.pl and newCols2vcf.pl: annovar annotates and classifies the variants, 
     // perl scripts re-creates vcfs.
     ANNOVAR(
-    input_ch, 
-    annodb, 
-    chr_prefix
+        input_ch, 
+        annodb, 
+        chr_prefix
     )
     logs     = logs.mix(ANNOVAR.out.log)
     versions = versions.mix(ANNOVAR.out.versions)
@@ -89,14 +89,14 @@ workflow INDEL_ANNOTATION {
     //
     // RUN annotate_vcf.pl : BED files are used to annotate variants
     INDEL_RELIABILITY_PIPE(
-    ANNOVAR.out.vcf, 
-    repeatmasker, 
-    dacblacklist, 
-    dukeexcluded, 
-    hiseqdepth, 
-    selfchain, 
-    mapability, 
-    simpletandemrepeats
+        ANNOVAR.out.vcf, 
+        repeatmasker, 
+        dacblacklist, 
+        dukeexcluded, 
+        hiseqdepth, 
+        selfchain, 
+        mapability, 
+        simpletandemrepeats
     )
     versions = versions.mix(INDEL_RELIABILITY_PIPE.out.versions)
 
@@ -105,8 +105,9 @@ workflow INDEL_ANNOTATION {
     //
     // RUN: confidenceAnnotation_Indels.py : Confidence annotation will be added to the variants
     input_ch = vcf_ch.join(INDEL_RELIABILITY_PIPE.out.vcf)
+    input_ch = input_ch.map{ it -> tuple( it[0], it[3], it[4], it[5], it[6])}
     CONFIDENCE_ANNOTATION(
-    input_ch
+        input_ch
     )
     ann_vcf_ch  = CONFIDENCE_ANNOTATION.out.vcf_ann
     versions    = versions.mix(CONFIDENCE_ANNOTATION.out.versions)
@@ -118,19 +119,19 @@ workflow INDEL_ANNOTATION {
         // MODULE: ANNOTATION_PIPES
         //
         ANNOTATION_PIPES (
-        ann_vcf_ch, 
-        enchangers, 
-        cpgislands, 
-        tfbscons, 
-        encode_dnase, 
-        mirnas_snornas, 
-        cosmic, 
-        mirbase, 
-        mir_targets,
-        cgi_mountains, 
-        phastconselem, 
-        encode_tfbs, 
-        mirnas_sncrnas
+            ann_vcf_ch, 
+            enchangers, 
+            cpgislands, 
+            tfbscons, 
+            encode_dnase, 
+            mirnas_snornas, 
+            cosmic, 
+            mirbase, 
+            mir_targets,
+            cgi_mountains, 
+            phastconselem, 
+            encode_tfbs, 
+            mirnas_sncrnas
         )
         ann_vcf_ch  = ANNOTATION_PIPES.out.vcf 
         versions    = versions.mix(ANNOTATION_PIPES.out.versions)
