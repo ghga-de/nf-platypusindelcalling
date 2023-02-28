@@ -1,7 +1,7 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema",
-    "$id": "https://raw.githubusercontent.com/nf-core/platypusindelcalling/master/assets/schema_input.json",
-    "title": "nf-core/platypusindelcalling pipeline - params.input schema",
+    "$id": "https://raw.githubusercontent.com/ghga-de/nf-platypusindelcalling/master/assets/schema_input.json",
+    "title": "nf-platypusindelcalling pipeline - params.input schema",
     "description": "Schema for the file provided with params.input",
     "type": "array",
     "items": {

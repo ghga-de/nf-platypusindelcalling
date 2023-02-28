@@ -90,6 +90,5 @@ elif [[ $functional_var_count -le $MAX_VARIANT_SCREENSHOTS ]]; then
     gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile=${combined_screen_shots} ${sorted}
 else
     printf "WARNING: No screenshots done, more than $MAX_VARIANT_SCREENSHOTS (cvalue - MAX_VARIANT_SCREENSHOTS) functional variants present in ${somatic_functional_indel_vcf}\n"
-	gs -sDEVICE=pdfwrite -o empty.pdf -c showpage
 fi
 rm -rf $TEMP
