@@ -23,10 +23,10 @@ def checkPathParamList_annotation = [params.annovar_path,
                                     params.simple_tandemrepeats]
 
 def checkParamList_runtinda=[params.genemodel_bed,
-                            params.local_control_platypus_wgs,
-                            params.local_control_platypus_wes,
-                            params.gnomadgenomes,
-                            params.gnomadexomes]
+                            params.local_control_tinda_wgs,
+                            params.local_control_tinda_wes,
+                            params.gnomad_genomes_tinda,
+                            params.gnomad_exomes_tinda]
 
 for (param in checkPathParamList) { if (param) { file(param, checkIfExists: true) } }
 
@@ -35,8 +35,13 @@ for (param in checkPathParamList) { if (param) { file(param, checkIfExists: true
 if (params.runIndelAnnotation){
     for (param in checkPathParamList_annotation) { if (param) { file(param, checkIfExists: true) } }
 }
+
 // To runTinda Genemodel bed file, Local control platypus WGS and WES must be provided
-if (params.runTinda){for (param in checkParamList_runtinda) { if (param) { file(param, checkIfExists: true) } }}
+if (params.runTinda){
+
+    for (param in checkParamList_runtinda) { if (param) { file(param, checkIfExists: true) } }
+   
+}
 
 // If runIndelDeepAnnotation is true; at least one of the annotation files must be provided
 if ((params.runIndelDeepAnnotation) && (!params.enchancer_file && !params.cpgislands_file && !params.tfbscons_file && !params.encode_dnase_file && !params.mirnas_snornas_file && !params.mirna_sncrnas_file && !params.mirbase_file && !params.cosmic_file && !params.mir_targets_file && !params.cgi_mountains_file && !params.phastconselem_file && !params.encode_tfbs_file)) { 
@@ -83,45 +88,45 @@ if (params.phastconselem_file)   { phastconselem = Channel.fromPath([params.phas
 if (params.encode_tfbs_file)     { encode_tfbs = Channel.fromPath([params.encode_tfbs_file, params.encode_tfbs_file + '.tbi'], checkIfExists: true).collect() } else { encode_tfbs = Channel.of([],[]) }
 // Tinda files
 if (params.genemodel_bed)        { genemodel = Channel.fromPath(params.genemodel_bed, checkIfExists: true).collect() } else { genemodel = Channel.empty() }
-if (params.local_control_platypus_wgs)    { localcontrolplatypuswgs = Channel.fromPath([params.local_control_platypus_wgs,params.local_control_platypus_wgs + '.tbi' ], checkIfExists: true).collect() } else { localcontrolplatypuswgs = Channel.empty() }
-if (params.local_control_platypus_wes)    { localcontrolplatypuswes = Channel.fromPath([params.local_control_platypus_wes, params.local_control_platypus_wes + '.tbi'], checkIfExists: true).collect() } else { localcontrolplatypuswes = Channel.empty() }
+if (params.local_control_tinda_wgs)    { localcontroltindawgs = Channel.fromPath([params.local_control_tinda_wgs,params.local_control_tinda_wgs + '.tbi' ], checkIfExists: true).collect() } else { localcontroltindawgs = Channel.empty() }
+if (params.local_control_tinda_wes)    { localcontroltindawes = Channel.fromPath([params.local_control_tinda_wes, params.local_control_tinda_wes + '.tbi'], checkIfExists: true).collect() } else { localcontroltindawes = Channel.empty() }
+if (params.gnomad_genomes_tinda)       { gnomadgenomes_tinda = Channel.fromPath([params.gnomad_genomes_tinda, params.gnomad_genomes_tinda + '.tbi'], checkIfExists: true).collect() } else { gnomadgenomes_tinda = Channel.of([],[]) }
+if (params.gnomad_exomes_tinda)        { gnomadexomes_tinda = Channel.fromPath([params.gnomad_exomes_tinda, params.gnomad_exomes_tinda + '.tbi'], checkIfExists: true).collect() } else { gnomadexomes_tinda = Channel.of([],[]) }
 
 // Set up reference depending on the genome choice
 // NOTE: link will be defined by aoutomatic reference generation when the pipeline ready!
-if (params.ref_type)
-    {
+// Set up reference depending on the genome choice
+// NOTE: link will be defined by aoutomatic reference generation when the pipeline ready!
+if ((params.reference) && (params.chrlength) && (params.chr_prefix))
+{
+        fa_file    = params.reference
+        chr_file   = params.chrlength
+        chr_prefix = params.chr_prefix
+    }
+else{
     if (params.ref_type == 'hg37')
         { 
-        def fa_file  = "/omics/odcf/reference_data/legacy/ngs_share/assemblies/hg19_GRCh37_1000genomes/sequence/1KGRef_Phix/hs37d5_PhiX.fa"
-        ref          = Channel.fromPath([fa_file,fa_file +'.fai'], checkIfExists: true).collect() 
-        def chr_file = '/omics/odcf/reference_data/legacy/ngs_share/assemblies/hg19_GRCh37_1000genomes/stats/hs37d5.fa.chrLenOnlyACGT_realChromosomes.tab'
-        chrlength    = Channel.fromPath(chr_file, checkIfExists: true)
-        chr_prefix   = Channel.value("")
+        fa_file  = "/omics/odcf/reference_data/legacy/ngs_share/assemblies/hg19_GRCh37_1000genomes/sequence/1KGRef_Phix/hs37d5_PhiX.fa"
+        chr_file = '/omics/odcf/reference_data/legacy/ngs_share/assemblies/hg19_GRCh37_1000genomes/stats/hs37d5.fa.chrLenOnlyACGT_realChromosomes.tab'      
+        chr_prefix   = Channel.value("")                    
         }
     if (params.ref_type == 'hg19') 
         { 
-        def fa_file = "/omics/odcf/reference_data/legacy/ngs_share/assemblies/hg19_GRCh37_1000genomes/sequence/hg19_chr/hg19_1-22_X_Y_M.fa"
-        ref = Channel.fromPath([fa_file,fa_file +'.fai'], checkIfExists: true).collect()
-        def chr_file = '/omics/odcf/reference_data/legacy/ngs_share/assemblies/hg19_GRCh37_1000genomes/stats/hg19_1-22_X_Y_M.fa.chrLenOnlyACGT.tab'
-        chrlength = Channel.fromPath(chr_file, checkIfExists: true)
-        chr_prefix   = Channel.value("chr")  
-        }
-    
-    if (params.ref_type == 'hg38') 
-        { 
-        def fa_file = "/omics/odcf/reference_data/legacy/ngs_share/assemblies/hg_GRCh38/sequence/GRCh38_decoy_ebv_phiX_alt_hla_chr.fa"
-        ref = Channel.fromPath([fa_file,fa_file +'.fai'], checkIfExists: true).collect()
-        def chr_file = '/omics/odcf/reference_data/legacy/ngs_share/assemblies/hg_GRCh38/stats/GRCh38_decoy_ebv_phiX_alt_hla_chr.fa.chrLenOnlyACGT_realChromosomes.tsv'
-        chrlength = Channel.fromPath(chr_file, checkIfExists: true)
+        fa_file  = "/omics/odcf/reference_data/legacy/ngs_share/assemblies/hg19_GRCh37_1000genomes/sequence/hg19_chr/hg19_1-22_X_Y_M.fa"
+        chr_file = '/omics/odcf/reference_data/legacy/ngs_share/assemblies/hg19_GRCh37_1000genomes/stats/hg19_1-22_X_Y_M.fa.chrLenOnlyACGT.tab'
         chr_prefix   = Channel.value("chr")
         }
-    }
-else
-{
-    if (params.reference)      { ref = Channel.fromPath([params.reference,params.reference +'.fai'], checkIfExists: true).collect() } else { exit 1, 'Input reference file does not exist' }
-    if (params.chrlength_file) { chrlength = Channel.fromPath(params.chrlength_file, checkIfExists: true) } else { exit 1, 'Chromosome length file does not exist'  }
-    if (params.chr_prefix)     { chr_prefix= Channel.of(params.chr_prefix)} else {chr_prefix= Channel.value("")}
+    if (params.ref_type == 'hg38') 
+        { 
+        fa_file = "/omics/odcf/reference_data/legacy/ngs_share/assemblies/hg_GRCh38/sequence/GRCh38_decoy_ebv_alt_hla_phiX.fa"
+        chr_file = '/omics/odcf/reference_data/legacy/ngs_share/assemblies/hg_GRCh38/stats/GRCh38_decoy_ebv_alt_hla_phiX.fa.chrLenOnlyACGT_realChromosomes.tsv'
+        chr_prefix   = Channel.value("chr")
+        }
 }
+
+// prepare  channels
+ref          = Channel.fromPath([fa_file,fa_file +'.fai'], checkIfExists: true).collect()
+chrlength    = Channel.fromPath(chr_file, checkIfExists: true)
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -186,7 +191,6 @@ workflow PLATYPUSINDELCALLING {
     INPUT_CHECK (
         ch_input
         )
-
     sample_ch = INPUT_CHECK.out.ch_sample
     ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
 
@@ -196,21 +200,22 @@ workflow PLATYPUSINDELCALLING {
     GREP_SAMPLENAME(
         sample_ch
         )
+    ch_versions = ch_versions.mix(GREP_SAMPLENAME.out.versions)
+
     //
     // SUBWORKFLOW:indelCalling.sh
-    //
-    
+    //   
     INDEL_CALLING(
-        sample_ch, ref
+        sample_ch, 
+        ref
     )
-
     ch_logs         = ch_logs.mix(INDEL_CALLING.out.log_ch)
     ch_versions     = ch_versions.mix(INDEL_CALLING.out.versions)
 
     // Prepare an input channel of vcf with sample names 
-    name_ch=GREP_SAMPLENAME.out.samplenames
-    vcf_ch=INDEL_CALLING.out.vcf_ch
-    ch_vcf=vcf_ch.join(name_ch)
+    INDEL_CALLING.out.vcf_ch
+        .join(GREP_SAMPLENAME.out.samplenames)
+        .set{ch_vcf}
 
     //
     //SUBWORKFLOW: platypusindelAnnotation.sh
@@ -218,13 +223,37 @@ workflow PLATYPUSINDELCALLING {
     // annotation has two part, first annotation for annovar, second is deep annotation includes for various genomic regions 
     if (params.runIndelAnnotation) {
         INDEL_ANNOTATION(
-        ch_vcf, kgenome, dbsnpindel, exac, evs, localcontrolwgs, localcontrolwes,
-        gnomadgenomes, gnomadexomes, annodb, repeatmasker, dacblacklist,
-        dukeexcluded, hiseqdepth, selfchain, mapability, simpletandemrepeats, enchangers,
-        cpgislands, tfbscons, encode_dnase, mirnas_snornas, cosmic, mirbase, mir_targets,
-        cgi_mountains, phastconselem, encode_tfbs,mirna_sncrnas, chr_prefix 
+        ch_vcf, 
+        kgenome, 
+        dbsnpindel, 
+        exac, 
+        evs, 
+        localcontrolwgs, 
+        localcontrolwes,
+        gnomadgenomes, 
+        gnomadexomes, 
+        annodb, 
+        repeatmasker, 
+        dacblacklist,
+        dukeexcluded, 
+        hiseqdepth, 
+        selfchain, 
+        mapability, 
+        simpletandemrepeats, 
+        enchangers,
+        cpgislands, 
+        tfbscons, 
+        encode_dnase, 
+        mirnas_snornas, 
+        cosmic, 
+        mirbase, 
+        mir_targets,
+        cgi_mountains, 
+        phastconselem, 
+        encode_tfbs,
+        mirna_sncrnas, 
+        chr_prefix 
         )
-
         ch_versions = ch_versions.mix(INDEL_ANNOTATION.out.versions)
 
         //
@@ -236,28 +265,45 @@ workflow PLATYPUSINDELCALLING {
         
         if (params.runIndelVCFFilter) {
             FILTER_VCF(
-            INDEL_ANNOTATION.out.ann_vcf_ch, ref, repeatmasker
+            INDEL_ANNOTATION.out.ann_vcf_ch, 
+            ref, 
+            repeatmasker
             )
             ch_versions = ch_versions.mix(FILTER_VCF.out.versions)
         }
+        else{
+            println "Skipping indel vcf filtering"
+        }
+    }
+    else{
+        println "Skipping indel annotation"
     }
     //
-    //SUBWORKFLOW: RUNTINDA: checkSampleSawpTiN.sh
+    // MODULE: RUNTINDA
     //
     // Checks sample swap in platypus output vcf
+    // checkSampleSawpTiN.sh
     if (params.runTinda) {
-
         SAMPLE_SWAP(
-            ch_vcf, ref, chrlength, genemodel, localcontrolplatypuswgs, 
-            localcontrolplatypuswes, gnomadgenomes, gnomadexomes, chr_prefix
+            ch_vcf, 
+            ref, 
+            chrlength, 
+            genemodel, 
+            localcontroltindawgs, 
+            localcontroltindawes, 
+            gnomadgenomes_tinda, 
+            gnomadexomes_tinda, 
+            chr_prefix
             )
         ch_versions = ch_versions.mix(SAMPLE_SWAP.out.versions)    
-        ch_logs = ch_versions.mix(SAMPLE_SWAP.out.log) 
+        ch_logs     = ch_versions.mix(SAMPLE_SWAP.out.log) 
+    }
+    else{
+        println "Skipping sample swap check"
     }
 
     // Info required for completion email and summary
     def multiqc_report = []
-    ch_versions.view()
     if (!params.skip_multiqc){
         //
         // MODULE: Pipeline reporting
@@ -285,6 +331,9 @@ workflow PLATYPUSINDELCALLING {
         
         multiqc_report = MULTIQC.out.report.toList()
         ch_versions    = ch_versions.mix(MULTIQC.out.versions)
+    }
+    else{
+        println "Skipping MultiQC"
     }
 }
 

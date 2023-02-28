@@ -16,18 +16,27 @@ workflow INDEL_CALLING {
     main:
 
     versions=Channel.empty()
-
+    //
+    // MODULE: PLATYPUS
+    //
     // RUN platypus : calls variants
     PLATYPUS (
-    sample_ch, ref
+    sample_ch, 
+    ref
     )
-    vcf_ch=PLATYPUS.out.vcf
+    vcf_ch = PLATYPUS.out.vcf
     log_ch = PLATYPUS.out.log
     versions = versions.mix(PLATYPUS.out.versions)
 
+    //
+    // MODULE: BCFTOOLS STATS
+    //
     // Check if VCF has more than 0 variants
     BCFTOOLS_STATS(
-        vcf_ch, [], [], []
+        vcf_ch, 
+        [], 
+        [], 
+        []
     )
     versions = versions.mix(BCFTOOLS_STATS.out.versions)
     
@@ -36,10 +45,13 @@ workflow INDEL_CALLING {
                 .filter{meta, stats, vcf -> WorkflowCommons.getNumVariantsFromBCFToolsStats(stats) > 0 }  
                 .set{ch_vcf}
 
-    
+    //
+    // MODULE: CHECK_IF_CORRUPTED
+    //
     //check if the VCF has the correct amount of columns. 
+    input_ch = ch_vcf.map{it -> tuple( it[0], it[2])}
     CHECK_IF_CORRUPTED (
-        ch_vcf
+        input_ch
     )
     vcf_ch=CHECK_IF_CORRUPTED.out.vcf
     versions.mix(CHECK_IF_CORRUPTED.out.versions)

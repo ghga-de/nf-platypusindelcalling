@@ -5,22 +5,22 @@ process SAMPLE_SWAP {
 
     conda     (params.enable_conda ? "" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-    'docker://kubran/odcf_platypusindelcalling:v0' :'kubran/odcf_platypusindelcalling:v0' }"
+    'docker://kubran/odcf_platypusindelcalling:v1' :'kubran/odcf_platypusindelcalling:v1' }"
 
     input:
-    tuple val(meta)      , file(ch_vcf), file(ch_vcf_i),  val(tumorname), val(controlname)
-    tuple path(ref)                    , path(ref_fai)
+    tuple val(meta) , file(ch_vcf), file(ch_vcf_i),  val(tumorname), val(controlname)
+    tuple path(ref) , path(ref_fai)
     each path(chrlength_file)
     each path(genemodel)              
-    tuple path(localcontrolplatypuswgs), path(localcontrolplatypuswgs_tbi)
-    tuple path(localcontrolplatypuswes), path(localcontrolplatypuswes_tbi)
-    tuple path(gnomadgenomes)          , path(gnomadgenomes_tbi)
-    tuple path(gnomadexomes)           , path(gnomadexomes_tbi)
+    tuple path(localcontroltindawgs), path(localcontroltindawgs_tbi)
+    tuple path(localcontroltindawes), path(localcontroltindawes_tbi)
+    tuple path(gnomadgenomes)       , path(gnomadgenomes_tbi)
+    tuple path(gnomadexomes)        , path(gnomadexomes_tbi)
     val chrprefix
 
     output:
-    tuple val(meta), path('indel_*.tinda.vcf')                           , emit: vcf
-    tuple val(meta), path('indel_*.swap.json')                           , emit: json
+    tuple val(meta), path('indel_*.tinda.vcf')                           , emit: vcf  , optional: true
+    tuple val(meta), path('indel_*.swap.json')                           , emit: json , optional: true
     path  "snvs_*.GTfiltered_raw.vcf"                                    , optional: true
     path  "snvs_*.GTfiltered_gnomAD.vcf"                                 , optional: true
     path  "snvs_*.GTfiltered_gnomAD.SomaticIn.vcf"                       , optional: true   
@@ -38,8 +38,7 @@ process SAMPLE_SWAP {
     def args        = task.ext.args ?: ''
     def prefix      = task.ext.prefix ?: "${meta.id}"
 
-    if (meta.iscontrol == '1'){
-        
+    if (meta.iscontrol == '1'){      
         """
         checkSampleSwap_TiN.pl \\
             --pid=$prefix \\
@@ -47,8 +46,8 @@ process SAMPLE_SWAP {
             --chr_prefix=$chrprefix \\
             --gnomAD_genome=$gnomadgenomes \\
             --gnomAD_exome=$gnomadexomes \\
-            --localControl_WGS=$localcontrolplatypuswgs \\
-            --localControl_WES=$localcontrolplatypuswes \\
+            --localControl_WGS=$localcontroltindawgs \\
+            --localControl_WES=$localcontroltindawes \\
             --TiNDA_rightBorder=${params.right_border} \\
             --TiNDA_bottomBorder=${params.bottom_border} \\
             --maf_thershold=${params.maf_threshold} \\
@@ -65,7 +64,7 @@ process SAMPLE_SWAP {
         cat <<-END_VERSIONS > versions.yml
         "${task.process}":
             r-base: \$(echo \$(R --version 2>&1) | sed 's/^.*R version //; s/ .*\$//')
-            perl: v5.28.1
+            perl: \$(echo \$(perl --version 2>&1) | sed 's/.*v\\(.*\\)) built.*/\\1/')
             tabix: \$(echo \$(tabix -h 2>&1) | sed 's/^.*Version: //; s/ .*\$//')
             bedtools: \$(echo \$(bedtools --version 2>&1) | sed 's/^.*bedtools //; s/Using.*\$//')
         END_VERSIONS
@@ -73,14 +72,11 @@ process SAMPLE_SWAP {
     }
     else {
         """
-        touch indel_${prefix}.empty.checkSampleSwap_TiN.log
-        touch indel_${prefix}.empty.tinda.vcf
-        touch indel_${prefix}.empty.swap.json
-
+        touch indel_empty.checkSampleSwap_TiN.log
         cat <<-END_VERSIONS > versions.yml
         "${task.process}":
             r-base: \$(echo \$(R --version 2>&1) | sed 's/^.*R version //; s/ .*\$//')
-            perl: v5.28.1
+            perl: \$(echo \$(perl --version 2>&1) | sed 's/.*v\\(.*\\)) built.*/\\1/')
             tabix: \$(echo \$(tabix -h 2>&1) | sed 's/^.*Version: //; s/ .*\$//')
             bedtools: \$(echo \$(bedtools --version 2>&1) | sed 's/^.*bedtools //; s/Using.*\$//')
         END_VERSIONS

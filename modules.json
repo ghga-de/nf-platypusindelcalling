@@ -1,6 +1,6 @@
 {
-    "name": "nf-core/platypusindelcalling",
-    "homePage": "https://github.com/nf-core/platypusindelcalling",
+    "name": "nf-platypusindelcalling",
+    "homePage": "https://github.com/ghga-de/nf-platypusindelcalling",
     "repos": {
         "nf-core/modules": {
             "custom/dumpsoftwareversions": {
