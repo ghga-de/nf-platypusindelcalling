@@ -164,7 +164,7 @@
                     "mimetype": "text/plain",
                     "pattern": "^\\S+\\.vcf(\\.gz)?$",
                     "fa_icon": "fas fa-annotation",
-                    "description": "Gnomad genomes VCF file, should be indexed. NOTE: This file also used in Sample Swap check!" 
+                    "description": "Gnomad genomes VCF file, should be indexed" 
                 },
                 "gnomad_exomes": {
                     "type": "string",
@@ -172,7 +172,7 @@
                     "mimetype": "text/plain",
                     "pattern": "^\\S+\\.vcf(\\.gz)?$",
                     "fa_icon": "fas fa-annotation",
-                    "description": "Gnomad exomes VCF file, should be indexed. NOTE: This file also used in Sample Swap check!" 
+                    "description": "Gnomad exomes VCF file, should be indexed" 
                 }
             }
         },
@@ -531,7 +531,7 @@
                     "fa_icon": "fas fa-annotation",
                     "description": "MAF threshold for variants" 
                 },
-                "local_control_platypus_wgs": {
+                "local_control_tinda_wgs": {
                     "type": "string",
                     "format": "file-path",
                     "mimetype": "text/plain",
@@ -539,7 +539,7 @@
                     "fa_icon": "fas fa-annotation",
                     "description": "Exclusion list of WGS for Tinda VCF.GZ, should be indexed" 
                 },
-                "local_control_platypus_wes": {
+                "local_control_tinda_wes": {
                     "type": "string",
                     "format": "file-path",
                     "mimetype": "text/plain",
@@ -554,6 +554,22 @@
                     "pattern": "^\\S+\\.bed(\\.gz)?$",
                     "fa_icon": "fas fa-annotation",
                     "description": "Gencode Exons BED.GZ, should be indexed" 
+                },
+                "gnomad_genomes_tinda": {
+                    "type": "string",
+                    "format": "file-path",
+                    "mimetype": "text/plain",
+                    "pattern": "^\\S+\\.vcf(\\.gz)?$",
+                    "fa_icon": "fas fa-annotation",
+                    "description": "Gnomad genomes VCF file, should be indexed" 
+                },
+                "gnomad_exomes_tinda": {
+                    "type": "string",
+                    "format": "file-path",
+                    "mimetype": "text/plain",
+                    "pattern": "^\\S+\\.vcf(\\.gz)?$",
+                    "fa_icon": "fas fa-annotation",
+                    "description": "Gnomad exomes VCF file, should be indexed" 
                 }
             }
         },

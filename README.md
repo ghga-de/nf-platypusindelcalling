@@ -79,7 +79,7 @@ annotate_variation.pl -downdb wgEncodeGencodeBasicV19 humandb/ -build hg19
 4. Download the pipeline and test it on a minimal dataset with a single command:
 
    ```console
-   git clone https://github.com/kubranarci/nf-platypusindelcalling.git
+   git clone https://github.com/ghga-de/nf-platypusindelcalling.git
     ```
 
   before run do this to bin directory, make it runnable!:
@@ -101,7 +101,7 @@ annotate_variation.pl -downdb wgEncodeGencodeBasicV19 humandb/ -build hg19
 5. Simple test run
 
    ```console
-   nextflow run main.nf --outdir results -profile singularity,test
+   nextflow run main.nf --outdir results -profile singularity,dkfz_cluster_38
    ``` 
 
 6. Start running your own analysis!
@@ -129,7 +129,13 @@ All VCF and BED files need to be indexed with tabix and should be in the same fo
 
 ## Documentation
 
-The nf-platypusindelcalling pipeline comes with documentation about the pipeline [usage](https://github.com/kubranarci/nf-platypusindelcalling/blob/main/docs/usage.md) and [output](https://github.com/kubranarci/nf-platypusindelcalling/blob/main/docs/output.md).
+The nf-platypusindelcalling pipeline comes with documentation about the pipeline [usage](https://github.com/ghga-de/nf-platypusindelcalling/blob/main/docs/usage.md) and [output](https://github.com/ghga-de/nf-platypusindelcalling/blob/main/docs/output.md).
+
+Please read [usage](https://github.com/ghga-de/nf-platypusindelcalling/blob/main/docs/usage.md) document to learn how to perform sample analysis provided with this repository!
+
+<p align="center">
+    <img title="nf-platypusindelcalling workflow" src="docs/images/pipeline_dag_2023-02-28_12-01-02.png" width=100%>
+</p>
 
 ## Credits
 
@@ -148,8 +154,7 @@ If you would like to contribute to this pipeline, please see the [contributing g
 
 ## Citations
 
-<!-- TODO nf-core: Add citation for pipeline after first release. Uncomment lines below and update Zenodo doi and badge at the top of this file. -->
-<!-- If you use  nf-core/platypusindelcalling for your analysis, please cite it using the following doi: [10.5281/zenodo.XXXXXX](https://doi.org/10.5281/zenodo.XXXXXX) -->
+<!-- If you use  nf-platypusindelcalling for your analysis, please cite it using the following doi: [10.5281/zenodo.XXXXXX](https://doi.org/10.5281/zenodo.XXXXXX) -->
 
 <!-- TODO nf-core: Add bibliography of tools and data used in your pipeline -->
 

@@ -11,6 +11,8 @@
 ###  2. Check for Tumor in Control from sample individual (TiN)
 ###
 ############
+
+# 28.02.2023 sort is modifided "-T . " added. kuebra.narci@dkfz.de
 use strict;
 use warnings;
 use File::Basename;
@@ -218,7 +220,7 @@ close GTraw;
 system("alias python='/usr/bin/python2.7' && . ~/.bashrc");
 
 my $resolve_complex_variants = "(head -n 2000 '$snvsGT_RawFile' | grep '#' ;
-  cat '$snvsGT_RawFile' | splitMNPsAndComplex.py | grep -v '#' | sort -V -k1,2) | uniq > '$snvsGT_RawFile'.temp ;
+  cat '$snvsGT_RawFile' | splitMNPsAndComplex.py | grep -v '#' | sort -V -k1,2 -T .) | uniq > '$snvsGT_RawFile'.temp ;
   mv -f '$snvsGT_RawFile'.temp '$snvsGT_RawFile';";
 
 
