@@ -126,6 +126,17 @@ All VCF and BED files need to be indexed with tabix and should be in the same fo
 
 [This section is for further]
 
+## Reference Usage
+
+This pipeline favors the use of [igenomes](https://support.illumina.com/sequencing/sequencing_software/igenome.html) and [refgenie](http://refgenie.databio.org/en/latest/overview/). Read the documentaton [here](https://nf-co.re/usage/reference_genomes) to learn more. 
+
+For igenomes usage: use genomes GRCh37 (--genome "GRCh37") or GRCh38 (--genome "GRCh38"). 
+
+For refgenie usage: use genomes GRCh37 (--genome "hg37") or GRCh38 (--genome "hg38").
+
+If not using igenomes or refgenie, --fasta, --fasta_fai, --chr_sizes and --chr_prefix need to be spesifed!
+
+## Annotation files
 
 ## Documentation
 

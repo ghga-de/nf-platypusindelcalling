@@ -11,7 +11,10 @@ WorkflowPlatypusindelcalling.initialise(params, log)
 
 // Check input path parameters to see if they exist
 def checkPathParamList = [ params.input,
-                        params.multiqc_config]
+                            params.fasta,
+                            params.fasta_fai,
+                            params.chrom_sizes,
+                            params.multiqc_config]
 
 def checkPathParamList_annotation = [params.annovar_path,
                                     params.local_control_wgs,
@@ -50,6 +53,17 @@ if ((params.runIndelDeepAnnotation) && (!params.enchancer_file && !params.cpgisl
 }
 
 //// Check mandatory parameters
+
+// Reference genome
+ref          = Channel.fromPath([params.fasta,params.fasta_fai], checkIfExists: true).collect()
+chrlength    = Channel.fromPath(params.chrom_sizes, checkIfExists: true)
+chr_prefix   = Channel.value(params.chr_prefix)
+if (params.fasta.contains("38")){
+    ref_type = "hg38"   
+}
+else{
+    ref_type = "hg37"
+}
 
 // Input samplesheet
 if (params.input)                { ch_input = file(params.input) } else { exit 1, 'Input samplesheet not specified!' }
@@ -92,41 +106,6 @@ if (params.local_control_tinda_wgs)    { localcontroltindawgs = Channel.fromPath
 if (params.local_control_tinda_wes)    { localcontroltindawes = Channel.fromPath([params.local_control_tinda_wes, params.local_control_tinda_wes + '.tbi'], checkIfExists: true).collect() } else { localcontroltindawes = Channel.empty() }
 if (params.gnomad_genomes_tinda)       { gnomadgenomes_tinda = Channel.fromPath([params.gnomad_genomes_tinda, params.gnomad_genomes_tinda + '.tbi'], checkIfExists: true).collect() } else { gnomadgenomes_tinda = Channel.of([],[]) }
 if (params.gnomad_exomes_tinda)        { gnomadexomes_tinda = Channel.fromPath([params.gnomad_exomes_tinda, params.gnomad_exomes_tinda + '.tbi'], checkIfExists: true).collect() } else { gnomadexomes_tinda = Channel.of([],[]) }
-
-// Set up reference depending on the genome choice
-// NOTE: link will be defined by aoutomatic reference generation when the pipeline ready!
-// Set up reference depending on the genome choice
-// NOTE: link will be defined by aoutomatic reference generation when the pipeline ready!
-if ((params.reference) && (params.chrlength) && (params.chr_prefix))
-{
-        fa_file    = params.reference
-        chr_file   = params.chrlength
-        chr_prefix = params.chr_prefix
-    }
-else{
-    if (params.ref_type == 'hg37')
-        { 
-        fa_file  = "/omics/odcf/reference_data/legacy/ngs_share/assemblies/hg19_GRCh37_1000genomes/sequence/1KGRef_Phix/hs37d5_PhiX.fa"
-        chr_file = '/omics/odcf/reference_data/legacy/ngs_share/assemblies/hg19_GRCh37_1000genomes/stats/hs37d5.fa.chrLenOnlyACGT_realChromosomes.tab'      
-        chr_prefix   = Channel.value("")                    
-        }
-    if (params.ref_type == 'hg19') 
-        { 
-        fa_file  = "/omics/odcf/reference_data/legacy/ngs_share/assemblies/hg19_GRCh37_1000genomes/sequence/hg19_chr/hg19_1-22_X_Y_M.fa"
-        chr_file = '/omics/odcf/reference_data/legacy/ngs_share/assemblies/hg19_GRCh37_1000genomes/stats/hg19_1-22_X_Y_M.fa.chrLenOnlyACGT.tab'
-        chr_prefix   = Channel.value("chr")
-        }
-    if (params.ref_type == 'hg38') 
-        { 
-        fa_file = "/omics/odcf/reference_data/legacy/ngs_share/assemblies/hg_GRCh38/sequence/GRCh38_decoy_ebv_alt_hla_phiX.fa"
-        chr_file = '/omics/odcf/reference_data/legacy/ngs_share/assemblies/hg_GRCh38/stats/GRCh38_decoy_ebv_alt_hla_phiX.fa.chrLenOnlyACGT_realChromosomes.tsv'
-        chr_prefix   = Channel.value("chr")
-        }
-}
-
-// prepare  channels
-ref          = Channel.fromPath([fa_file,fa_file +'.fai'], checkIfExists: true).collect()
-chrlength    = Channel.fromPath(chr_file, checkIfExists: true)
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -252,7 +231,8 @@ workflow PLATYPUSINDELCALLING {
         phastconselem, 
         encode_tfbs,
         mirna_sncrnas, 
-        chr_prefix 
+        chr_prefix,
+        ref_type 
         )
         ch_versions = ch_versions.mix(INDEL_ANNOTATION.out.versions)
 
