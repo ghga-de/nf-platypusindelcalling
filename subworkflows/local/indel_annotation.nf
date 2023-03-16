@@ -43,6 +43,7 @@ workflow INDEL_ANNOTATION {
     encode_tfbs          // channel: [file.bed.gz, file.bed.gz.tbi]
     mirnas_sncrnas       // channel: [file.bed.gz, file.bed.gz.tbi] 
     chr_prefix           // val channel: [prefix]
+    ref_type
 
     main:
 
@@ -107,7 +108,7 @@ workflow INDEL_ANNOTATION {
     input_ch = vcf_ch.join(INDEL_RELIABILITY_PIPE.out.vcf)
     input_ch = input_ch.map{ it -> tuple( it[0], it[3], it[4], it[5], it[6])}
     CONFIDENCE_ANNOTATION(
-        input_ch
+        input_ch, ref_type
     )
     ann_vcf_ch  = CONFIDENCE_ANNOTATION.out.vcf_ann
     versions    = versions.mix(CONFIDENCE_ANNOTATION.out.versions)
