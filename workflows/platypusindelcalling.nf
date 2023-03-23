@@ -12,8 +12,6 @@ WorkflowPlatypusindelcalling.initialise(params, log)
 // Check input path parameters to see if they exist
 def checkPathParamList = [ params.input,
                             params.fasta,
-                            params.fasta_fai,
-                            params.chrom_sizes,
                             params.multiqc_config]
 
 def checkPathParamList_annotation = [params.annovar_path,
@@ -41,9 +39,7 @@ if (params.runIndelAnnotation){
 
 // To runTinda Genemodel bed file, Local control platypus WGS and WES must be provided
 if (params.runTinda){
-
-    for (param in checkParamList_runtinda) { if (param) { file(param, checkIfExists: true) } }
-   
+    for (param in checkParamList_runtinda) { if (param) { file(param, checkIfExists: true) } }  
 }
 
 // If runIndelDeepAnnotation is true; at least one of the annotation files must be provided
@@ -55,9 +51,10 @@ if ((params.runIndelDeepAnnotation) && (!params.enchancer_file && !params.cpgisl
 //// Check mandatory parameters
 
 // Reference genome
-ref          = Channel.fromPath([params.fasta,params.fasta_fai], checkIfExists: true).collect()
-chrlength    = Channel.fromPath(params.chrom_sizes, checkIfExists: true)
-chr_prefix   = Channel.value(params.chr_prefix)
+ref            = Channel.fromPath([params.fasta,params.fasta_fai], checkIfExists: true).collect()
+chr_prefix     = Channel.value(params.chr_prefix)
+chrlength      = params.chrom_sizes ? Channel.fromPath(params.chrom_sizes, checkIfExists: true) : Channel.empty()   
+
 if (params.fasta.contains("38")){
     ref_type = "hg38"   
 }
@@ -66,46 +63,79 @@ else{
 }
 
 // Input samplesheet
-if (params.input)                { ch_input = file(params.input) } else { exit 1, 'Input samplesheet not specified!' }
+if (params.input)                { ch_input  = file(params.input) } else { exit 1, 'Input samplesheet not specified!' }
 
 // Annotation databases
-if (params.k_genome)             { kgenome = Channel.fromPath([params.k_genome,params.k_genome +'.tbi'], checkIfExists: true).collect() } else { kgenome = Channel.of([],[]) }
-if (params.dbsnp_indel)          { dbsnpindel = Channel.fromPath([params.dbsnp_indel, params.dbsnp_indel + '.tbi'], checkIfExists: true).collect() } else { dbsnpindel = Channel.of([],[]) }
-if (params.exac_file)            { exac = Channel.fromPath([params.exac_file, params.exac_file + '.tbi'], checkIfExists: true).collect() } else { exac = Channel.of([],[]) }
-if (params.evs_file)             { evs = Channel.fromPath([params.evs_file, params.evs_file + '.tbi'], checkIfExists: true).collect() } else { evs = Channel.of([],[]) }
-if (params.local_control_wgs)    { localcontrolwgs = Channel.fromPath([params.local_control_wgs,params.local_control_wgs + '.tbi' ], checkIfExists: true).collect() } else { localcontrolwgs = Channel.of([],[]) }
-if (params.local_control_wes)    { localcontrolwes = Channel.fromPath([params.local_control_wes,params.local_control_wes + '.tbi' ], checkIfExists: true).collect() } else { localcontrolwes = Channel.of([],[]) }
-if (params.gnomad_genomes)       { gnomadgenomes = Channel.fromPath([params.gnomad_genomes, params.gnomad_genomes + '.tbi'], checkIfExists: true).collect() } else { gnomadgenomes = Channel.of([],[]) }
-if (params.gnomad_exomes)        { gnomadexomes = Channel.fromPath([params.gnomad_exomes, params.gnomad_exomes + '.tbi'], checkIfExists: true).collect() } else { gnomadexomes = Channel.of([],[]) }
+kgenome             =  params.k_genome            ? Channel.fromPath([params.k_genome,params.k_genome +'.tbi'], checkIfExists: true).collect() 
+                                                  : Channel.of([],[])
+dbsnpindel          =  params.dbsnp_indel         ? Channel.fromPath([params.dbsnp_indel, params.dbsnp_indel + '.tbi'], checkIfExists: true).collect() 
+                                                  : Channel.of([],[])
+exac                = params.exac_file            ? Channel.fromPath([params.exac_file, params.exac_file + '.tbi'], checkIfExists: true).collect() 
+                                                  : Channel.of([],[])
+evs                 = params.evs_file             ? Channel.fromPath([params.evs_file, params.evs_file + '.tbi'], checkIfExists: true).collect() 
+                                                  : Channel.of([],[])
+localcontrolwgs     = params.local_control_wgs    ? Channel.fromPath([params.local_control_wgs,params.local_control_wgs + '.tbi' ], checkIfExists: true).collect() 
+                                                  : Channel.of([],[])
+localcontrolwes     = params.local_control_wes    ? Channel.fromPath([params.local_control_wes,params.local_control_wes + '.tbi' ], checkIfExists: true).collect()     
+                                                  : Channel.of([],[])
+gnomadgenomes       = params.gnomad_genomes       ? Channel.fromPath([params.gnomad_genomes, params.gnomad_genomes + '.tbi'], checkIfExists: true).collect() 
+                                                  : Channel.of([],[])
+gnomadexomes        = params.gnomad_exomes        ? Channel.fromPath([params.gnomad_exomes, params.gnomad_exomes + '.tbi'], checkIfExists: true).collect()     
+                                                  : Channel.of([],[])
 // Annovar table folder
-if (params.annovar_path)         { annodb = Channel.fromPath(params.annovar_path + '/humandb/', checkIfExists: true ) } else { annodb = Channel.empty() }
+annodb              = params.annovar_path         ? Channel.fromPath(params.annovar_path + '/humandb/', checkIfExists: true ) 
+                                                  : Channel.empty()
 // Realiability files
-if (params.repeat_masker)        { repeatmasker = Channel.fromPath([params.repeat_masker, params.repeat_masker + '.tbi'], checkIfExists: true).collect() } else { repeatmasker = Channel.of([],[]) }
-if (params.dac_blacklist)        { dacblacklist = Channel.fromPath([params.dac_blacklist, params.dac_blacklist + '.tbi'], checkIfExists: true).collect() } else { dacblacklist = Channel.of([],[]) }
-if (params.duke_excluded)        { dukeexcluded = Channel.fromPath([params.duke_excluded, params.duke_excluded + '.tbi'], checkIfExists: true).collect() } else { dukeexcluded = Channel.of([],[]) }
-if (params.hiseq_depth)          { hiseqdepth = Channel.fromPath([params.hiseq_depth, params.hiseq_depth + '.tbi'], checkIfExists: true).collect() } else { hiseqdepth = Channel.of([],[]) }
-if (params.self_chain)           { selfchain = Channel.fromPath([params.self_chain, params.self_chain + '.tbi'], checkIfExists: true).collect() } else { selfchain = Channel.of([],[]) }
-if (params.mapability_file)      { mapability = Channel.fromPath([params.mapability_file, params.mapability_file + '.tbi'], checkIfExists: true).collect() } else { mapability = Channel.of([],[]) }
-if (params.simple_tandemrepeats) { simpletandemrepeats = Channel.fromPath([params.simple_tandemrepeats, params.simple_tandemrepeats + '.tbi'], checkIfExists: true).collect() } else { simpletandemrepeats = Channel.of([],[]) }
+repeatmasker        = params.repeat_masker        ? Channel.fromPath([params.repeat_masker, params.repeat_masker + '.tbi'], checkIfExists: true).collect() 
+                                                  : Channel.of([],[])
+dacblacklist        = params.dac_blacklist        ? Channel.fromPath([params.dac_blacklist, params.dac_blacklist + '.tbi'], checkIfExists: true).collect() 
+                                                  : Channel.of([],[])
+dukeexcluded        = params.duke_excluded        ? Channel.fromPath([params.duke_excluded, params.duke_excluded + '.tbi'], checkIfExists: true).collect() 
+                                                  : Channel.of([],[])
+hiseqdepth          = params.hiseq_depth          ? Channel.fromPath([params.hiseq_depth, params.hiseq_depth + '.tbi'], checkIfExists: true).collect() 
+                                                  : Channel.of([],[])
+selfchain           = params.self_chain           ? Channel.fromPath([params.self_chain, params.self_chain + '.tbi'], checkIfExists: true).collect() 
+                                                  : Channel.of([],[])
+mapability          = params.mapability_file      ? Channel.fromPath([params.mapability_file, params.mapability_file + '.tbi'], checkIfExists: true).collect() 
+                                                  : Channel.of([],[])
+simpletandemrepeats = params.simple_tandemrepeats ? Channel.fromPath([params.simple_tandemrepeats, params.simple_tandemrepeats + '.tbi'], checkIfExists: true).collect() 
+                                                  : Channel.of([],[])
 // Indel Deep Annotation files
-if (params.enchancer_file)       { enchangers = Channel.fromPath([params.enchancer_file, params.enchancer_file + '.tbi'], checkIfExists: true).collect() } else { enchangers = Channel.of([],[]) }
-if (params.cpgislands_file)      { cpgislands = Channel.fromPath([params.cpgislands_file, params.cpgislands_file + '.tbi'], checkIfExists: true).collect() } else { cpgislands = Channel.of([],[]) }
-if (params.tfbscons_file)        { tfbscons = Channel.fromPath([params.tfbscons_file, params.tfbscons_file + '.tbi'], checkIfExists: true).collect() } else { tfbscons = Channel.of([],[]) }
-if (params.encode_dnase_file)    { encode_dnase = Channel.fromPath([params.encode_dnase_file, params.encode_dnase_file + '.tbi'], checkIfExists: true).collect() } else { encode_dnase = Channel.of([],[]) }
-if (params.mirnas_snornas_file)  { mirnas_snornas = Channel.fromPath([params.mirnas_snornas_file, params.mirnas_snornas_file + '.tbi'], checkIfExists: true).collect() } else { mirnas_snornas = Channel.of([],[]) }
-if (params.mirna_sncrnas_file)   { mirna_sncrnas = Channel.fromPath([params.mirna_sncrnas_file, params.mirna_sncrnas_file + '.tbi'], checkIfExists: true).collect() } else { mirna_sncrnas = Channel.of([],[]) }
-if (params.cosmic_file)          { cosmic = Channel.fromPath([params.cosmic_file, params.cosmic_file + '.tbi'], checkIfExists: true).collect() } else { cosmic = Channel.of([],[]) }
-if (params.mirbase_file)         { mirbase = Channel.fromPath([params.mirbase_file, params.mirbase_file + '.tbi'], checkIfExists: true).collect() } else { mirbase = Channel.of([],[]) }
-if (params.mir_targets_file)     { mir_targets = Channel.fromPath([params.mir_targets_file, params.mir_targets_file + '.tbi'], checkIfExists: true).collect() } else { mir_targets = Channel.of([],[]) }
-if (params.cgi_mountains_file)   { cgi_mountains = Channel.fromPath([params.cgi_mountains_file, params.cgi_mountains_file + '.tbi'], checkIfExists: true).collect() } else { cgi_mountains = Channel.of([],[]) }
-if (params.phastconselem_file)   { phastconselem = Channel.fromPath([params.phastconselem_file, params.phastconselem_file + '.tbi'], checkIfExists: true).collect() } else { phastconselem = Channel.of([],[]) }
-if (params.encode_tfbs_file)     { encode_tfbs = Channel.fromPath([params.encode_tfbs_file, params.encode_tfbs_file + '.tbi'], checkIfExists: true).collect() } else { encode_tfbs = Channel.of([],[]) }
+enchangers          = params.enchancer_file       ? Channel.fromPath([params.enchancer_file, params.enchancer_file + '.tbi'], checkIfExists: true).collect() 
+                                                  : Channel.of([],[])
+cpgislands          = params.cpgislands_file      ? Channel.fromPath([params.cpgislands_file, params.cpgislands_file + '.tbi'], checkIfExists: true).collect() 
+                                                  : Channel.of([],[])
+tfbscons            = params.tfbscons_file        ? Channel.fromPath([params.tfbscons_file, params.tfbscons_file + '.tbi'], checkIfExists: true).collect() 
+                                                  : Channel.of([],[])
+encode_dnase        = params.encode_dnase_file    ? Channel.fromPath([params.encode_dnase_file, params.encode_dnase_file + '.tbi'], checkIfExists: true).collect() 
+                                                  : Channel.of([],[])
+mirnas_snornas      = params.mirnas_snornas_file  ? Channel.fromPath([params.mirnas_snornas_file, params.mirnas_snornas_file + '.tbi'], checkIfExists: true).collect()
+                                                  : Channel.of([],[])
+mirna_sncrnas       = params.mirna_sncrnas_file   ? Channel.fromPath([params.mirna_sncrnas_file, params.mirna_sncrnas_file + '.tbi'], checkIfExists: true).collect() 
+                                                  : Channel.of([],[])
+cosmic              = params.cosmic_file          ? Channel.fromPath([params.cosmic_file, params.cosmic_file + '.tbi'], checkIfExists: true).collect() 
+                                                  : Channel.of([],[])
+mirbase             = params.mirbase_file         ? Channel.fromPath([params.mirbase_file, params.mirbase_file + '.tbi'], checkIfExists: true).collect() 
+                                                  : Channel.of([],[])
+mir_targets         = params.mir_targets_file     ? Channel.fromPath([params.mir_targets_file, params.mir_targets_file + '.tbi'], checkIfExists: true).collect() 
+                                                  : Channel.of([],[])
+cgi_mountains       = params.cgi_mountains_file   ? Channel.fromPath([params.cgi_mountains_file, params.cgi_mountains_file + '.tbi'], checkIfExists: true).collect() 
+                                                  : Channel.of([],[])
+phastconselem       = params.phastconselem_file   ? Channel.fromPath([params.phastconselem_file, params.phastconselem_file + '.tbi'], checkIfExists: true).collect() 
+                                                  : Channel.of([],[])
+encode_tfbs         = params.encode_tfbs_file     ? Channel.fromPath([params.encode_tfbs_file, params.encode_tfbs_file + '.tbi'], checkIfExists: true).collect()
+                                                  : Channel.of([],[])
 // Tinda files
-if (params.genemodel_bed)        { genemodel = Channel.fromPath(params.genemodel_bed, checkIfExists: true).collect() } else { genemodel = Channel.empty() }
-if (params.local_control_tinda_wgs)    { localcontroltindawgs = Channel.fromPath([params.local_control_tinda_wgs,params.local_control_tinda_wgs + '.tbi' ], checkIfExists: true).collect() } else { localcontroltindawgs = Channel.empty() }
-if (params.local_control_tinda_wes)    { localcontroltindawes = Channel.fromPath([params.local_control_tinda_wes, params.local_control_tinda_wes + '.tbi'], checkIfExists: true).collect() } else { localcontroltindawes = Channel.empty() }
-if (params.gnomad_genomes_tinda)       { gnomadgenomes_tinda = Channel.fromPath([params.gnomad_genomes_tinda, params.gnomad_genomes_tinda + '.tbi'], checkIfExists: true).collect() } else { gnomadgenomes_tinda = Channel.of([],[]) }
-if (params.gnomad_exomes_tinda)        { gnomadexomes_tinda = Channel.fromPath([params.gnomad_exomes_tinda, params.gnomad_exomes_tinda + '.tbi'], checkIfExists: true).collect() } else { gnomadexomes_tinda = Channel.of([],[]) }
+genemodel            = params.genemodel_bed           ? Channel.fromPath(params.genemodel_bed, checkIfExists: true).collect() 
+                                                      : Channel.empty()
+localcontroltindawgs = params.local_control_tinda_wgs ? Channel.fromPath([params.local_control_tinda_wgs,params.local_control_tinda_wgs + '.tbi' ], checkIfExists: true).collect() 
+                                                      : Channel.empty()
+localcontroltindawes = params.local_control_tinda_wes ? Channel.fromPath([params.local_control_tinda_wes, params.local_control_tinda_wes + '.tbi'], checkIfExists: true).collect()
+                                                      : Channel.empty()
+gnomadgenomes_tinda  = params.gnomad_genomes_tinda    ? Channel.fromPath([params.gnomad_genomes_tinda, params.gnomad_genomes_tinda + '.tbi'], checkIfExists: true).collect() 
+                                                      : Channel.of([],[])
+gnomadexomes_tinda   = params.gnomad_exomes_tinda     ? Channel.fromPath([params.gnomad_exomes_tinda, params.gnomad_exomes_tinda + '.tbi'], checkIfExists: true).collect()
+                                                      : Channel.of([],[])
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -134,9 +164,9 @@ include {FILTER_VCF             } from '../subworkflows/local/filter_vcf'
 // MODULE: Local Modules
 //
 
-//include {SET_CHR            } from '../modules/local/set_chr.nf'
-include { GREP_SAMPLENAME   } from '../modules/local/grep_samplename.nf'
-include { SAMPLE_SWAP       } from '../modules/local/sample_swap.nf'
+include { GREP_SAMPLENAME       } from '../modules/local/grep_samplename.nf'
+include { SAMPLE_SWAP           } from '../modules/local/sample_swap.nf'
+include { GETCHROMSIZES         } from '../modules/local/getchromsizes.nf'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -180,6 +210,17 @@ workflow PLATYPUSINDELCALLING {
         sample_ch
         )
     ch_versions = ch_versions.mix(GREP_SAMPLENAME.out.versions)
+
+    if ( !params.chrom_sizes) {
+        //
+        // MODULE: Prepare chromosome size file if not provided
+        //
+        GETCHROMSIZES(
+            ref
+            )
+        ch_versions = ch_versions.mix(GETCHROMSIZES.out.versions)
+        chrlength   = GETCHROMSIZES.out.sizes
+    }
 
     //
     // SUBWORKFLOW:indelCalling.sh
