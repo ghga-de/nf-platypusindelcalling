@@ -24,7 +24,7 @@ The pipeline is built using [Nextflow](https://www.nextflow.io), a workflow tool
 
 This nextflow pipeline is the transition of [DKFZ-ODCF/IndelCallingWorkflow](https://github.com/DKFZ-ODCF/IndelCallingWorkflow). 
 
-**Important Notice**: The whole workflow is only ready for DKFZ cluster users for now, It is strongly recommended to them to read whole documentation before usage. This workflow works better with nextflow/22.07.1-edge in the cluster, It is recommended to use >22.07.1. Only Indel Calling part can be used for outside users, reference file and chromsome length file must be given for this. 
+**Important Notice**: The whole workflow is only ready for DKFZ cluster users for now, It is strongly recommended to them to read whole documentation before usage. This workflow works better with nextflow/22.07.1-edge in the cluster, It is recommended to use >22.07.1. 
 
 ## Pipeline summary
 
@@ -134,7 +134,7 @@ For igenomes usage: use genomes GRCh37 (--genome "GRCh37") or GRCh38 (--genome "
 
 For refgenie usage: use genomes GRCh37 (--genome "hg37") or GRCh38 (--genome "hg38").
 
-If not using igenomes or refgenie, --fasta, --fasta_fai, --chr_sizes and --chr_prefix need to be spesifed!
+If not using igenomes or refgenie, --fasta, --fasta_fai, and --chr_prefix need to be spesifed! If --chr_sizes is not provided it will be automatically generated. 
 
 ## Annotation files
 

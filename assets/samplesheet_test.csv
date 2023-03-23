@@ -1,3 +1,3 @@
 sample,tumor,control
-test_withcontrol,testdata/WES_LL_T_1_test.bam,testdata/WES_LL_N_1_test.bam
-test_withoutcontrol,testdata/WES_LL_T_1_test.bam,
+test_withcontrol,WES_LL_T_1_test.bam,WES_LL_N_1_test.bam
+test_withoutcontrol,WES_LL_T_1_test.bam,

@@ -22,7 +22,17 @@ Main Swiches:
 
 Reference Files:
 
-- --ref_type: Mandatory! Either hg19, hg37 or hg38 can be defined as reference type.
+NOTE: this workflow is configured to use both igenomes and refgenie. **genome** can be defined to use either of them. If **genome** parameter is defined then, **fasta**, **fasta_fai**, **chrom_sizes** and **chr_prefix** will be first searched through igenome or refgenie. If not exist those should be manually given. 
+
+- --genome: For igenome: GRCh38 or GRCh37, for refgenie: hg38 or hg19
+
+- --fasta: reference fasta file
+
+- --fasta_fai: reference fasta fai file
+
+- --chrom_sizes: Chromosomal size file, should only include primary chromosomes.
+
+- --chr_prefix: prefix.
 
 
 **Annotation Step:** 
