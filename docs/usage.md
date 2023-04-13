@@ -106,19 +106,12 @@ Filtering is only applied into the samples without control!
 
 **BE CAREFULL** In order to apply below filtartions, annotations to the applied columns must be performed. 
 
-- --filter_exac           : Filter or not by ExAC
-- --filter_evs            : Filter or not by EVS
-- --filter_1kgenomes      : Filter or not by 1KGENOMES
-- --filter_gnomad_genomes : Filter or not by gnomad GENOMES
-- --filter_gnomad_exomes  : Filter or not by gnomad EXOMES
-- --filter_localcontrol   : Filter or not by LOCAL CONTROL
-- --filter_non_clinic     : Filter or not by dbSNP
-- --crit_exac_maxmaf      : Max MAF for ExAC
-- --crit_evs_maxmaf       : Max MAF for EVC
-- --crit_1kgenomes_maxmaf : Max MAF for 1KGENOMES
-- --crit_localcontrol_maxmaf : Max MAF for LOCAL CONTROL
-- --crit_gnomad_exomes_maxmaf: Max MAF for gnomad GENOMES
-- --crit_gnomad_exomes_maxmaf: Max MAF for gnomad EXOMES
+- --crit_exac_maxmaf      : Max MAF for ExAC. if 0, no filter applys
+- --crit_evs_maxmaf       : Max MAF for EVC. if 0, no filter applys
+- --crit_1kgenomes_maxmaf : Max MAF for 1KGENOMES. if 0, no filter applys
+- --crit_localcontrol_maxmaf : Max MAF for LOCAL CONTROL, if 0, no filter applys
+- --crit_gnomad_exomes_maxmaf: Max MAF for GNOMAD_GENOMES, if 0, no filter applys
+- --crit_gnomad_exomes_maxmaf: Max MAF for GNOMAD_EXOMES, if 0, no filter applys
 
 **2. Indel Extraction Options:**
 
