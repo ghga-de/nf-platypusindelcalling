@@ -21,13 +21,13 @@ process FILTER_BY_CRIT {
     script:
     def args          = task.ext.args ?: ''
     def prefix        = task.ext.prefix ?: "${meta.id}"
-    def filter_values = [ (params.crit_exac_maxmaf != 0) ? "ExAC AF $params.crit_exac_maxmaf+": "",
-                        (params.crit_evs_maxmaf  != 0) ? "EVS MAF $params.crit_evs_maxmaf+": "",
-                        (params.crit_gnomad_genomes_maxmaf != 0) ? "GNOMAD_GENOMES AF $params.crit_gnomad_genomes_maxmaf+": "",
-                        (params.crit_gnomad_exomes_maxmaf != 0) ? "GNOMAD_EXOMES AF $params.crit_gnomad_exomes_maxmaf+": "",
-                        (params.crit_1kgenomes_maxmaf != 0) ? "1K_GENOMES AF $params.crit_1kgenomes_maxmaf+": "",
-                        (params.filter_non_clinic != 0) ? "DBSNP CLN,COMMON nonexist,exist": "", 
-                        (params.crit_localcontrol_maxmaf != 0) ? "LocalControlAF_WGS AF $params.crit_localcontrol_maxmaf+ LocalControlAF_WES AF $params.crit_localcontrol_maxmaf+": ""
+    def filter_values = [ (params.exac_file && params.crit_exac_maxmaf) ? "ExAC AF $params.crit_exac_maxmaf+": "",
+                        (params.evs_file && params.crit_evs_maxmaf) ? "EVS MAF $params.crit_evs_maxmaf+": "",
+                        (params.gnomad_genomes && params.crit_gnomad_genomes_maxmaf) ? "GNOMAD_GENOMES AF $params.crit_gnomad_genomes_maxmaf+": "",
+                        (params.gnomad_exomes && params.crit_gnomad_exomes_maxmaf) ? "GNOMAD_EXOMES AF $params.crit_gnomad_exomes_maxmaf+": "",
+                        (params.k_genome && params.crit_1kgenomes_maxmaf) ? "1K_GENOMES AF $params.crit_1kgenomes_maxmaf+": "",
+                        (params.dbsnp_indel && params.filter_non_clinic) ? "DBSNP CLN,COMMON nonexist,exist": "", 
+                        (params.local_control_wgs && params.local_control_wes && params.crit_localcontrol_maxmaf) ? "LocalControlAF_WGS AF $params.crit_localcontrol_maxmaf+ LocalControlAF_WES AF $params.crit_localcontrol_maxmaf+": ""
                         ].join(' ').trim() 
 
 // Filter variants only if there is no control, else do noting
