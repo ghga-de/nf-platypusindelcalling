@@ -122,9 +122,42 @@ annotate_variation.pl -downdb wgEncodeGencodeBasicV19 humandb/ -build hg19
 
 ## Data Requirements
 
+Annotations are optional for the user. 
 All VCF and BED files need to be indexed with tabix and should be in the same folder!
 
-[This section is for further]
+**Basic Annotation Files**
+
+- dbSNP INDELs (vcf)
+- 1000K INDELs (vcf)
+- gnomAD Genome Sites for INDELs (vcf)
+- gnomAD Exome Sites for INDELs (vcf)
+- EVS variants (vcf)
+- ExAC variants (vcf)
+- Local Control files WGS (vcf)
+- Local Control files WES (vcf)
+
+**SNV Reliability Files**
+
+- UCSC Repeat Masker region (bed)
+- UCSC Mappability regions (bed)
+- UCSC Simple tandem repeat regions (bed)
+- UCSC DAC Black List regions (bed)
+- UCSC DUKE Excluded List regions (bed)
+- UCSC Hiseq Deep sequencing regions (bed)
+- UCSC Self Chain regions (bed)
+
+**Deep Annotation Files**
+- UCSC Enhangers (bed)
+- UCSC CpG islands (bed)
+- UCSC TFBS noncoding sites (bed)
+- UCSC Encode DNAse cluster (bed.gz)
+- snoRNAs miRBase  (bed)
+- miRBase (bed)
+- Cosmic coding SNVs (bed)
+- miRNA target sites (bed)
+- Cgi Mountains (bed)
+- UCSC Phast Cons Elements (bed)
+- UCSC Encode TFBS (bed)
 
 ## Reference Usage
 
