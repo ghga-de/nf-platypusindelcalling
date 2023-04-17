@@ -41,14 +41,14 @@ If --runIndelAnnotation is true, the following files must be defined (with corre
 
 **1. annotate.vcf Options:**
 
-- --k_genome           : 1000k genome indel calls (vcf.gz)
-- --dbsnp_indel        : dbSNP indel calls (vcf.gz)
-- --exac_file          : ExAC database calls (vcf.gz) (Optional)
-- --evs_file           : EVS database calls (vcf.gz) (Optional)
-- --local_control_wgs  : Extra Local Control WGS file (vcf.gz)
-- --local_control_wes  : Extra Local Control WES file (vcf.gz)
-- --gnomad_genomes     : Gnomed Genome sites (vcf.gz)
-- --gnomad_exomes      : Gnomed Exome sites (vcf.gz)
+- --k_genome           : 1000k genome indel calls (vcf.gz). Column Name added: 1K_GENOMES
+- --dbsnp_indel        : dbSNP indel calls (vcf.gz). Column Name added: DBSNP
+- --exac_file          : ExAC database calls (vcf.gz) (Optional). Column Name added: ExAC
+- --evs_file           : EVS database calls (vcf.gz) (Optional). Column Name added: EVS
+- --local_control_wgs  : Extra Local Control WGS file (vcf.gz). Column Name added: LocalControlAF_WGS
+- --local_control_wes  : Extra Local Control WES file (vcf.gz). Column Name added: LocalControlAF_WES
+- --gnomad_genomes     : Gnomed Genome sites (vcf.gz). Column Name added: GNOMAD_GENOMES 
+- --gnomad_exomes      : Gnomed Exome sites (vcf.gz). Column Name added: GNOMAD_EXOMES
 
 - --padding            : integer
 - --minoverlapfraction : float
@@ -71,30 +71,29 @@ annotate_variation.pl -downdb wgEncodeGencodeBasicV19 humandb/ -build hg19
 
 **3. Indel Reability Options:**
 
-- --repeat_masker       : UCSC Repeat Masker file (bed.gz)
-- --dac_blacklist       : UCSC DAC Black List (bed.gz) (Optional)
-- --duke_excluded       : UCSC DUKE Excluded List (bed.gz) (Optional)
-- --hiseq_depth         : UCSC Hiseq Deep sequencing regions (bed.gz) (Optional)
-- --self_chain          : UCSC SeLf Chain regions (bed.gz) (Optional)
-- --mapability_file     : UCSC Mappability regions (bed.gz)
-- --simple_tandemrepeats: UCSC Simple tandem repeats (bed.gz)
+- --repeat_masker       : UCSC Repeat Masker file (bed.gz). Column Name added: REPEAT_MASKER
+- --dac_blacklist       : UCSC DAC Black List (bed.gz) (Optional). Column Name added: DAC_BLACKLIST
+- --duke_excluded       : UCSC DUKE Excluded List (bed.gz) (Optional). Column Name added: DUKE_EXCLUDED
+- --hiseq_depth         : UCSC Hiseq Deep sequencing regions (bed.gz) (Optional). Column Name added: HISEQDEPTH
+- --self_chain          : UCSC SeLf Chain regions (bed.gz) (Optional). Column Name added: SELFCHAIN
+- --mapability_file     : UCSC Mappability regions (bed.gz). Column Name added: MAPABILITY
+- --simple_tandemrepeats: UCSC Simple tandem repeats (bed.gz). Column Name added: SIMPLE_TANDEMREPEATS
 
 **4. Deep Annotation Options:**
 
 If --runIndelDeepAnnotation is true, at least one of the following files must be defined (with corresponding indexes):
 
--  --enchancer_file      : UCSC Enhangers (bed.gz)  (Optional)
--  --cpgislands_file     : UCSC CpG islands (bed.gz) (Optional)
--  --tfbscons_file       : UCSC TFBS noncoding sites (bed.gz) (Optional)
--  --encode_dnase_file   : UCSC Encode DNAse cluster (bed.gz) (Optional)
--  --mirnas_snornas_file : snoRNAs miRBase  (bed.gz) (Optional)
--  --mirna_sncrnas_file : sncRNAs miRBase  (bed.gz) (Optional)
--  --mirbase_file        : miRBase (bed.gz) (Optional)
--  --cosmic_file         : Cosmic coding SNVs (bed.gz) (Optional)
--  --mir_targets_file    : miRNA target sites (bed.gz) (Optional)
--  --cgi_mountains_file  : Cgi Mountains (bed.gz) (Optional)
--  --phastconselem_file  : UCSC Phast Cons Elements (bed.gz) (Optional)
--  --encode_tfbs_file    : UCSC Encode TFBS (bed.gz) (Optional)
+-  --enchancer_file      : UCSC Enhangers (bed.gz)  (Optional). Column Name added: Enhancers
+-  --cpgislands_file     : UCSC CpG islands (bed.gz) (Optional). Column Name added: CpGislands
+-  --tfbscons_file       : UCSC TFBS noncoding sites (bed.gz) (Optional). Column Name added: TFBScons
+-  --encode_dnase_file   : UCSC Encode DNAse cluster (bed.gz) (Optional). Column Name added: ENCODE_DNASE
+-  --mirna_sncrnas_file : sncRNAs miRBase  (bed.gz) (Optional). Column Name added: miRNAs_sncRNAs
+-  --mirbase_file        : miRBase (bed.gz) (Optional). Column Name added: miRBase18
+-  --cosmic_file         : Cosmic coding SNVs (bed.gz) (Optional). Column Name added: COSMIC
+-  --mir_targets_file    : miRNA target sites (bed.gz) (Optional). Column Name added: miRNAtargets
+-  --cgi_mountains_file  : Cgi Mountains (bed.gz) (Optional). Column Name added: CgiMountains
+-  --phastconselem_file  : UCSC Phast Cons Elements (bed.gz) (Optional). Column Name added: phastConsElem20bp
+-  --encode_tfbs_file    : UCSC Encode TFBS (bed.gz) (Optional). Column Name added: ENCODE_TFBS
 
 **Filtration Step:** 
 
