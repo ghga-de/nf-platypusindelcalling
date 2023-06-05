@@ -118,7 +118,12 @@ annotate_variation.pl -downdb wgEncodeGencodeBasicV19 humandb/ -build hg19
 
 **tumor**: The path to the tumor file
 
+**tumor_index**: The path to the tumor index file
+
 **control**: The path to the control file, if there is no control will be kept blank.
+
+**control_index**: The path to the control index file, if there is no control will be kept blank.
+
 
 ## Data Requirements
 
