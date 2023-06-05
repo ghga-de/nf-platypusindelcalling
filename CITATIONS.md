@@ -1,4 +1,4 @@
-# nf-core/platypusindelcalling: Citations
+# ghga-de/nf-platypusindelcalling: Citations
 
 The Indel workflow was in the pan-cancer analysis of whole genomes (PCAWG) and can be cited with the following publication:
 
@@ -6,6 +6,8 @@ Pan-cancer analysis of whole genomes.
 The ICGC/TCGA Pan-Cancer Analysis of Whole Genomes Consortium.
 Nature volume 578, pages 82–93 (2020).
 DOI 10.1038/s41586-020-1969-6
+
+Orijinal version of the workflow is [here](https://github.com/DKFZ-ODCF/IndelCallingWorkflow) 
 
 ## [nf-core](https://pubmed.ncbi.nlm.nih.gov/32055031/)
 
