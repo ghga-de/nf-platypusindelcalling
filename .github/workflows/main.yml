@@ -1,0 +1,4 @@
+- name: Touch a file
+  command: touch test.file
+  files:
+  - path: test.file
