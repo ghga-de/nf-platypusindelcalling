@@ -22,10 +22,10 @@ jobs:
     strategy:
       matrix:
         # Nextflow versions: check pipeline minimum and current latest
-        nxf_ver: ['21.10.3', '22.10.6']
+        nxf_ver: ['22.10.6']
     steps:
       - name: Check out pipeline code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Install Nextflow
         env:
@@ -39,6 +39,9 @@ jobs:
       - name: DELAY to try address some odd behaviour with what appears to be a conflict between parallel htslib jobs leading to CI hangs
         run: | 
           if [[ $NXF_VER = '' ]]; then sleep 1200; fi
-      - name: BASIC Run the basic pipeline only for INDEL calling with platypus
+      - name: DOCKER: BASIC Run the basic pipeline only for INDEL calling with platypus
         run: |
           nextflow run ${GITHUB_WORKSPACE} -profile test,docker
+      - name: SINGULARITY: BASIC Run the basic pipeline only for INDEL calling with platypus
+        run: |
+          nextflow run ${GITHUB_WORKSPACE} -profile test,singularity
