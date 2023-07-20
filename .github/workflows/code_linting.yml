@@ -1,7 +1,10 @@
 name: Code Linting
 on:
   push:
-    branches: [master, dev, 10-cicd-test-integrate]
+    branches:
+      - master
+      - dev
+      - 10-cicd-test-integration
   pull_request:
     branches: [master]
   merge_group:
