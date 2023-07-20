@@ -1,0 +1,5 @@
+name: Touch a file
+# test with a touching a file
+  command: touch test.file
+  files:
+    path: test.file
