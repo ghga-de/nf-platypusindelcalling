@@ -4,13 +4,7 @@
 [![run with singularity](https://img.shields.io/badge/run%20with-singularity-1d355c.svg)](https://sylabs.io/docs/)
 
 <p align="center">
-    <img title="nf-platypusindelcalling workflow" src="docs/images/nf-platypusindelcalling.png" width=70%>
-</p>
-<p align="right">
-    <img title="GHGA" src="docs/images/GHGA_short_Logo_orange.png" width=20%>
-</p>
-<p align="right">
-    <img title="denbi" src="docs/images/denbi.png" width=20%>
+    <img title="nf-platypusindelcalling workflow" src="docs/images/nf-platypusindelcalling2.png" width=70%>
 </p>
 
 
@@ -181,10 +175,6 @@ If not using igenomes or refgenie, --fasta, --fasta_fai, and --chr_prefix need t
 The nf-platypusindelcalling pipeline comes with documentation about the pipeline [usage](https://github.com/ghga-de/nf-platypusindelcalling/blob/main/docs/usage.md) and [output](https://github.com/ghga-de/nf-platypusindelcalling/blob/main/docs/output.md).
 
 Please read [usage](https://github.com/ghga-de/nf-platypusindelcalling/blob/main/docs/usage.md) document to learn how to perform sample analysis provided with this repository!
-
-<p align="center">
-    <img title="nf-platypusindelcalling workflow" src="docs/images/pipeline_dag_2023-02-28_12-01-02.png" width=100%>
-</p>
 
 ## Credits
 
