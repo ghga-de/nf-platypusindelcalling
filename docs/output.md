@@ -13,11 +13,11 @@ The directories listed below will be created in the results directory after the 
 The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes data using the following steps:
 
 - [Platypus](#platypus) - Tool used to call variants. It can detect SNPs, MNPs, short indels, replacements, deletions up to several kb.
-- [Annotation](#annotation) - Several databases like gnomAD, dbSNP, mirBASE, COSMIC and ExAC as well as the sequencing regions like selfchains, enhangers, repeat regions or mappability beds are used to create annotations to the variants. Annovar tool is used to annotate and make classifications. 
-- [Filtering](#filtering) - Filtering can be applied to the annotated files for no-control samples. Extracted indels can be viewed by screenshots. 
-- [Check Sample Swap](#tinda) - Canopy Based Clustering and Bias Filter, thi step can only be applied into the tumor samples with control. 
+- [Annotation](#annotation) - Several databases like gnomAD, dbSNP, mirBASE, COSMIC and ExAC as well as the sequencing regions like selfchains, enhangers, repeat regions or mappability beds are used to create annotations to the variants. Annovar tool is used to annotate and make classifications.
+- [Filtering](#filtering) - Filtering can be applied to the annotated files for no-control samples. Extracted indels can be viewed by screenshots.
+- [Check Sample Swap](#tinda) - Canopy Based Clustering and Bias Filter, thi step can only be applied into the tumor samples with control.
 - [Pipeline information](#pipeline-information) - Report metrics generated during the workflow execution
-- [MultiQC] (#multiqc) - logs, reports and tool versions summarized using MultiQC tool. 
+- [MultiQC] (#multiqc) - logs, reports and tool versions summarized using MultiQC tool.
 
 ### Platypus
 
@@ -26,7 +26,7 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
 
 - `metaid/`
   - `indel_metaid.raw.vcf.gz`: Platypus called vcf file.
-  - `indel_metaid.vcf.gz.linesCorrupt` : Reports the corrupted lines if exist. 
+  - `indel_metaid.vcf.gz.linesCorrupt` : Reports the corrupted lines if exist.
   - `indel_metaid.log`: Log of platypus
 
 </details>
@@ -37,7 +37,7 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
 <summary>Output files</summary>
 
 - `metaid/`
-  - `indel_metaid.vcf.gz`: Annotated vcf file 
+  - `indel_metaid.vcf.gz`: Annotated vcf file
 
 </details>
 
@@ -52,7 +52,7 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
   - `indel_metaid_somatic_ncRNA_indels_conf_*_to_10.vcf`: Somatic ncRNA indels filtered through the confidence score
   - `indel_metaid_germline_functional_indels_conf_*_to_10.vcf`: Functional germline indels filtered through the confidence score
 - `metaid/screenshots/`
-  - `metaid_indel_somatic_funtional_combined.pdf`:  Screenshots of the variants from `indel_metaid_somatic_functional_indels_conf_*_to_10.vcf`
+  - `metaid_indel_somatic_funtional_combined.pdf`: Screenshots of the variants from `indel_metaid_somatic_functional_indels_conf_*_to_10.vcf`
   - `metaid_indel.json` : Indel lenght break down report from `indel_HCC1187_somatic_indels_conf_5_to_10.vcf`
 
 </details>

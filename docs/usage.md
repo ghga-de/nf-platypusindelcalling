@@ -1,28 +1,28 @@
 # nf-platypusindelcalling: Usage
 
-
 > _Documentation of pipeline parameters is generated automatically from the pipeline schema and can no longer be found in markdown files._
 
 ## Introduction
 
 <!-- TODO nf-core: Add documentation about anything specific to running your pipeline. For general topics, please point to (and add to) the main nf-core website. -->
+
 ## Data requirements and Paremeters
 
 Main Swiches:
 
 - --runIndelAnnotation: Run the annotation step or stop the workflow before it.
 
-- --runIndelDeepAnnotation: Run the deep annotation step or stop the workflow before it. Works only of the basic annotation is applied. 
+- --runIndelDeepAnnotation: Run the deep annotation step or stop the workflow before it. Works only of the basic annotation is applied.
 
-- --runIndelVCFFilter: Run the filter step or stop the workflow before it. Works only if the basic annotation is applied. 
+- --runIndelVCFFilter: Run the filter step or stop the workflow before it. Works only if the basic annotation is applied.
 
 - --runTinda: Check for sample swaps with TiNDA.
 
-- --skip_multiqc: Skip MultiQC. 
+- --skip_multiqc: Skip MultiQC.
 
 Reference Files:
 
-NOTE: this workflow is configured to use both igenomes and refgenie. **genome** can be defined to use either of them. If **genome** parameter is defined then, **fasta**, **fasta_fai**, **chrom_sizes** and **chr_prefix** will be first searched through igenome or refgenie. If not exist those should be manually given. 
+NOTE: this workflow is configured to use both igenomes and refgenie. **genome** can be defined to use either of them. If **genome** parameter is defined then, **fasta**, **fasta_fai**, **chrom_sizes** and **chr_prefix** will be first searched through igenome or refgenie. If not exist those should be manually given.
 
 - --genome: For igenome: GRCh38 or GRCh37, for refgenie: hg38 or hg19
 
@@ -32,28 +32,27 @@ NOTE: this workflow is configured to use both igenomes and refgenie. **genome** 
 
 - --chrom_sizes: Chromosomal size file, should only include primary chromosomes.
 
-- --chr_prefix: chromosomal prefix. tip: left as "" for hg19 reference files, otherwise use "chr" 
+- --chr_prefix: chromosomal prefix. tip: left as "" for hg19 reference files, otherwise use "chr"
 
-
-**Annotation Step:** 
+**Annotation Step:**
 
 If --runIndelAnnotation is true, the following files must be defined (with corresponding indexes):
 
 **1. annotate.vcf Options:**
 
-- --k_genome           : 1000k genome indel calls (vcf.gz). Column Name added: 1K_GENOMES
-- --dbsnp_indel        : dbSNP indel calls (vcf.gz). Column Name added: DBSNP
-- --exac_file          : ExAC database calls (vcf.gz) (Optional). Column Name added: ExAC
-- --evs_file           : EVS database calls (vcf.gz) (Optional). Column Name added: EVS
-- --local_control_wgs  : Extra Local Control WGS file (vcf.gz). Column Name added: LocalControlAF_WGS
-- --local_control_wes  : Extra Local Control WES file (vcf.gz). Column Name added: LocalControlAF_WES
-- --gnomad_genomes     : Gnomed Genome sites (vcf.gz). Column Name added: GNOMAD_GENOMES 
-- --gnomad_exomes      : Gnomed Exome sites (vcf.gz). Column Name added: GNOMAD_EXOMES
+- --k_genome : 1000k genome indel calls (vcf.gz). Column Name added: 1K_GENOMES
+- --dbsnp_indel : dbSNP indel calls (vcf.gz). Column Name added: DBSNP
+- --exac_file : ExAC database calls (vcf.gz) (Optional). Column Name added: ExAC
+- --evs_file : EVS database calls (vcf.gz) (Optional). Column Name added: EVS
+- --local_control_wgs : Extra Local Control WGS file (vcf.gz). Column Name added: LocalControlAF_WGS
+- --local_control_wes : Extra Local Control WES file (vcf.gz). Column Name added: LocalControlAF_WES
+- --gnomad_genomes : Gnomed Genome sites (vcf.gz). Column Name added: GNOMAD_GENOMES
+- --gnomad_exomes : Gnomed Exome sites (vcf.gz). Column Name added: GNOMAD_EXOMES
 
-- --padding            : integer
+- --padding : integer
 - --minoverlapfraction : float
-- --maxborderdist      : integer
-- --maxmatches         : integer
+- --maxborderdist : integer
+- --maxmatches : integer
 
 **2. Annovar Options:**
 
@@ -61,52 +60,52 @@ Annovar must be downloaded locally and necessary build version must be generated
 
 annotate_variation.pl -downdb wgEncodeGencodeBasicV19 humandb/ -build hg19
 
-- --annovar_path        :'/path/to/annovar'
+- --annovar_path :'/path/to/annovar'
 
-- --buildver            : hg19, hg38 or hg18
-- --dbtype              : wgEncodeGencodeCompV19,wgEncodeGencodeCompV18, wgEncodeGencodeCompV38, wgEncodeGencodeBasicV19, wgEncodeGencodeBasicV18, wgEncodeGencodeBasicV38, refGene, ensGene, knownGene or wgEncodeGencodeBasicV19
-- --segdupcol           : "SEGDUP_COL"
-- --cytobandcol         : "CYTOBAND_COL"
-- --geneannocols        : '"ANNOVAR_FUNCTION,GENE,EXONIC_CLASSIFICATION,ANNOVAR_TRANSCRIPTS"'
+- --buildver : hg19, hg38 or hg18
+- --dbtype : wgEncodeGencodeCompV19,wgEncodeGencodeCompV18, wgEncodeGencodeCompV38, wgEncodeGencodeBasicV19, wgEncodeGencodeBasicV18, wgEncodeGencodeBasicV38, refGene, ensGene, knownGene or wgEncodeGencodeBasicV19
+- --segdupcol : "SEGDUP_COL"
+- --cytobandcol : "CYTOBAND_COL"
+- --geneannocols : '"ANNOVAR_FUNCTION,GENE,EXONIC_CLASSIFICATION,ANNOVAR_TRANSCRIPTS"'
 
 **3. Indel Reability Options:**
 
-- --repeat_masker       : UCSC Repeat Masker file (bed.gz). Column Name added: REPEAT_MASKER
-- --dac_blacklist       : UCSC DAC Black List (bed.gz) (Optional). Column Name added: DAC_BLACKLIST
-- --duke_excluded       : UCSC DUKE Excluded List (bed.gz) (Optional). Column Name added: DUKE_EXCLUDED
-- --hiseq_depth         : UCSC Hiseq Deep sequencing regions (bed.gz) (Optional). Column Name added: HISEQDEPTH
-- --self_chain          : UCSC SeLf Chain regions (bed.gz) (Optional). Column Name added: SELFCHAIN
-- --mapability_file     : UCSC Mappability regions (bed.gz). Column Name added: MAPABILITY
+- --repeat_masker : UCSC Repeat Masker file (bed.gz). Column Name added: REPEAT_MASKER
+- --dac_blacklist : UCSC DAC Black List (bed.gz) (Optional). Column Name added: DAC_BLACKLIST
+- --duke_excluded : UCSC DUKE Excluded List (bed.gz) (Optional). Column Name added: DUKE_EXCLUDED
+- --hiseq_depth : UCSC Hiseq Deep sequencing regions (bed.gz) (Optional). Column Name added: HISEQDEPTH
+- --self_chain : UCSC SeLf Chain regions (bed.gz) (Optional). Column Name added: SELFCHAIN
+- --mapability_file : UCSC Mappability regions (bed.gz). Column Name added: MAPABILITY
 - --simple_tandemrepeats: UCSC Simple tandem repeats (bed.gz). Column Name added: SIMPLE_TANDEMREPEATS
 
 **4. Deep Annotation Options:**
 
 If --runIndelDeepAnnotation is true, at least one of the following files must be defined (with corresponding indexes):
 
--  --enchancer_file      : UCSC Enhangers (bed.gz)  (Optional). Column Name added: Enhancers
--  --cpgislands_file     : UCSC CpG islands (bed.gz) (Optional). Column Name added: CpGislands
--  --tfbscons_file       : UCSC TFBS noncoding sites (bed.gz) (Optional). Column Name added: TFBScons
--  --encode_dnase_file   : UCSC Encode DNAse cluster (bed.gz) (Optional). Column Name added: ENCODE_DNASE
--  --mirna_sncrnas_file : sncRNAs miRBase  (bed.gz) (Optional). Column Name added: miRNAs_sncRNAs
--  --mirbase_file        : miRBase (bed.gz) (Optional). Column Name added: miRBase18
--  --cosmic_file         : Cosmic coding SNVs (bed.gz) (Optional). Column Name added: COSMIC
--  --mir_targets_file    : miRNA target sites (bed.gz) (Optional). Column Name added: miRNAtargets
--  --cgi_mountains_file  : Cgi Mountains (bed.gz) (Optional). Column Name added: CgiMountains
--  --phastconselem_file  : UCSC Phast Cons Elements (bed.gz) (Optional). Column Name added: phastConsElem20bp
--  --encode_tfbs_file    : UCSC Encode TFBS (bed.gz) (Optional). Column Name added: ENCODE_TFBS
+- --enchancer_file : UCSC Enhangers (bed.gz) (Optional). Column Name added: Enhancers
+- --cpgislands_file : UCSC CpG islands (bed.gz) (Optional). Column Name added: CpGislands
+- --tfbscons_file : UCSC TFBS noncoding sites (bed.gz) (Optional). Column Name added: TFBScons
+- --encode_dnase_file : UCSC Encode DNAse cluster (bed.gz) (Optional). Column Name added: ENCODE_DNASE
+- --mirna_sncrnas_file : sncRNAs miRBase (bed.gz) (Optional). Column Name added: miRNAs_sncRNAs
+- --mirbase_file : miRBase (bed.gz) (Optional). Column Name added: miRBase18
+- --cosmic_file : Cosmic coding SNVs (bed.gz) (Optional). Column Name added: COSMIC
+- --mir_targets_file : miRNA target sites (bed.gz) (Optional). Column Name added: miRNAtargets
+- --cgi_mountains_file : Cgi Mountains (bed.gz) (Optional). Column Name added: CgiMountains
+- --phastconselem_file : UCSC Phast Cons Elements (bed.gz) (Optional). Column Name added: phastConsElem20bp
+- --encode_tfbs_file : UCSC Encode TFBS (bed.gz) (Optional). Column Name added: ENCODE_TFBS
 
-**Filtration Step:** 
+**Filtration Step:**
 
 If --runVCFFilter is true, the following parameters can be applied:
 
 **1. Filtering Options:**
 
-Filtering is only applied into the samples without control! 
+Filtering is only applied into the samples without control!
 
-**BE CAREFULL** In order to apply below filtartions, annotations to the applied columns must be performed. 
+**BE CAREFULL** In order to apply below filtartions, annotations to the applied columns must be performed.
 
-- --crit_exac_maxmaf      : Max MAF for ExAC. if 0, no filter applys
-- --crit_evs_maxmaf       : Max MAF for EVC. if 0, no filter applys
+- --crit_exac_maxmaf : Max MAF for ExAC. if 0, no filter applys
+- --crit_evs_maxmaf : Max MAF for EVC. if 0, no filter applys
 - --crit_1kgenomes_maxmaf : Max MAF for 1KGENOMES. if 0, no filter applys
 - --crit_localcontrol_maxmaf : Max MAF for LOCAL CONTROL, if 0, no filter applys
 - --crit_gnomad_exomes_maxmaf: Max MAF for GNOMAD_GENOMES, if 0, no filter applys
@@ -119,16 +118,16 @@ Filtering is only applied into the samples without control!
 **3. Visualize Options:**
 
 - --max_var_screenshots : integer
-- --window_size         : integer
-- --repeat_masker       : Repeat Masker file (bed.gz)
+- --window_size : integer
+- --repeat_masker : Repeat Masker file (bed.gz)
 
-**Swap Check Step:** 
+**Swap Check Step:**
 
 If --runTinda is true, the following parameters can be applied:
 
-- --genemodel_bed       : Genecode Exomes (bed.gz or bed)
-- --local_control_wgs   : Extra Local Control files (vcf.gz)
-- --local_control_wes   : Extra Local Control files (vcf.gz) 
+- --genemodel_bed : Genecode Exomes (bed.gz or bed)
+- --local_control_wgs : Extra Local Control files (vcf.gz)
+- --local_control_wes : Extra Local Control files (vcf.gz)
 
 ## Samplesheet input
 
@@ -142,8 +141,6 @@ You will need to create a samplesheet with information about the samples you wou
 
 The pipeline will auto-detect whether a sample is single- or paired-end using the information provided in the samplesheet. The samplesheet can have as many columns as you desire, however, there is a strict requirement for the first 3 columns to match those defined in the table below.
 
-
-
 ```console
 sample,tumor,tumor_index,control,control_index
 sample1,sample1_tumor.bam,sample1_tumor.bai,sample1_control.bam,sample1_control.bai
@@ -155,13 +152,13 @@ sample6,sample6_tumor.bam,sample6_tumor.bai,,
 sample7,sample7_tumor.bam,sample7_tumor.bai,,
 ```
 
-| Column    | Description                                                                                                                                                                            |
-| --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `sample`  | Custom sample name. This entry will be used to name the output files and output directories |
-| `tumor` | Full path to BAM file for tumor samples.                                                          |
-| `tumor_index` | Full path to BAI file for tumor samples.                                                          |
-| `control` | Full path to BAM file for control (optional).                                                          |
-| `control_index` | Full path to BAI file for control (optional).                                                          |
+| Column          | Description                                                                                 |
+| --------------- | ------------------------------------------------------------------------------------------- |
+| `sample`        | Custom sample name. This entry will be used to name the output files and output directories |
+| `tumor`         | Full path to BAM file for tumor samples.                                                    |
+| `tumor_index`   | Full path to BAI file for tumor samples.                                                    |
+| `control`       | Full path to BAM file for control (optional).                                               |
+| `control_index` | Full path to BAI file for control (optional).                                               |
 
 An [example samplesheet](../assets/samplesheet_test.csv) has been provided with the pipeline.
 
@@ -175,7 +172,7 @@ nextflow run main.nf --input samplesheet.csv --outdir <OUTDIR> -profile docker
 
 This will launch the pipeline with the `docker` configuration profile. See below for more information about profiles.
 
-In order to launch the workflow in **DKFZ HPC**, **singularity** must be used with proper config file (text, dkfz_config or dkfz_config_38) which can be found in /conf directory. 
+In order to launch the workflow in **DKFZ HPC**, **singularity** must be used with proper config file (text, dkfz_config or dkfz_config_38) which can be found in /conf directory.
 
 ```console
 module load  nextflow/22.07.1-edge
@@ -205,7 +202,7 @@ Make the bin directory readable:
 chmod +x bin/*
 ```
 
-[Annovar](https://annovar.openbioinformatics.org/en/latest/user-guide/download/) should be downloaded locally if annotation module will be used and should be linked to the appropriare directory in --annovar_path parameter. 
+[Annovar](https://annovar.openbioinformatics.org/en/latest/user-guide/download/) should be downloaded locally if annotation module will be used and should be linked to the appropriare directory in --annovar_path parameter.
 
 ### `-profile`
 
@@ -221,9 +218,11 @@ If `-profile` is not specified, the pipeline will run locally and expect all sof
 - `docker`
   - A generic configuration profile to be used with [Docker](https://docker.com/)
 - `singularity`
+
   - A generic configuration profile to be used with [Singularity](https://sylabs.io/docs/)
 
 - `test`
+
   - A profile with a complete configuration for automated testing
   - Includes links to test data so needs no other parameters
   - Test only works in dkfz-cluster now
@@ -231,7 +230,7 @@ If `-profile` is not specified, the pipeline will run locally and expect all sof
 - `dkfz_cluster_38`
   - A profile with a complete configuration for DKFZ cluster
   - Includes links to test data so needs no other parameters
-  
+
 ### `-resume`
 
 Specify this when restarting a pipeline. Nextflow will use cached results from any pipeline steps where the inputs are the same, continuing from where it got to previously. For input to be considered the same, not only the names must be identical but the files' contents as well. For more info about this parameter, see [this blog post](https://www.nextflow.io/blog/2019/demystifying-nextflow-resume.html).
@@ -251,7 +250,6 @@ Whilst the default requirements set within the pipeline will hopefully work for 
 The computational requirements for the modules can be found and be changed in conf/base.config file
 
 See the main [Nextflow documentation](https://www.nextflow.io/docs/latest/config.html) for more information about creating your own configuration files.
-
 
 ## Running in the background
 

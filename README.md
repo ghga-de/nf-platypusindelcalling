@@ -1,4 +1,3 @@
-
 [![Nextflow](https://img.shields.io/badge/nextflow%20DSL2-%E2%89%A521.10.3-23aa62.svg)](https://www.nextflow.io/)
 [![run with docker](https://img.shields.io/badge/run%20with-docker-0db7ed?logo=docker)](https://www.docker.com/)
 [![run with singularity](https://img.shields.io/badge/run%20with-singularity-1d355c.svg)](https://sylabs.io/docs/)
@@ -7,56 +6,55 @@
     <img title="nf-platypusindelcalling workflow" src="docs/images/nf-platypusindelcalling2.png" width=70%>
 </p>
 
-
 ## Introduction
 
-**nf-platypusindelcalling**:A Platypus-based insertion/deletion-detection workflow with extensive quality control additions.  The workflow is based on DKFZ - ODCF OTP Indel Calling Pipeline.
+**nf-platypusindelcalling**:A Platypus-based insertion/deletion-detection workflow with extensive quality control additions. The workflow is based on DKFZ - ODCF OTP Indel Calling Pipeline.
 
-For now, this workflow is only optimal to work in ODCF Cluster. The config file (conf/dkfz_cluster.config) can be used as an example. Running Annotation, DeepAnnotation, Filter and Tinda steps are optinal and can be turned off using [runIndelAnnotation, runIndelDeepAnnotation, runIndelVCFFilter, runTinda] parameters sequentialy.  
+For now, this workflow is only optimal to work in ODCF Cluster. The config file (conf/dkfz_cluster.config) can be used as an example. Running Annotation, DeepAnnotation, Filter and Tinda steps are optinal and can be turned off using [runIndelAnnotation, runIndelDeepAnnotation, runIndelVCFFilter, runTinda] parameters sequentialy.
 
 The pipeline is built using [Nextflow](https://www.nextflow.io), a workflow tool to run tasks across multiple compute infrastructures in a very portable manner. It uses Docker/Singularity containers making installation trivial and results highly reproducible. The [Nextflow DSL2](https://www.nextflow.io/docs/latest/dsl2.html) implementation of this pipeline uses one container per process which makes it much easier to maintain and update software dependencies.
 
-This nextflow pipeline is the transition of [DKFZ-ODCF/IndelCallingWorkflow](https://github.com/DKFZ-ODCF/IndelCallingWorkflow). 
+This nextflow pipeline is the transition of [DKFZ-ODCF/IndelCallingWorkflow](https://github.com/DKFZ-ODCF/IndelCallingWorkflow).
 
-**Important Notice**: The whole workflow is only ready for DKFZ cluster users for now, It is strongly recommended to them to read whole documentation before usage. This workflow works better with nextflow/22.07.1-edge in the cluster, It is recommended to use >22.07.1. 
+**Important Notice**: The whole workflow is only ready for DKFZ cluster users for now, It is strongly recommended to them to read whole documentation before usage. This workflow works better with nextflow/22.07.1-edge in the cluster, It is recommended to use >22.07.1.
 
 ## Pipeline summary
 
+The pipeline has 6 main steps: Indel calling using platypus, basic annotations, deep annotations, filtering, sample swap check and multiqc report.
 
-The pipeline has 6 main steps: Indel calling using platypus, basic annotations, deep annotations, filtering, sample swap check and multiqc report. 
+1. Indel Calling:
 
-1. Indel Calling: 
-   
    Platypus ([`Platypus`](https://www.well.ox.ac.uk/research/research-groups/lunter-group/lunter-group/platypus-a-haplotype-based-variant-caller-for-next-generation-sequence-data))
    : Platypus tool is used to call variants using local realignmnets and local assemblies. It can detect SNPs, MNPs, short indels, replacements, deletions up to several kb. It can be both used with WGS and WES. The tool has been thoroughly tested on data mapped with Stampy and BWA.
+
 2. Basic Annotations (--runIndelAnnotation True):
 
    In-house scripts to annotate with several databases like gnomAD, dbSNP, and ExAC.
 
    ANNOVAR ([`Annovar`](https://annovar.openbioinformatics.org/en/latest/))
    : annotate_variation.pl is used to annotate variants. The tool makes classifications for intergenic, intogenic, nonsynoymous SNP, frameshift deletion or large-scale duplication regions.
-   
+
    Reliability and confidation annotations: It is an optional ste for mapability, hiseq, selfchain and repeat regions checks for reliability and confidence of those scores.
 
-3. Deep Annotation (--runIndelDeepAnnotation True): 
-   
+3. Deep Annotation (--runIndelDeepAnnotation True):
+
    If basic annotations are applied, an extra optional step for number of extra indel annotations like enhancer, cosmic, mirBASE, encode databases can be applied too.
 
-4. Filtering and Visualization (--runIndelVCFFilter True): 
+4. Filtering and Visualization (--runIndelVCFFilter True):
 
-   It is an optional step. Filtering is only required for the tumor samples with no-control and filtering can only be applied if basic annotation is performed. 
+   It is an optional step. Filtering is only required for the tumor samples with no-control and filtering can only be applied if basic annotation is performed.
 
    Indel Extraction and Visualizations: INDELs can be extracted by certain minimum confidence level
 
    Visualization and json reports: Extracted INDELs are visualized and analytics of INDEL categories are reported as JSON.
 
-5. Check Sample Swap (--runTinda True): 
+5. Check Sample Swap (--runTinda True):
 
-   Canopy Based Clustering and Bias Filter, thi step can only be applied into the tumor samples with control. 
+   Canopy Based Clustering and Bias Filter, thi step can only be applied into the tumor samples with control.
 
 6. MultiQC (--skipmultiqc False):
 
-   Produces pipeline level analytics and reports. 
+   Produces pipeline level analytics and reports.
 
 ## Quick Start
 
@@ -64,39 +62,39 @@ The pipeline has 6 main steps: Indel calling using platypus, basic annotations, 
 
 2. Install any of [`Docker`](https://docs.docker.com/engine/installation/) or [`Singularity`](https://www.sylabs.io/guides/3.0/user-guide/) (you can follow [this tutorial](https://singularity-tutorial.github.io/01-installation/))
 
-3. Download [Annovar](https://annovar.openbioinformatics.org/en/latest/user-guide/download/) and set-up suitable annotation table directory to perform annotation. Example: 
+3. Download [Annovar](https://annovar.openbioinformatics.org/en/latest/user-guide/download/) and set-up suitable annotation table directory to perform annotation. Example:
 
- ```console
+```console
 annotate_variation.pl -downdb wgEncodeGencodeBasicV19 humandb/ -build hg19
- ```
+```
 
 4. Download the pipeline and test it on a minimal dataset with a single command:
 
    ```console
    git clone https://github.com/ghga-de/nf-platypusindelcalling.git
-    ```
-
-  before run do this to bin directory, make it runnable!:
-
-  ```console
-  chmod +x bin/*
-  ```
-
-   ```console
-   nextflow run main.nf -profile test,YOURPROFILE --outdir <OUTDIR> --input <SAMPLESHEET>
    ```
 
-   Note that some form of configuration will be needed so that Nextflow knows how to fetch the required software. This is usually done in the form of a config profile (`YOURPROFILE` in the example command above). You can chain multiple config profiles in a comma-separated string.
+before run do this to bin directory, make it runnable!:
 
-   > - The pipeline comes with config profiles called `docker` and `singularity` which instruct the pipeline to use the named tool for software management. For example, `-profile test,docker`.
-   > - Please check [nf-core/configs](https://github.com/nf-core/configs#documentation) to see if a custom config file to run nf-core pipelines already exists for your Institute. If so, you can simply use `-profile <institute>` in your command. This will enable either `docker` or `singularity` and set the appropriate execution settings for your local compute environment.
-   > - If you are using `singularity`, please use the [`nf-core download`](https://nf-co.re/tools/#downloading-pipelines-for-offline-use) command to download images first, before running the pipeline. Setting the [`NXF_SINGULARITY_CACHEDIR` or `singularity.cacheDir`](https://www.nextflow.io/docs/latest/singularity.html?#singularity-docker-hub) Nextflow options enables you to store and re-use the images from a central location for future pipeline runs.
+```console
+chmod +x bin/*
+```
+
+```console
+nextflow run main.nf -profile test,YOURPROFILE --outdir <OUTDIR> --input <SAMPLESHEET>
+```
+
+Note that some form of configuration will be needed so that Nextflow knows how to fetch the required software. This is usually done in the form of a config profile (`YOURPROFILE` in the example command above). You can chain multiple config profiles in a comma-separated string.
+
+> - The pipeline comes with config profiles called `docker` and `singularity` which instruct the pipeline to use the named tool for software management. For example, `-profile test,docker`.
+> - Please check [nf-core/configs](https://github.com/nf-core/configs#documentation) to see if a custom config file to run nf-core pipelines already exists for your Institute. If so, you can simply use `-profile <institute>` in your command. This will enable either `docker` or `singularity` and set the appropriate execution settings for your local compute environment.
+> - If you are using `singularity`, please use the [`nf-core download`](https://nf-co.re/tools/#downloading-pipelines-for-offline-use) command to download images first, before running the pipeline. Setting the [`NXF_SINGULARITY_CACHEDIR` or `singularity.cacheDir`](https://www.nextflow.io/docs/latest/singularity.html?#singularity-docker-hub) Nextflow options enables you to store and re-use the images from a central location for future pipeline runs.
 
 5. Simple test run
 
    ```console
    nextflow run main.nf --outdir results -profile singularity,dkfz_cluster_38
-   ``` 
+   ```
 
 6. Start running your own analysis!
 
@@ -105,7 +103,7 @@ annotate_variation.pl -downdb wgEncodeGencodeBasicV19 humandb/ -build hg19
    ```console
    nextflow run main.nf --input samplesheet.csv --outdir <OUTDIR> -profile <docker/singularity> --config test/institute.config
    ```
-   
+
 ## Samplesheet columns
 
 **sample**: The sample name will be tagged to the job
@@ -118,10 +116,9 @@ annotate_variation.pl -downdb wgEncodeGencodeBasicV19 humandb/ -build hg19
 
 **control_index**: The path to the control index file, if there is no control will be kept blank.
 
-
 ## Data Requirements
 
-Annotations are optional for the user. 
+Annotations are optional for the user.
 All VCF and BED files need to be indexed with tabix and should be in the same folder!
 
 **Basic Annotation Files**
@@ -146,11 +143,12 @@ All VCF and BED files need to be indexed with tabix and should be in the same fo
 - UCSC Self Chain regions (bed)
 
 **Deep Annotation Files**
+
 - UCSC Enhangers (bed)
 - UCSC CpG islands (bed)
 - UCSC TFBS noncoding sites (bed)
 - UCSC Encode DNAse cluster (bed.gz)
-- snoRNAs miRBase  (bed)
+- snoRNAs miRBase (bed)
 - miRBase (bed)
 - Cosmic coding SNVs (bed)
 - miRNA target sites (bed)
@@ -160,13 +158,13 @@ All VCF and BED files need to be indexed with tabix and should be in the same fo
 
 ## Reference Usage
 
-This pipeline favors the use of [igenomes](https://support.illumina.com/sequencing/sequencing_software/igenome.html) and [refgenie](http://refgenie.databio.org/en/latest/overview/). Read the documentaton [here](https://nf-co.re/usage/reference_genomes) to learn more. 
+This pipeline favors the use of [igenomes](https://support.illumina.com/sequencing/sequencing_software/igenome.html) and [refgenie](http://refgenie.databio.org/en/latest/overview/). Read the documentaton [here](https://nf-co.re/usage/reference_genomes) to learn more.
 
-For igenomes usage: use genomes GRCh37 (--genome "GRCh37") or GRCh38 (--genome "GRCh38"). 
+For igenomes usage: use genomes GRCh37 (--genome "GRCh37") or GRCh38 (--genome "GRCh38").
 
 For refgenie usage: use genomes GRCh37 (--genome "hg37") or GRCh38 (--genome "hg38").
 
-If not using igenomes or refgenie, --fasta, --fasta_fai, and --chr_prefix need to be spesifed! If --chr_sizes is not provided it will be automatically generated. 
+If not using igenomes or refgenie, --fasta, --fasta_fai, and --chr_prefix need to be spesifed! If --chr_sizes is not provided it will be automatically generated.
 
 ## Annotation files
 
@@ -185,6 +183,7 @@ The pipeline is originally written in workflow management language Roddy. [Inspi
 We thank the following people for their extensive assistance in the development of this pipeline:
 
 **TODO**
+
 <!-- TODO nf-core: If applicable, make list of people who have also contributed -->
 
 ## Contributions and Support
