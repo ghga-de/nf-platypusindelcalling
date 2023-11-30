@@ -40,7 +40,7 @@ def check_samplesheet(file_in, file_out):
     sample_WithControl,tumor1.bam,tumot1.bai, control1.bam, control1.bai
     sample_WithoutControl,tumor2.bam,tumor2.bai,,
     For an example see:
-    https://github.com/ghga-de/nf-snvcalling/assets/samplesheet.csv
+    https://github.com/ghga-de/nf-platypusindelcalling/assets/samplesheet.csv
     """
 
     sample_mapping_dict = {}
