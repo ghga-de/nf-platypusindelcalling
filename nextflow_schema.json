@@ -558,6 +558,15 @@
           "help_text": "This parameter is *mandatory* if `--ref_type` is not specified.",
           "fa_icon": "far fa-file-code"
         },
+        "fasta_fai": {
+          "type": "string",
+          "format": "file-path",
+          "mimetype": "text/plain",
+          "pattern": "^\\S+\\.fai?$",
+          "description": "Path to FAI genome file.",
+          "help_text": "This parameter is *mandatory* if `--ref_type` is not specified.",
+          "fa_icon": "far fa-file-code"
+        },
         "igenomes_base": {
           "type": "string",
           "format": "directory-path",
