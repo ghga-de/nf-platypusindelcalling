@@ -40,14 +40,14 @@ def check_samplesheet(file_in, file_out):
     sample_WithControl,tumor1.bam,tumot1.bai, control1.bam, control1.bai
     sample_WithoutControl,tumor2.bam,tumor2.bai,,
     For an example see:
-    https://github.com/ghga-de/nf-snvcalling/assets/samplesheet.csv
+    https://github.com/ghga-de/nf-platypusindelcalling/assets/samplesheet.csv
     """
 
     sample_mapping_dict = {}
     with open(file_in, "r", encoding='utf-8-sig') as fin:
 
         ## Check header
-        MIN_COLS = 2
+        MIN_COLS = 3
         HEADER = ["sample", "tumor","tumor_index", "control","control_index" ]
         header = [x.strip('"') for x in fin.readline().strip().split(",")]
         if header[: len(HEADER)] != HEADER:
@@ -93,7 +93,7 @@ def check_samplesheet(file_in, file_out):
                 if sample and tumor and control:  ## iscontrol true
                     sample_info = [sample, tumor, tumor_index, control, control_index , "1"]
                 elif sample and tumor and not control:  ## iscontrol false
-                    sample_info = [sample, tumor,tumor_index,"dummy.bam","dummy.bai","0"]
+                    sample_info = [sample, tumor,tumor_index,"","","0"]
                 else:
                     print_error("Invalid combination of columns provided!", "Line", line)
 

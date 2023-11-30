@@ -17,6 +17,11 @@
                 "pattern": "^\\S+\\.bam$",
                 "errorMessage": "BAM file for tumors must be provided'"
             },
+            "tumor_index": {
+                "type": "string",
+                "pattern": "^\\S+\\.bai$",
+                "errorMessage": "BAI file matching to BAM for tumors must be provided'"
+            },
             "control": {
                 "errorMessage": "BAM file for as control matching to tumor, if there is",
                 "anyOf": [
@@ -29,8 +34,21 @@
                         "maxLength": 0
                     }
                 ]
+            },
+            "control_index": {
+                "errorMessage": "BAI file matching to BAM for as control matching to tumor, if there is",
+                "anyOf": [
+                    {
+                        "type": "string",
+                        "pattern": "^\\S+\\.bai$"
+                    },
+                    {
+                        "type": "string",
+                        "maxLength": 0
+                    }
+                ]
             }
         },
-        "required": ["sample", "tumor"]
+        "required": ["sample", "tumor", "tumor_index"]
     }
 }
