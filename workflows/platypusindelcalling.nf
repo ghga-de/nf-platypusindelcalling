@@ -14,8 +14,7 @@ def checkPathParamList = [ params.input,
                             params.fasta,
                             params.multiqc_config]
 
-def checkPathParamList_annotation = [params.annovar_path,
-                                    params.local_control_wgs,
+def checkPathParamList_annotation = [params.local_control_wgs,
                                     params.local_control_wes,
                                     params.k_genome,
                                     params.dbsnp_indel,
@@ -47,6 +46,9 @@ if ((params.runIndelDeepAnnotation) && (!params.enchancer_file && !params.cpgisl
     log.error "Please specify at least one annotation file to perform INDEL Deep Annotation"
     exit 1
 }
+if (params.annotation_tool.contains("annovar")){
+    file(params.annovar_path, checkIfExists: true)
+}
 
 //// Check mandatory parameters
 
@@ -54,13 +56,6 @@ if ((params.runIndelDeepAnnotation) && (!params.enchancer_file && !params.cpgisl
 ref            = Channel.fromPath([params.fasta,params.fasta_fai], checkIfExists: true).collect()
 chr_prefix     = Channel.value(params.chr_prefix)
 chrlength      = params.chrom_sizes ? Channel.fromPath(params.chrom_sizes, checkIfExists: true) : Channel.empty()   
-
-if (params.fasta.contains("38")){
-    ref_type = "hg38"   
-}
-else{
-    ref_type = "hg37"
-}
 
 // Input samplesheet
 if (params.input)                { ch_input  = file(params.input) } else { exit 1, 'Input samplesheet not specified!' }
@@ -83,8 +78,11 @@ gnomadgenomes       = params.gnomad_genomes       ? Channel.fromPath([params.gno
 gnomadexomes        = params.gnomad_exomes        ? Channel.fromPath([params.gnomad_exomes, params.gnomad_exomes + '.tbi'], checkIfExists: true).collect()     
                                                   : Channel.of([],[])
 // Annovar table folder
-annodb              = params.annovar_path         ? Channel.fromPath(params.annovar_path + '/humandb/', checkIfExists: true ) 
+annodb              = params.annovar_path         ? Channel.fromPath(params.annovar_path + '/humandb/') 
                                                   : Channel.empty()
+// VEP cache
+vep_cache_db        = params.vep_cache          ? Channel.fromPath(params.vep_cache).collect()         : []
+
 // Realiability files
 repeatmasker        = params.repeat_masker        ? Channel.fromPath([params.repeat_masker, params.repeat_masker + '.tbi'], checkIfExists: true).collect() 
                                                   : Channel.of([],[])
@@ -273,7 +271,8 @@ workflow PLATYPUSINDELCALLING {
         encode_tfbs,
         mirna_sncrnas, 
         chr_prefix,
-        ref_type 
+        ref,
+        vep_cache_db 
         )
         ch_versions = ch_versions.mix(INDEL_ANNOTATION.out.versions)
 

@@ -1,54 +1,54 @@
 {
-    "$schema": "http://json-schema.org/draft-07/schema",
-    "$id": "https://raw.githubusercontent.com/ghga-de/nf-platypusindelcalling/master/assets/schema_input.json",
-    "title": "nf-platypusindelcalling pipeline - params.input schema",
-    "description": "Schema for the file provided with params.input",
-    "type": "array",
-    "items": {
-        "type": "object",
-        "properties": {
-            "sample": {
-                "type": "string",
-                "pattern": "^\\S+$",
-                "errorMessage": "Sample name must be provided and cannot contain spaces"
-            },
-            "tumor": {
-                "type": "string",
-                "pattern": "^\\S+\\.bam$",
-                "errorMessage": "BAM file for tumors must be provided'"
-            },
-            "tumor_index": {
-                "type": "string",
-                "pattern": "^\\S+\\.bai$",
-                "errorMessage": "BAI file matching to BAM for tumors must be provided'"
-            },
-            "control": {
-                "errorMessage": "BAM file for as control matching to tumor, if there is",
-                "anyOf": [
-                    {
-                        "type": "string",
-                        "pattern": "^\\S+\\.bam$"
-                    },
-                    {
-                        "type": "string",
-                        "maxLength": 0
-                    }
-                ]
-            },
-            "control_index": {
-                "errorMessage": "BAI file matching to BAM for as control matching to tumor, if there is",
-                "anyOf": [
-                    {
-                        "type": "string",
-                        "pattern": "^\\S+\\.bai$"
-                    },
-                    {
-                        "type": "string",
-                        "maxLength": 0
-                    }
-                ]
-            }
-        },
-        "required": ["sample", "tumor", "tumor_index"]
-    }
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "https://raw.githubusercontent.com/ghga-de/nf-platypusindelcalling/master/assets/schema_input.json",
+  "title": "nf-platypusindelcalling pipeline - params.input schema",
+  "description": "Schema for the file provided with params.input",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "sample": {
+        "type": "string",
+        "pattern": "^\\S+$",
+        "errorMessage": "Sample name must be provided and cannot contain spaces"
+      },
+      "tumor": {
+        "type": "string",
+        "pattern": "^\\S+\\.bam$",
+        "errorMessage": "BAM file for tumors must be provided'"
+      },
+      "tumor_index": {
+        "type": "string",
+        "pattern": "^\\S+\\.bai$",
+        "errorMessage": "BAI file matching to BAM for tumors must be provided'"
+      },
+      "control": {
+        "errorMessage": "BAM file for as control matching to tumor, if there is",
+        "anyOf": [
+          {
+            "type": "string",
+            "pattern": "^\\S+\\.bam$"
+          },
+          {
+            "type": "string",
+            "maxLength": 0
+          }
+        ]
+      },
+      "control_index": {
+        "errorMessage": "BAI file matching to BAM for as control matching to tumor, if there is",
+        "anyOf": [
+          {
+            "type": "string",
+            "pattern": "^\\S+\\.bai$"
+          },
+          {
+            "type": "string",
+            "maxLength": 0
+          }
+        ]
+      }
+    },
+    "required": ["sample", "tumor", "tumor_index"]
+  }
 }

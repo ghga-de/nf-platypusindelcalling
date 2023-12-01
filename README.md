@@ -185,6 +185,7 @@ We thank the following people for their extensive assistance in the development 
 **TODO**
 
 <!-- TODO nf-core: If applicable, make list of people who have also contributed -->
+
 Nagarajan Paramasivam @NagaComBio n.paramasivam@dkfz.de
 
 ## Contributions and Support
@@ -192,7 +193,6 @@ Nagarajan Paramasivam @NagaComBio n.paramasivam@dkfz.de
 If you would like to contribute to this pipeline, please see the [contributing guidelines](.github/CONTRIBUTING.md).
 
 ## Citations
-
 
 <!-- If you use  nf-platypusindelcalling for your analysis, please cite it using the following doi: [10.5281/zenodo.XXXXXX](https://doi.org/10.5281/zenodo.XXXXXX) -->
 
