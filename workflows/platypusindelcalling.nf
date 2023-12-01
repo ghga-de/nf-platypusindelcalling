@@ -78,7 +78,7 @@ gnomadgenomes       = params.gnomad_genomes       ? Channel.fromPath([params.gno
 gnomadexomes        = params.gnomad_exomes        ? Channel.fromPath([params.gnomad_exomes, params.gnomad_exomes + '.tbi'], checkIfExists: true).collect()     
                                                   : Channel.of([],[])
 // Annovar table folder
-annodb              = params.annovar_path         ? Channel.fromPath(params.annovar_path + '/humandb/', checkIfExists: true ) 
+annodb              = params.annovar_path         ? Channel.fromPath(params.annovar_path + '/humandb/') 
                                                   : Channel.empty()
 // VEP cache
 vep_cache_db        = params.vep_cache          ? Channel.fromPath(params.vep_cache).collect()         : []
