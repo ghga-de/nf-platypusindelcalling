@@ -24,7 +24,7 @@ process ENSEMBLVEP_VEP {
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
     def reference = fasta ? "--fasta $fasta" : ""
-    def dir_cache = args.contains("--offline") ? "--dir_cache ${cache} --cache" : ""
+    def dir_cache = args.contains("--offline") ? "--dir_cache ${cache} --cache" : "--database"
     """
     vep \\
         -i $vcf \\
@@ -35,7 +35,7 @@ process ENSEMBLVEP_VEP {
         $args \\
         $reference \\
         --assembly $params.vep_genome \\
-        --species $params.species \\
+        --species "homo_sapiens" \\
         --cache_version $params.vep_cache_version \\
         $dir_cache \\
         --stats_file ${prefix}.summary.html

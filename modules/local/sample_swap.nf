@@ -8,14 +8,11 @@ process SAMPLE_SWAP {
     'docker://kubran/odcf_platypusindelcalling:v1' :'kubran/odcf_platypusindelcalling:v1' }"
 
     input:
-    tuple val(meta) , file(ch_vcf), file(ch_vcf_i),  val(tumorname), val(controlname)
+    tuple val(meta) , path(ch_vcf), path(ch_vcf_i),  val(tumorname), val(controlname)
     tuple path(ref) , path(ref_fai)
     each path(chrlength_file)
     each path(genemodel)              
-    tuple path(localcontroltindawgs), path(localcontroltindawgs_tbi)
-    tuple path(localcontroltindawes), path(localcontroltindawes_tbi)
-    tuple path(gnomadgenomes)       , path(gnomadgenomes_tbi)
-    tuple path(gnomadexomes)        , path(gnomadexomes_tbi)
+    tuple val(meta2),path(localcontroltindawgs), path(localcontroltindawgs_tbi),path(localcontroltindawes),path(localcontroltindawes_tbi),path(gnomadgenomes),path(gnomadgenomes_tbi),path(gnomadexomes),path(gnomadexomes_tbi)
     val chrprefix
 
     output:

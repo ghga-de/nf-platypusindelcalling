@@ -8,7 +8,7 @@ process INDEL_EXTRACTION {
     'docker://kubran/odcf_platypusindelcalling:v1' :'kubran/odcf_platypusindelcalling:v1' }"
 
     input:
-    tuple val(meta), file(ch_vcf), file(ch_vcf_i)
+    tuple val(meta), path(ch_vcf), path(ch_vcf_i)
 
     output:
     tuple val(meta), path('indel_*_somatic_functional_indels_conf_*_to_10.vcf')          , emit: somatic_functional

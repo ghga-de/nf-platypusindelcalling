@@ -11,7 +11,7 @@ process ANNOVAR {
     'docker://kubran/odcf_platypusindelcalling:v1' :'kubran/odcf_platypusindelcalling:v1' }"
     
     input:          
-    tuple val(meta)         , file(ch_vcf),  file(annovar_bed)
+    tuple val(meta)         , path(ch_vcf),  path(annovar_bed)
     each file(annovar_table)
     val(chrprefix)
 

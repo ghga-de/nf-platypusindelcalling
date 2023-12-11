@@ -7,7 +7,7 @@ process CHECK_IF_CORRUPTED {
         'docker://kubran/odcf_platypusindelcalling:v1' :'kubran/odcf_platypusindelcalling:v1' }"
 
     input:
-    tuple val(meta), file(vcf)
+    tuple val(meta), path(vcf)
 
     output:
     tuple val(meta),path("*.raw.vcf.gz"), path("*.raw.vcf.gz.tbi"), emit: vcf
