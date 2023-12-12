@@ -22,7 +22,7 @@ process ENSEMBLVEP_DOWNLOAD {
     """
     vep_install \\
         --CACHEDIR vep_cache \\
-        --SPECIES $params.species \\
+        --SPECIES "homo_sapiens" \\
         --ASSEMBLY $params.vep_genome \\
         --CACHE_VERSION $params.vep_cache_version \\
         $args

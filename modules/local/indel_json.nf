@@ -10,7 +10,7 @@ process INDEL_JSON {
 
     
     input:
-    tuple val(meta), file(vcf)
+    tuple val(meta), path(vcf)
 
     output:
     path('*.indel.json')                       , emit: json

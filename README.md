@@ -34,7 +34,10 @@ The pipeline has 6 main steps: Indel calling using platypus, basic annotations, 
    ANNOVAR ([`Annovar`](https://annovar.openbioinformatics.org/en/latest/))
    : annotate_variation.pl is used to annotate variants. The tool makes classifications for intergenic, intogenic, nonsynoymous SNP, frameshift deletion or large-scale duplication regions.
 
+   ENSEMBL VEP(['ENSEBL VEP'](https://www.ensembl.org/info/docs/tools/vep/index.html)) :can also be used alternative to annovar. Gene annotations will be extracted.
+
    Reliability and confidation annotations: It is an optional ste for mapability, hiseq, selfchain and repeat regions checks for reliability and confidence of those scores.
+
 
 3. Deep Annotation (--runIndelDeepAnnotation True):
 
@@ -66,6 +69,20 @@ The pipeline has 6 main steps: Indel calling using platypus, basic annotations, 
 
 ```console
 annotate_variation.pl -downdb wgEncodeGencodeBasicV19 humandb/ -build hg19
+```
+
+Gene annotation is also possible with ENSEMBL VEP tool, for test purposes only, it can be used online. But for big analysis, it is recommended to either download cache file or use --download_cache flag in parameters.
+
+Follow the documentation [here](https://www.ensembl.org/info/docs/tools/vep/script/vep_cache.html#cache)
+
+Example:
+
+Download [cache](https://ftp.ensembl.org/pub/release-110/variation/indexed_vep_cache/)
+
+```console
+cd $HOME/.vep
+curl -O https://ftp.ensembl.org/pub/release-110/variation/indexed_vep_cache/homo_sapiens_vep_110_GRCh38.tar.gz
+tar xzf homo_sapiens_vep_110_GRCh38.tar.gz
 ```
 
 4. Download the pipeline and test it on a minimal dataset with a single command:
@@ -120,6 +137,8 @@ Note that some form of configuration will be needed so that Nextflow knows how t
 
 Annotations are optional for the user.
 All VCF and BED files need to be indexed with tabix and should be in the same folder!
+
+The reference set bundle which is used in PCAWG study can be found and downloaded [here](https://dcc.icgc.org/api/v1/download?fn=/PCAWG/reference_data/pcawg-dkfz/dkfz-workflow-dependencies_150318_0951.tar.gz). (NOTE: only in hg19)
 
 **Basic Annotation Files**
 
@@ -176,17 +195,22 @@ Please read [usage](https://github.com/ghga-de/nf-platypusindelcalling/blob/main
 
 ## Credits
 
-nf-platypusindelcalling was originally written by Kuebra Narci kuebra.narci@dkfz-heidelberg.de.
+nf-platypusindelcalling was originally translated from roddy-based pipeline by Kuebra Narci kuebra.narci@dkfz-heidelberg.de.
 
 The pipeline is originally written in workflow management language Roddy. [Inspired github page](https://github.com/DKFZ-ODCF/IndelCallingWorkflow)
 
+The Indel calling workflow was in the pan-cancer analysis of whole genomes (PCAWG) and can be cited in the following publication:
+
+Pan-cancer analysis of whole genomes. The ICGC/TCGA Pan-Cancer Analysis of Whole Genomes Consortium. Nature volume 578, pages 82–93 (2020). DOI 10.1038/s41586-020-1969-6
+
 We thank the following people for their extensive assistance in the development of this pipeline:
+
+- Nagarajan Paramasivam (@NagaComBio) n.paramasivam@dkfz.de
+
 
 **TODO**
 
 <!-- TODO nf-core: If applicable, make list of people who have also contributed -->
-
-Nagarajan Paramasivam @NagaComBio n.paramasivam@dkfz.de
 
 ## Contributions and Support
 

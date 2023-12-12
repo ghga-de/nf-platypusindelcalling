@@ -36,6 +36,8 @@ NOTE: this workflow is configured to use both igenomes and refgenie. **genome** 
 
 **Annotation Step:**
 
+NOTE: The reference set bundle which is used in PCAWG study can be found and downloaded [here](https://dcc.icgc.org/api/v1/download?fn=/PCAWG/reference_data/pcawg-dkfz/dkfz-workflow-dependencies_150318_0951.tar.gz). (only in hg19)
+
 If --runIndelAnnotation is true, the following files must be defined (with corresponding indexes):
 
 **1. annotate.vcf Options:**

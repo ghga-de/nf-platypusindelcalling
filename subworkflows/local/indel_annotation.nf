@@ -15,38 +15,14 @@ include { ENSEMBLVEP_DOWNLOAD    } from '../../modules/nf-core/modules/ensemblve
 
 workflow INDEL_ANNOTATION {
     take:
-    vcf_ch               // channel: [val(meta), vcf.gz, vcf.gz.tbi ,val(tumorname), val(controlname) ]
-    kgenome              // channel: [file.vcf.gz, file.vcf.gz.tbi]
-    dbsnpindel           // channel: [file.vcf.gz, file.vcf.gz.tbi]
-    exac                 // channel: [file.vcf.gz, file.vcf.gz.tbi]
-    evs                  // channel: [file.vcf.gz, file.vcf.gz.tbi]
-    localcontrol_wgs     // channel: [file.vcf.gz, file.vcf.gz.tbi]
-    localcontrol_wes     // channel: [file.vcf.gz, file.vcf.gz.tbi]
-    gnomadgenomes        // channel: [file.vcf.gz, file.vcf.gz.tbi]
-    gnomadexomes         // channel: [file.vcf.gz, file.vcf.gz.tbi]
-    annodb               // channel: [table_annovar_dir]
-    repeatmasker         // channel: [file.bed.gz, file.bed.gz.tbi]
-    dacblacklist         // channel: [file.bed.gz, file.bed.gz.tbi]
-    dukeexcluded         // channel: [file.bed.gz, file.bed.gz.tbi]
-    hiseqdepth           // channel: [file.bed.gz, file.bed.gz.tbi]
-    selfchain            // channel: [file.bed.gz, file.bed.gz.tbi]
-    mapability           // channel: [file.bed.gz, file.bed.gz.tbi]
-    simpletandemrepeats  // channel: [file.bed.gz, file.bed.gz.tbi]
-    enchangers           // channel: [file.bed.gz, file.bed.gz.tbi]
-    cpgislands           // channel: [file.bed.gz, file.bed.gz.tbi]
-    tfbscons             // channel: [file.bed.gz, file.bed.gz.tbi]
-    encode_dnase         // channel: [file.bed.gz, file.bed.gz.tbi]
-    mirnas_snornas       // channel: [file.bed.gz, file.bed.gz.tbi]
-    cosmic               // channel: [file.bed.gz, file.bed.gz.tbi]
-    mirbase              // channel: [file.bed.gz, file.bed.gz.tbi]
-    mir_targets          // channel: [file.bed.gz, file.bed.gz.tbi]
-    cgi_mountains        // channel: [file.bed.gz, file.bed.gz.tbi]
-    phastconselem        // channel: [file.bed.gz, file.bed.gz.tbi]
-    encode_tfbs          // channel: [file.bed.gz, file.bed.gz.tbi]
-    mirnas_sncrnas       // channel: [file.bed.gz, file.bed.gz.tbi] 
-    chr_prefix           // val channel: [prefix]
-    ref
-    vep_cache
+    vcf_ch           // channel: [val(meta), vcf.gz, vcf.gz.tbi ,val(tumorname), val(controlname) ]
+    annotate_vcf_ref // channel: [val(meta2),file(kgenome),file(kgenome_i),file(dbsnpindel),file(dbsnpindel_i),file(exac),file(exac_i),file(evs),file(evs_i),file(localcontrolwgs),file(localcontrolwgs_i),file(localcontrolwes),file(localcontrolwes_i),file(gnomadgenomes),file(gnomadgenomes_i),file(gnomadexomes),file(gnomadexomes_i)]
+    realibility_ref  // channel: [val(meta2),file(repeatmasker),file(repeatmasker_i),file(dacblacklist),file(dacblacklist_i),file(dukeexcluded),file(dukeexcluded_i),file(hiseqdepth),file(hiseqdepth_i),file(selfchain),file(selfchain_i),file(mapability),file(mapability_i),file(simpletandemrepeats),file(simpletandemrepeats_i)]
+    deepanno_ref     // channel: [val(meta2),file(enchangers),file(enchangers_i),file(cpgislands),file(cpgislands_i),file(tfbscons),file(tfbscons_i),tuple file(encode_dnase),file(encode_dnase_i),file(mirnas_snornas),file(mirnas_snornas_i),file(cosmic),file(cosmic_i),file(mirbase),file(mirbase_i),file(mir_targets),file(mir_targets_i),file(cgi_mountains),file(cgi_mountains_i),file(phastconselem),file(phastconselem_i),file(encode_tfbs),file(encode_tfbs_i),file(mirnas_sncrnas),file(mirnas_sncrnas_i)] 
+    chr_prefix       // val channel: [prefix]
+    ref              // channel [fasta,fai] 
+    annodb           // channel: [table_annovar_dir]
+    vep_cache        // channel: [vep_cache_dir]
 
     main:
 
@@ -59,14 +35,7 @@ workflow INDEL_ANNOTATION {
     input_ch = vcf_ch.map{ it -> tuple( it[0], it[1], it[2])}
     ANNOTATE_VCF (
         input_ch, 
-        kgenome, 
-        dbsnpindel, 
-        exac, 
-        evs, 
-        localcontrol_wgs,
-        localcontrol_wes, 
-        gnomadgenomes, 
-        gnomadexomes, 
+        annotate_vcf_ref, 
         chr_prefix
     )
     versions  = versions.mix(ANNOTATE_VCF.out.versions)
@@ -106,7 +75,7 @@ workflow INDEL_ANNOTATION {
             ref
         )
         versions      = versions.mix(ENSEMBLVEP_VEP.out.versions)
-        annotated_vcf = ENSEMBLVEP_VEP.out.vcf.map{ it -> tuple( it[0], it[1], [])}
+        annotated_vcf = ENSEMBLVEP_VEP.out.vcf
     }
 
     //
@@ -115,13 +84,7 @@ workflow INDEL_ANNOTATION {
     // RUN annotate_vcf.pl : BED files are used to annotate variants
     INDEL_RELIABILITY_PIPE(
         annotated_vcf, 
-        repeatmasker, 
-        dacblacklist, 
-        dukeexcluded, 
-        hiseqdepth, 
-        selfchain, 
-        mapability, 
-        simpletandemrepeats
+        realibility_ref
     )
     versions = versions.mix(INDEL_RELIABILITY_PIPE.out.versions)
 
@@ -151,18 +114,7 @@ workflow INDEL_ANNOTATION {
         //
         ANNOTATION_PIPES (
             ann_vcf_ch, 
-            enchangers, 
-            cpgislands, 
-            tfbscons, 
-            encode_dnase, 
-            mirnas_snornas, 
-            cosmic, 
-            mirbase, 
-            mir_targets,
-            cgi_mountains, 
-            phastconselem, 
-            encode_tfbs, 
-            mirnas_sncrnas
+            deepanno_ref
         )
         ann_vcf_ch  = ANNOTATION_PIPES.out.vcf 
         versions    = versions.mix(ANNOTATION_PIPES.out.versions)
