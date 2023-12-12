@@ -10,7 +10,13 @@ process INDEL_RELIABILITY_PIPE {
     
     input:
     tuple val(meta),path(ch_vcf),path(ch_vcf_i)
-    tuple val(meta2),path(repeatmasker),path(repeatmasker_i),path(dacblacklist),path(dacblacklist_i),path(dukeexcluded),path(dukeexcluded_i),path(hiseqdepth),path(hiseqdepth_i),path(selfchain),path(selfchain_i),path(mapability),path(mapability_i),path(simpletandemrepeats),path(simpletandemrepeats_i)
+    tuple path(repeatmasker),path(repeatmasker_i)
+    tuple path(dacblacklist),path(dacblacklist_i)
+    tuple path(dukeexcluded),path(dukeexcluded_i)
+    tuple path(hiseqdepth),path(hiseqdepth_i)
+    tuple path(selfchain),path(selfchain_i)
+    tuple path(mapability),path(mapability_i)
+    tuple path(simpletandemrepeats),path(simpletandemrepeats_i)
 
     output:
     tuple val(meta), path('*.annotated.vcf.gz'), path('*.annotated.vcf.gz.tbi')   , emit: vcf

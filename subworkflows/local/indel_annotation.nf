@@ -16,9 +16,33 @@ include { ENSEMBLVEP_DOWNLOAD    } from '../../modules/nf-core/modules/ensemblve
 workflow INDEL_ANNOTATION {
     take:
     vcf_ch           // channel: [val(meta), vcf.gz, vcf.gz.tbi ,val(tumorname), val(controlname) ]
-    annotate_vcf_ref // channel: [val(meta2),file(kgenome),file(kgenome_i),file(dbsnpindel),file(dbsnpindel_i),file(exac),file(exac_i),file(evs),file(evs_i),file(localcontrolwgs),file(localcontrolwgs_i),file(localcontrolwes),file(localcontrolwes_i),file(gnomadgenomes),file(gnomadgenomes_i),file(gnomadexomes),file(gnomadexomes_i)]
-    realibility_ref  // channel: [val(meta2),file(repeatmasker),file(repeatmasker_i),file(dacblacklist),file(dacblacklist_i),file(dukeexcluded),file(dukeexcluded_i),file(hiseqdepth),file(hiseqdepth_i),file(selfchain),file(selfchain_i),file(mapability),file(mapability_i),file(simpletandemrepeats),file(simpletandemrepeats_i)]
-    deepanno_ref     // channel: [val(meta2),file(enchangers),file(enchangers_i),file(cpgislands),file(cpgislands_i),file(tfbscons),file(tfbscons_i),tuple file(encode_dnase),file(encode_dnase_i),file(mirnas_snornas),file(mirnas_snornas_i),file(cosmic),file(cosmic_i),file(mirbase),file(mirbase_i),file(mir_targets),file(mir_targets_i),file(cgi_mountains),file(cgi_mountains_i),file(phastconselem),file(phastconselem_i),file(encode_tfbs),file(encode_tfbs_i),file(mirnas_sncrnas),file(mirnas_sncrnas_i)] 
+    kgenome          // channel: [file,index]
+    dbsnpindel       // channel: [file,index]
+    exac             // channel: [file,index]
+    evs              // channel: [file,index]
+    localcontrolwgs  // channel: [file,index] 
+    localcontrolwes  // channel: [file,index]
+    gnomadgenomes    // channel: [file,index]
+    gnomadexomes     // channel: [file,index]
+    repeatmasker     // channel: [file,index]
+    dacblacklist     // channel: [file,index]
+    dukeexcluded     // channel: [file,index]
+    hiseqdepth       // channel: [file,index]
+    selfchain        // channel: [file,index]
+    mapability       // channel: [file,index]
+    simpletandemrepeats  // channel: [file,index]
+    enchangers       // channel: [file,index]
+    cpgislands       // channel: [file,index]
+    tfbscons         // channel: [file,index]
+    encode_dnase     // channel: [file,index] 
+    mirnas_snornas   // channel: [file,index]
+    cosmic           // channel: [file,index]
+    mirbase          // channel: [file,index]
+    mir_targets      // channel: [file,index]
+    cgi_mountains    // channel: [file,index]
+    phastconselem    // channel: [file,index]
+    encode_tfbs      // channel: [file,index]
+    mirnas_sncrnas   // channel: [file,index]
     chr_prefix       // val channel: [prefix]
     ref              // channel [fasta,fai] 
     annodb           // channel: [table_annovar_dir]
@@ -35,7 +59,7 @@ workflow INDEL_ANNOTATION {
     input_ch = vcf_ch.map{ it -> tuple( it[0], it[1], it[2])}
     ANNOTATE_VCF (
         input_ch, 
-        annotate_vcf_ref, 
+        kgenome,dbsnpindel,exac,evs,localcontrolwgs,localcontrolwes,gnomadgenomes,gnomadexomes, 
         chr_prefix
     )
     versions  = versions.mix(ANNOTATE_VCF.out.versions)
@@ -84,7 +108,7 @@ workflow INDEL_ANNOTATION {
     // RUN annotate_vcf.pl : BED files are used to annotate variants
     INDEL_RELIABILITY_PIPE(
         annotated_vcf, 
-        realibility_ref
+        repeatmasker,dacblacklist,dukeexcluded,hiseqdepth,selfchain,mapability,simpletandemrepeats
     )
     versions = versions.mix(INDEL_RELIABILITY_PIPE.out.versions)
 
@@ -101,7 +125,8 @@ workflow INDEL_ANNOTATION {
     input_ch = vcf_ch.join(INDEL_RELIABILITY_PIPE.out.vcf)
     input_ch = input_ch.map{ it -> tuple( it[0], it[3], it[4], it[5], it[6])}
     CONFIDENCE_ANNOTATION(
-        input_ch, ref_type
+        input_ch, 
+        ref_type
     )
     ann_vcf_ch  = CONFIDENCE_ANNOTATION.out.vcf_ann
     versions    = versions.mix(CONFIDENCE_ANNOTATION.out.versions)
@@ -114,7 +139,7 @@ workflow INDEL_ANNOTATION {
         //
         ANNOTATION_PIPES (
             ann_vcf_ch, 
-            deepanno_ref
+            enchangers, cpgislands,tfbscons,encode_dnase,mirnas_snornas,cosmic,mirbase,mir_targets,cgi_mountains,phastconselem,encode_tfbs,mirnas_sncrnas
         )
         ann_vcf_ch  = ANNOTATION_PIPES.out.vcf 
         versions    = versions.mix(ANNOTATION_PIPES.out.versions)
