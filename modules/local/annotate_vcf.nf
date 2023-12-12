@@ -9,7 +9,14 @@ process ANNOTATE_VCF {
 
     input:
     tuple val(meta), path(vcf), path(vcf_tbi)
-    tuple val(meta2),path(kgenome),path(kgenome_i),path(dbsnpindel),path(dbsnpindel_i),path(exac),path(evs),path(evs_i),path(exac_i),path(localcontrolwgs),path(localcontrolwgs_i),path(localcontrolwes),path(localcontrolwes_i),path(gnomadgenomes),path(gnomadgenomes_i),path(gnomadexomes),path(gnomadexomes_i)
+    tuple path(kgenome),path(kgenome_i)
+    tuple path(dbsnpindel),path(dbsnpindel_i)
+    tuple path(exac),path(exac_i)
+    tuple path(evs),path(evs_i)
+    tuple path(localcontrolwgs),path(localcontrolwgs_i)
+    tuple path(localcontrolwes),path(localcontrolwes_i)
+    tuple path(gnomadgenomes),path(gnomadgenomes_i)
+    tuple path(gnomadexomes),path(gnomadexomes_i)
     val (chrprefix)
 
     output:

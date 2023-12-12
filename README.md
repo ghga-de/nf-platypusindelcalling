@@ -38,7 +38,6 @@ The pipeline has 6 main steps: Indel calling using platypus, basic annotations, 
 
    Reliability and confidation annotations: It is an optional ste for mapability, hiseq, selfchain and repeat regions checks for reliability and confidence of those scores.
 
-
 3. Deep Annotation (--runIndelDeepAnnotation True):
 
    If basic annotations are applied, an extra optional step for number of extra indel annotations like enhancer, cosmic, mirBASE, encode databases can be applied too.
@@ -206,7 +205,6 @@ Pan-cancer analysis of whole genomes. The ICGC/TCGA Pan-Cancer Analysis of Whole
 We thank the following people for their extensive assistance in the development of this pipeline:
 
 - Nagarajan Paramasivam (@NagaComBio) n.paramasivam@dkfz.de
-
 
 **TODO**
 

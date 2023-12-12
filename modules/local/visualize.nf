@@ -10,7 +10,7 @@ process VISUALIZE {
     input:
     tuple val(meta) ,path(vcf)
     tuple path(ref) ,path(ref_fai)
-    tuple val(meta2),path(repeatmasker) ,path(repeatmasker_tbi)
+    tuple path(repeatmasker) ,path(repeatmasker_tbi)
 
     output:
     tuple val(meta)     , path('*.indel_somatic_functional_combined.pdf')  , emit: pdf, optional: true

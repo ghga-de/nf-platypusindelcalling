@@ -475,6 +475,12 @@
           "default": "",
           "fa_icon": "fas fa-annotation",
           "description": "Max MAF for Local Control filtration. Only apply if annotation is done"
+        },
+        "filter_non_clinic": {
+          "type": "boolean",
+          "default": "",
+          "fa_icon": "fas fa-annotation",
+          "description": "If true, dbSNP filtration will be applied. Only apply if annotation is done"
         }
       }
     },
