@@ -8,13 +8,13 @@ process VISUALIZE {
     'docker://kubran/odcf_platypusindelcalling:v1' :'kubran/odcf_platypusindelcalling:v1' }"
     
     input:
-    tuple val(meta)          ,file(vcf)
-    tuple path(ref)          ,path(ref_fai)
+    tuple val(meta) ,path(vcf)
+    tuple path(ref) ,path(ref_fai)
     tuple path(repeatmasker) ,path(repeatmasker_tbi)
 
     output:
-    tuple val(meta)          , path('*.indel_somatic_functional_combined.pdf')  , emit: pdf, optional: true
-    path('versions.yml')                                                        , emit: versions
+    tuple val(meta)     , path('*.indel_somatic_functional_combined.pdf')  , emit: pdf, optional: true
+    path('versions.yml')                                                   , emit: versions
 
     when:
     task.ext.when == null || task.ext.when

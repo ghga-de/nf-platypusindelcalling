@@ -1,6 +1,5 @@
 //# Gene annotation with annovar
 // PROCESS ANNOVAR table_annovar
-// working database is annovar_Feb2016
 
 process ANNOVAR {
     tag "$meta.id"
@@ -11,8 +10,8 @@ process ANNOVAR {
     'docker://kubran/odcf_platypusindelcalling:v1' :'kubran/odcf_platypusindelcalling:v1' }"
     
     input:          
-    tuple val(meta)         , file(ch_vcf),  file(annovar_bed)
-    each file(annovar_table)
+    tuple val(meta)    , path(ch_vcf),  path(annovar_bed)
+    path(annovar_table)
     val(chrprefix)
 
     output:
