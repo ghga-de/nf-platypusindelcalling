@@ -56,6 +56,7 @@ if (params.annotation_tool.contains("annovar")){
 ref            = Channel.fromPath([params.fasta,params.fasta_fai], checkIfExists: true).collect()
 chr_prefix     = Channel.value(params.chr_prefix)
 chrlength      = params.chrom_sizes ? Channel.fromPath(params.chrom_sizes, checkIfExists: true).collect() : Channel.empty()   
+config         = Channel.fromPath("${projectDir}/assets/config/standart_vcf_config.json", checkIfExists: true).collect()
 
 // Input samplesheet
 if (params.input)                { ch_input  = file(params.input) } else { exit 1, 'Input samplesheet not specified!' }
@@ -168,6 +169,7 @@ include {FILTER_VCF             } from '../subworkflows/local/filter_vcf'
 include { GREP_SAMPLENAME       } from '../modules/local/grep_samplename.nf'
 include { SAMPLE_SWAP           } from '../modules/local/sample_swap.nf'
 include { GETCHROMSIZES         } from '../modules/local/getchromsizes.nf'
+include { CONVERT_TO_VCF        } from '../modules/local/convert_to_vcf.nf'              
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -194,6 +196,8 @@ workflow PLATYPUSINDELCALLING {
     ch_versions = Channel.empty()
     //To gather all logs for MultiQC
     ch_logs = Channel.empty()
+    // To gather vcfs to be converted standard VCF 4.2 format
+    ch_stdvcf = Channel.empty()
 
     //    
     // SUBWORKFLOW: Read in samplesheet, validate and stage input files
@@ -238,6 +242,7 @@ workflow PLATYPUSINDELCALLING {
         .join(GREP_SAMPLENAME.out.samplenames)
         .set{ch_vcf}
 
+
     //
     //SUBWORKFLOW: platypusindelAnnotation.sh
     //
@@ -251,10 +256,12 @@ workflow PLATYPUSINDELCALLING {
             chr_prefix,
             ref,
             annodb,
-            vep_cache_db 
+            vep_cache_db
         )
         ch_versions = ch_versions.mix(INDEL_ANNOTATION.out.versions)
 
+        //ch_stdvcf = ch_stdvcf.mix(INDEL_ANNOTATION.out.ann_vcf_ch.map{it -> tuple( it[0], it[1])})
+        
         //
         //SUBWORKFLOW: FILTER VCF: filter_vcf.sh
         //
@@ -269,6 +276,7 @@ workflow PLATYPUSINDELCALLING {
                 repeatmasker
             )
             ch_versions = ch_versions.mix(FILTER_VCF.out.versions)
+            ch_stdvcf = ch_stdvcf.mix(FILTER_VCF.out.convert_snvs)
         }
         else{
             println "Skipping indel vcf filtering"
@@ -292,11 +300,25 @@ workflow PLATYPUSINDELCALLING {
             chr_prefix
             )
         ch_versions = ch_versions.mix(SAMPLE_SWAP.out.versions)    
-        ch_logs     = ch_versions.mix(SAMPLE_SWAP.out.log) 
+        ch_logs     = ch_versions.mix(SAMPLE_SWAP.out.log)
+        ch_stdvcf   = ch_stdvcf.mix(SAMPLE_SWAP.out.vcf) 
     }
     else{
         println "Skipping sample swap check"
     }
+
+    ch_stdvcf.combine(GREP_SAMPLENAME.out.samplenames, by:0)
+        .set{stdvcf_ch}
+
+    stdvcf_ch.view()
+    //
+    // MODULE: CONVERT_TO_VCF
+    //
+    CONVERT_TO_VCF(
+        stdvcf_ch,
+        config
+    )
+    ch_versions = ch_versions.mix(CONVERT_TO_VCF.out.versions)
 
     // Info required for completion email and summary
     def multiqc_report = []

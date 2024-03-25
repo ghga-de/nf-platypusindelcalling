@@ -43,6 +43,24 @@ workflow FILTER_VCF {
         .filter{meta, somatic_functional -> WorkflowCommons.getNumLinesInFile(somatic_functional) > 0}
         .set{functional_vars}
 
+    INDEL_EXTRACTION.out.somatic_indel
+        .filter{meta, somatic_indel -> WorkflowCommons.getNumLinesInFile(somatic_indel) > 1}
+        .set{somatic_indel_ch}
+
+    INDEL_EXTRACTION.out.somatic_ncrna
+        .filter{meta, somatic_ncrna -> WorkflowCommons.getNumLinesInFile(somatic_ncrna) > 1}
+        .set{somatic_ncrna_ch}
+
+    INDEL_EXTRACTION.out.germline_functional
+        .filter{meta, germline_functional -> WorkflowCommons.getNumLinesInFile(germline_functional) > 1}
+        .set{germline_funct_ch}
+
+    FILTER_BY_CRIT.out.vcf.map{ it -> tuple( it[0], it[1] )}
+                .mix(functional_vars)
+                .mix(somatic_indel_ch)
+                .mix(somatic_ncrna_ch)
+                .mix(germline_funct_ch)
+                .set{convert_snvs}               
     //
     // MODULE: VISUALIZE
     //
@@ -70,5 +88,6 @@ workflow FILTER_VCF {
     versions = versions.mix(INDEL_JSON.out.versions)
 
     emit:
+    convert_snvs
     versions
 }
