@@ -5,7 +5,7 @@
 # Distributed under the MIT License (https://opensource.org/licenses/MIT).
 #
 # Authors: Jules Kerssemakers, Sophia Stahl, Philip Kensche
-#
+# Updated version: Kubra Narci, 2024
 from __future__ import print_function
 
 import gzip
@@ -173,6 +173,13 @@ def write_metadata_definitions(keys_to_write, category, output_vcf_object, meta_
     except KeyError:
         raise KeyError("Meta-information incomplete for '%s' in meta_information.py" % key)
 
+## required for info fields which does not have a key pointing somatic or germline. Which is already defined in other fields 
+def check_line(line):
+    # Split the line by semicolons and extract the first word
+    first_word, rest = line.split(';', 1)
+    if first_word.strip() in ['GERMLINE', 'SOMATIC', 'UNCLEAR']:
+        return rest.strip()  # Return the line without the first word
+    return line
 
 def update_keys_used(line, col_indices, keys_used):
     """
@@ -185,7 +192,10 @@ def update_keys_used(line, col_indices, keys_used):
     """
     line_as_list = line.rstrip().split("\t")
 
-    INFO_old_keys = convert_str_to_dict(line_as_list[col_indices["INFO"]], ';', '=').keys()
+    new_line = check_line(line_as_list[col_indices["INFO"]])
+    print(new_line)
+    INFO_old_keys = convert_str_to_dict(new_line, ';', '=').keys()
+    #INFO_old_keys = convert_str_to_dict(line_as_list[col_indices["INFO"]], ';', '=').keys()
 
     #INFO_control_keys = convert_str_to_dict(line_as_list[col_indices["INFO_control"]], ';', '=').keys()
     #INFO_control_keys = [key + "_ctrl" for key in INFO_control_keys]
@@ -231,7 +241,7 @@ def get_all_used_metadata_keys(col_indices, input_file):
         # skip header
         if line.startswith('#'):
             continue
-
+        # FromComplex is being add to INFO as last definition without a key    
         if "FromComplex" in line:
             print("Skipping line: {}".format(line.strip()))
             continue
@@ -312,7 +322,9 @@ def merge_and_format_INFO_sources(col_indices, line_original, used_and_desired_k
     :return: String that replaces the old INFO field with filtered and new information
     """
     new_info = {}
-    new_info.update(extract_desired_INFO_fields_from_all(line_original[col_indices["INFO"]],
+    ## added to check if the first definition in INFO is without key (GERMLINE/SOMATIC/UNCLEAR)
+    new_line = check_line(line_original[col_indices["INFO"]])
+    new_info.update(extract_desired_INFO_fields_from_all(new_line,
                                                          used_and_desired_keys["INFO"],
                                                          rename_control=False))
     #new_info.update(extract_desired_INFO_fields_from_all(line_original[col_indices["INFO_control"]],
@@ -325,7 +337,7 @@ def merge_and_format_INFO_sources(col_indices, line_original, used_and_desired_k
     return convert_dict_to_str(new_info, ";", "=")
 
 
-def convert(input_filename, output_filename, normal_id, tumor_id, meta_information):
+def convert(input_filename, output_filename, sample_id, meta_information, withcontrol):
     """
     Does the actual conversion of one VCF file format into another (here DKFZ -> standard).
 
@@ -335,6 +347,7 @@ def convert(input_filename, output_filename, normal_id, tumor_id, meta_informati
            input file)
     :param tumor_id: label to use for the sample column (instead of the useless filename in the
            input file)
+    :param withcontrol: as Flag 
     :return: None, the output file is the outcome of this function
     """
 
@@ -352,11 +365,11 @@ def convert(input_filename, output_filename, normal_id, tumor_id, meta_informati
     # In the DKFZ case, there is only one sample column and an unknown number of free-form
     # annotation columns. You shouldn't be using this script if there is more than one sample
     # column.
-    if normal_id == "":    
-        SAMPLE_col_index2 = 10
+    if withcontrol == "True":
+        SAMPLE_col_index1 = FORMAT_col_index +1
+        SAMPLE_col_index2 = SAMPLE_col_index1 +1
     else:
-        SAMPLE_col_index1 = 10
-        SAMPLE_col_index2 = 11
+        SAMPLE_col_index = FORMAT_col_index +1
 
     with open_maybe_compressed_file(output_filename, 'w') as output_file:
         # Write Meta-information lines
@@ -394,20 +407,48 @@ def convert(input_filename, output_filename, normal_id, tumor_id, meta_informati
                 if line.startswith("##contig"):
                     output_file.write(line)
 
+                # copy workflowName info
+                if line.startswith("##workflowName"):
+                    output_file.write(line)
+
+                # copy workflowVersion info
+                if line.startswith("##workflowVersion"):
+                    output_file.write(line)
+
+                # copy pancancerversion info
+                if line.startswith("##pancancerversion"):
+                    output_file.write(line)
+
+                # copy fileDate info
+                if line.startswith("##fileDate"):
+                    output_file.write(line)
+
+                # copy center info
+                if line.startswith("##center"):
+                    output_file.write(line)
+
+                # copy platypusOptions info
+                if line.startswith("##platypusOptions"):
+                    output_file.write(line)
+
+                # copy VEP info
+                if line.startswith("##VEP"):
+                    output_file.write(line)
+
                 # CHROM marks the header-line, by definition the last metadata line
                 elif line.startswith("CHROM") or line.startswith("#CHROM"):
                     # close off the metadata section with our newer, sexier, shorter, header line
-                    if normal_id == "": 
+                    if withcontrol == "True": 
                         output_file.write( "#" +
                                            "\t".join(StdVCF_header_cols) +
-                                           "\t" + tumor_id + 
+                                           "\t" + sample_id + "_N" +
+                                           "\t" + sample_id + "_T" +
                                            "\n")
                     else:
                         output_file.write( "#" +
                                            "\t".join(StdVCF_header_cols) +
-                                           "\t" + normal_id + 
-                                           "\t" + tumor_id +
-                                           "\n") 
+                                           "\t" + sample_id +
+                                           "\n")
 
                 # other, unhandled, header or meta-information line, ignore
                 elif line.startswith("#"):
@@ -421,12 +462,8 @@ def convert(input_filename, output_filename, normal_id, tumor_id, meta_informati
 
                     line_original = line.rstrip().split("\t")
 
-                    if normal_id == "": 
-                        # First 7 columns left as is
-                        new_line = line_original[:8]
-                    else:
-                        # # First 8 columns left as is
-                        new_line = line_original[:9]
+                    # First 8 columns left as is
+                    new_line = line_original[:8]
 
                     # gather all the different tidbits that end up in the final INFO field
                     new_info_str = merge_and_format_INFO_sources(col_indices,
@@ -438,13 +475,13 @@ def convert(input_filename, output_filename, normal_id, tumor_id, meta_informati
                     # FORMAT Column copied as is
                     new_line.append(line_original[FORMAT_col_index])
 
-                    if normal_id == "":
-                        # sample information copied as is
-                        new_line.append(line_original[SAMPLE_col_index2])
-                    else:
+                    if withcontrol == "True":
                         # sample information copied as is
                         new_line.append(line_original[SAMPLE_col_index1])
-                        new_line.append(line_original[SAMPLE_col_index2])
+                        new_line.append(line_original[SAMPLE_col_index2])                        
+                    else:
+                        # sample information copied as is
+                        new_line.append(line_original[SAMPLE_col_index])
 
                     # Write new data line to output file
                     output_file.write("\t".join(new_line)+"\n")
@@ -459,9 +496,9 @@ def parse_options(argv):
                             formatter_class=ArgumentDefaultsHelpFormatter)
     parser.add_argument("-i", "--input", dest="input_file", required=True, type=str,
                         help="Input DKFZ-formatted VCF file")
-    parser.add_argument("-t", "--tumor-id", dest="tumor_id", required=True, type=str,
-                        help="Name to use for the tumor sample column in the output VCF")
-    parser.add_argument("-n", "--normal-id", dest="normal_id", required=False, type=str,
+    parser.add_argument("-s", "--sample-id", dest="sample_id", required=True, type=str,
+                        help="Name to use for the sample column in the output VCF")
+    parser.add_argument("-w", "--with-control", dest="withcontrol", required=True, type=str,
                         help="Name to use for the normal sample column in the output VCF")
     parser.add_argument("-o", "--output", dest="output_file", default="/dev/stdout",
                         required=False, type=str,
@@ -480,7 +517,7 @@ def parse_options(argv):
 if __name__ == '__main__':
     args = parse_options(sys.argv)
     print(" ".join(["Converting", args.input_file, "into", args.output_file,
-                    "for", args.tumor_id, "using", args.config_file]),
+                    "for", args.sample_id, "using", args.config_file]),
           file=sys.stderr)
     meta_information = read_meta_information(args.config_file)
-    convert(args.input_file, args.output_file, args.normal_id, args.tumor_id, meta_information)
+    convert(args.input_file, args.output_file, args.sample_id, meta_information,args.withcontrol)

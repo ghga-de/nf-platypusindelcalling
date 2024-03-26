@@ -260,7 +260,7 @@ workflow PLATYPUSINDELCALLING {
         )
         ch_versions = ch_versions.mix(INDEL_ANNOTATION.out.versions)
 
-        //ch_stdvcf = ch_stdvcf.mix(INDEL_ANNOTATION.out.ann_vcf_ch.map{it -> tuple( it[0], it[1])})
+        ch_stdvcf = ch_stdvcf.mix(INDEL_ANNOTATION.out.ann_vcf_ch.map{it -> tuple( it[0], it[1])})
         
         //
         //SUBWORKFLOW: FILTER VCF: filter_vcf.sh
@@ -307,15 +307,11 @@ workflow PLATYPUSINDELCALLING {
         println "Skipping sample swap check"
     }
 
-    ch_stdvcf.combine(GREP_SAMPLENAME.out.samplenames, by:0)
-        .set{stdvcf_ch}
-
-    stdvcf_ch.view()
     //
     // MODULE: CONVERT_TO_VCF
     //
     CONVERT_TO_VCF(
-        stdvcf_ch,
+        ch_stdvcf,
         config
     )
     ch_versions = ch_versions.mix(CONVERT_TO_VCF.out.versions)
