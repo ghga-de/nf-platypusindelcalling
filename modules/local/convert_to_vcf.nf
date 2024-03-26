@@ -29,9 +29,9 @@ process CONVERT_TO_VCF {
         -s $prefix \\
         $iscontrol \\
         -c $config \\
-        -o ${vcf_name}.std.vcf
+        -o ${vcf_name}std.vcf
 
-    bgzip --threads $task.cpus ${vcf_name}.std.vcf
+    bgzip --threads $task.cpus ${vcf_name}std.vcf
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

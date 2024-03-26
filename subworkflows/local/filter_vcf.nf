@@ -40,7 +40,7 @@ workflow FILTER_VCF {
 
     // filter out the lists if no variant exists for visualization
     INDEL_EXTRACTION.out.somatic_functional
-        .filter{meta, somatic_functional -> WorkflowCommons.getNumLinesInFile(somatic_functional) > 0}
+        .filter{meta, somatic_functional -> WorkflowCommons.getNumLinesInFile(somatic_functional) > 1}
         .set{functional_vars}
 
     INDEL_EXTRACTION.out.somatic_indel
@@ -73,17 +73,12 @@ workflow FILTER_VCF {
     )
     versions = versions.mix(VISUALIZE.out.versions)
 
-    // filter out the lists if no variant exists for reporting
-    INDEL_EXTRACTION.out.somatic_indel
-        .filter{meta, somatic_indel -> WorkflowCommons.getNumLinesInFile(somatic_indel) > 1}
-        .set{indel_vars}
-
     //
     // MODULE: INDEL_JSON
     //
     // RUN: indel_json_v1.0.pl : Prints indel stats
     INDEL_JSON(
-        indel_vars
+        somatic_indel_ch
     )
     versions = versions.mix(INDEL_JSON.out.versions)
 
