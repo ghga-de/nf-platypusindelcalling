@@ -161,6 +161,7 @@ include {INPUT_CHECK            } from '../subworkflows/local/input_check'
 include {INDEL_CALLING          } from '../subworkflows/local/indel_calling'
 include {INDEL_ANNOTATION       } from '../subworkflows/local/indel_annotation'
 include {FILTER_VCF             } from '../subworkflows/local/filter_vcf'
+include {OUTPUT_STANDARD_VCF    } from '../subworkflows/local/output_standard_vcf'
 
 //
 // MODULE: Local Modules
@@ -169,7 +170,6 @@ include {FILTER_VCF             } from '../subworkflows/local/filter_vcf'
 include { GREP_SAMPLENAME       } from '../modules/local/grep_samplename.nf'
 include { SAMPLE_SWAP           } from '../modules/local/sample_swap.nf'
 include { GETCHROMSIZES         } from '../modules/local/getchromsizes.nf'
-include { CONVERT_TO_VCF        } from '../modules/local/convert_to_vcf.nf'              
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -307,14 +307,16 @@ workflow PLATYPUSINDELCALLING {
         println "Skipping sample swap check"
     }
 
-    //
-    // MODULE: CONVERT_TO_VCF
-    //
-    CONVERT_TO_VCF(
-        ch_stdvcf,
-        config
-    )
-    ch_versions = ch_versions.mix(CONVERT_TO_VCF.out.versions)
+    if (params.standard_vcf){
+        println "VCF output is standardizing.."
+        OUTPUT_STANDARD_VCF(
+            ch_stdvcf,
+            config,
+            ref
+        )
+        ch_versions = ch_versions.mix(OUTPUT_STANDARD_VCF.out.versions)
+    }
+
 
     // Info required for completion email and summary
     def multiqc_report = []
