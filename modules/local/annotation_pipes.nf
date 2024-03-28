@@ -47,9 +47,9 @@ process ANNOTATION_PIPES {
                 mirnas_sncrnas ? " | annotate_vcf.pl -a - -b ${mirnas_sncrnas} --bFileType=bed --columnName='miRNAs_sncRNAs'" : ''
                 ].join(' ').trim() 
     """
-    zcat < $vcf $pipe > ${prefix}.deepanno.vcf
-    bgzip -c ${prefix}.deepanno.vcf > ${prefix}.deepanno.vcf.gz
-    tabix ${prefix}.deepanno.vcf.gz
+    zcat < $vcf $pipe > indel_${prefix}.deepanno.vcf
+    bgzip -c indel_${prefix}.deepanno.vcf > indel_${prefix}.deepanno.vcf.gz
+    tabix indel_${prefix}.deepanno.vcf.gz
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

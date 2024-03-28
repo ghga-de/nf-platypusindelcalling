@@ -32,7 +32,7 @@ process BCFTOOLS_REHEADER {
                     args2.contains("--output-type v") || args2.contains("-Ov") ? "vcf" :
                     "vcf"
     def vcf_name = vcf.getExtension() == "gz" ? vcf.getBaseName() : vcf.getName()
-    vcf_name = vcf_name.take(vcf_name.size() - 3)
+    vcf_name = vcf_name.take(vcf_name.size() - 4)
 
     """
     bcftools \\

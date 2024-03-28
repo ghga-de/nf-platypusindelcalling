@@ -26,12 +26,12 @@ process BCFTOOLS_SORT {
                     args.contains("--output-type v") || args.contains("-Ov") ? "vcf" :
                     "vcf"
     def vcf_name = vcf.getExtension() == "gz" ? vcf.getBaseName() : vcf.getName()
-    vcf_name = vcf_name.take(vcf_name.size() - 3)
+    vcf_name = vcf_name.take(vcf_name.size() - 4)
 
     """
     bcftools \\
         sort \\
-        --output ${vcf_name}.${extension} \\
+        --output ${vcf_name}.sorted.${extension} \\
         --temp-dir . \\
         $args \\
         $vcf

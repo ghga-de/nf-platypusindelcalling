@@ -66,10 +66,9 @@ def convert_str_to_dict(str_to_convert, pair_separator, key_val_separator):
     :param key_val_separator: String or character that separates keys from values
     :return: dictionary that was created from the string
     """
-    return dict(
-        pair.split(key_val_separator)
-        for pair
-        in str_to_convert.split(pair_separator))
+    pairs = str_to_convert.split(pair_separator) 
+    valid_pairs = filter(lambda pair: len(pair.split(key_val_separator)) == 2, pairs)
+    return dict(pair.split(key_val_separator) for pair in valid_pairs)
 
 
 def convert_dict_to_str(dict_to_convert, pair_separator, key_val_separator):
@@ -196,14 +195,14 @@ def update_keys_used(line, col_indices, keys_used):
     print(new_line)
     INFO_old_keys = convert_str_to_dict(new_line, ';', '=').keys()
     #INFO_old_keys = convert_str_to_dict(line_as_list[col_indices["INFO"]], ';', '=').keys()
-
-    #INFO_control_keys = convert_str_to_dict(line_as_list[col_indices["INFO_control"]], ';', '=').keys()
-    #INFO_control_keys = [key + "_ctrl" for key in INFO_control_keys]
-
-    freestanding_INFO_columns = (column_name for (column_name, index) in col_indices.items() if index > 10)
-
     keys_used["INFO"].update(INFO_old_keys)
-    #keys_used["INFO"].update(INFO_control_keys)
+
+    if "INFO_control" in col_indices.keys():
+        INFO_control_keys = convert_str_to_dict(line_as_list[col_indices["INFO_control"]], ';', '=').keys()
+        INFO_control_keys = [key + "_ctrl" for key in INFO_control_keys]
+        keys_used["INFO"].update(INFO_control_keys)
+
+    freestanding_INFO_columns = (column_name for (column_name, index) in col_indices.items() if index > 9)
     keys_used["INFO"].update(freestanding_INFO_columns)
 
     FORMAT_keys = line_as_list[col_indices["FORMAT"]].split(":")
@@ -240,10 +239,6 @@ def get_all_used_metadata_keys(col_indices, input_file):
     for line in input_file:
         # skip header
         if line.startswith('#'):
-            continue
-        # FromComplex is being add to INFO as last definition without a key    
-        if "FromComplex" in line:
-            print("Skipping line: {}".format(line.strip()))
             continue
 
         # unfortunately, we must go through all lines, because keys can be different per line.
@@ -292,7 +287,6 @@ def extract_desired_INFO_fields_from_all(raw_INFO_field, used_and_desired_keys, 
            between control and tumor values
     :return: Dictionary with contents from the INFO or INFO_control field
     """
-
     old_INFO_dict = convert_str_to_dict(raw_INFO_field, ";", "=")
     print(old_INFO_dict)
 
@@ -327,17 +321,26 @@ def merge_and_format_INFO_sources(col_indices, line_original, used_and_desired_k
     new_info.update(extract_desired_INFO_fields_from_all(new_line,
                                                          used_and_desired_keys["INFO"],
                                                          rename_control=False))
-    #new_info.update(extract_desired_INFO_fields_from_all(line_original[col_indices["INFO_control"]],
-    #                                                     used_and_desired_keys["INFO"],
-    #                                                     rename_control=True))
+    if "INFO_control" in col_indices.keys():
+        new_info.update(extract_desired_INFO_fields_from_all(line_original[col_indices["INFO_control"]],
+                                                            used_and_desired_keys["INFO"],
+                                                            rename_control=True))
     new_info.update(extract_freestanding_columns_into_dict(line_original,
                                                            col_indices,
                                                            meta_information))
 
     return convert_dict_to_str(new_info, ";", "=")
 
-
-def convert(input_filename, output_filename, sample_id, meta_information, withcontrol):
+def vcf_has_config(vcf_file):
+    has_config_line = False
+    with open_maybe_compressed_file(vcf_file, 'r') as f:
+        for line in f:
+            if line.startswith("##contig"):
+                has_config_line = True
+                break
+    return  has_config_line
+            
+def convert(input_filename, output_filename, sample_id, meta_information, withcontrol, header_file_name):
     """
     Does the actual conversion of one VCF file format into another (here DKFZ -> standard).
 
@@ -374,6 +377,17 @@ def convert(input_filename, output_filename, sample_id, meta_information, withco
     with open_maybe_compressed_file(output_filename, 'w') as output_file:
         # Write Meta-information lines
         output_file.write('##fileformat=%s\n' % vcf_version)  # Required as first line in the file
+
+        if vcf_has_config(input_filename):
+            pass
+        else:
+            if header_file_name:
+                with open_maybe_compressed_file(header_file_name,'r') as f:
+                    for line in f:
+                        if line.startswith("##contig"):  
+                            output_file.write(line)
+                        else:
+                            continue
 
         # First pass through input file, check which tags/keys occur so that we may write our
         # meta-information block
@@ -456,9 +470,6 @@ def convert(input_filename, output_filename, sample_id, meta_information, withco
 
                 # Data line: convert
                 else:
-                    print(line)
-                    if "FromComplex" in line:
-                        continue
 
                     line_original = line.rstrip().split("\t")
 
@@ -496,6 +507,8 @@ def parse_options(argv):
                             formatter_class=ArgumentDefaultsHelpFormatter)
     parser.add_argument("-i", "--input", dest="input_file", required=True, type=str,
                         help="Input DKFZ-formatted VCF file")
+    parser.add_argument("-r", "--raw-vcf", dest="raw_vcf", required=False, type=str,
+                        help="Input Raw VCF file")    
     parser.add_argument("-s", "--sample-id", dest="sample_id", required=True, type=str,
                         help="Name to use for the sample column in the output VCF")
     parser.add_argument("-w", "--with-control", dest="withcontrol", required=True, type=str,
@@ -520,4 +533,8 @@ if __name__ == '__main__':
                     "for", args.sample_id, "using", args.config_file]),
           file=sys.stderr)
     meta_information = read_meta_information(args.config_file)
-    convert(args.input_file, args.output_file, args.sample_id, meta_information,args.withcontrol)
+    if args.raw_vcf == "False":
+        header =False
+    else: 
+        header = args.raw_vcf      
+    convert(args.input_file, args.output_file, args.sample_id, meta_information,args.withcontrol,header)
