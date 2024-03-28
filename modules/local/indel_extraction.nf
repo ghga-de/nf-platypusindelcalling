@@ -13,8 +13,8 @@ process INDEL_EXTRACTION {
     output:
     tuple val(meta), path('indel_*_somatic_functional_indels_conf_*_to_10.vcf')          , emit: somatic_functional
     tuple val(meta), path('indel_*_somatic_indels_conf_*_to_10.vcf')                     , emit: somatic_indel
-    tuple val(meta), path('indel_*_somatic_ncRNA_indels_conf_*_to_10.vcf')               
-    tuple val(meta), path('indel_*_germline_functional_indels_conf_*_to_10.vcf')         
+    tuple val(meta), path('indel_*_somatic_ncRNA_indels_conf_*_to_10.vcf')               , emit: somatic_ncrna
+    tuple val(meta), path('indel_*_germline_functional_indels_conf_*_to_10.vcf')         , emit: germline_functional 
     path  "versions.yml"                                                                 , emit: versions
 
     when:

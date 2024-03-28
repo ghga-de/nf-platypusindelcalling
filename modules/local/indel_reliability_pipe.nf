@@ -37,10 +37,10 @@ process INDEL_RELIABILITY_PIPE {
                 simpletandemrepeats ? " | annotate_vcf.pl -a - -b ${simpletandemrepeats} --bFileType=bed --columnName='SIMPLE_TANDEMREPEATS' --bAdditionalColumns=4" : ''
                 ].join(' ').trim()
     """
-    zcat < $ch_vcf $pipe > ${prefix}.annotated.vcf
+    zcat < $ch_vcf $pipe > indel_${prefix}.annotated.vcf
 
-    bgzip -c ${prefix}.annotated.vcf > ${prefix}.annotated.vcf.gz
-    tabix ${prefix}.annotated.vcf.gz
+    bgzip -c indel_${prefix}.annotated.vcf > indel_${prefix}.annotated.vcf.gz
+    tabix indel_${prefix}.annotated.vcf.gz
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

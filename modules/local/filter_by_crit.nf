@@ -33,8 +33,8 @@ process FILTER_BY_CRIT {
 // Filter variants only if there is no control, else do noting
     if (meta.iscontrol == '1') {
         """
-        mv $vcfgz ${prefix}_noFiltered.vcf.gz
-        tabix ${prefix}_noFiltered.vcf.gz
+        mv $vcfgz indel_${prefix}_noFiltered.vcf.gz
+        tabix indel_${prefix}_noFiltered.vcf.gz
 
         cat <<-END_VERSIONS > versions.yml
         "${task.process}":
@@ -49,9 +49,9 @@ process FILTER_BY_CRIT {
         if (filter_values) 
             {
             """
-            vcf_filter_by_crit.py $vcfgz ${prefix}_postFiltered.vcf $filter_values
-            bgzip -c ${prefix}_postFiltered.vcf > ${prefix}_postFiltered.vcf.gz
-            tabix ${prefix}_postFiltered.vcf.gz
+            vcf_filter_by_crit.py $vcfgz indel_${prefix}_postFiltered.vcf $filter_values
+            bgzip -c indel_${prefix}_postFiltered.vcf > indel_${prefix}_postFiltered.vcf.gz
+            tabix indel_${prefix}_postFiltered.vcf.gz
 
             echo "$filter_values" > ${prefix}_postFilter_criteria.txt
 
@@ -66,8 +66,8 @@ process FILTER_BY_CRIT {
         else
         {
             """
-            mv $vcfgz ${prefix}_noFiltered.vcf.gz
-            tabix ${prefix}_noFiltered.vcf.gz
+            mv $vcfgz indel_${prefix}_noFiltered.vcf.gz
+            tabix indel_${prefix}_noFiltered.vcf.gz
             
             cat <<-END_VERSIONS > versions.yml
             "${task.process}":
