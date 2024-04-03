@@ -535,6 +535,6 @@ if __name__ == '__main__':
     meta_information = read_meta_information(args.config_file)
     if args.raw_vcf == "False":
         header =False
-    else: 
+    else:
         header = args.raw_vcf      
     convert(args.input_file, args.output_file, args.sample_id, meta_information,args.withcontrol,header)

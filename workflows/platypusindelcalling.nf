@@ -56,7 +56,7 @@ if (params.annotation_tool.contains("annovar")){
 ref            = Channel.fromPath([params.fasta,params.fasta_fai], checkIfExists: true).collect()
 chr_prefix     = Channel.value(params.chr_prefix)
 chrlength      = params.chrom_sizes ? Channel.fromPath(params.chrom_sizes, checkIfExists: true).collect() : Channel.empty()   
-config         = Channel.fromPath("${projectDir}/assets/config/standart_vcf_config.json", checkIfExists: true).collect()
+config         = Channel.fromPath("${projectDir}/assets/config/convertToStdVCF.json", checkIfExists: true).collect()
 
 // Input samplesheet
 if (params.input)                { ch_input  = file(params.input) } else { exit 1, 'Input samplesheet not specified!' }
@@ -309,6 +309,10 @@ workflow PLATYPUSINDELCALLING {
 
     if (params.standard_vcf){
         println "VCF output is standardizing.."
+    //
+    // SUBWORKFLOW: OUTPUT_STANDARD_VCF
+    //
+    // Runs convertToStdVCF.py, sorts resulting vcf.
         OUTPUT_STANDARD_VCF(
             ch_stdvcf,
             config,
