@@ -85,7 +85,7 @@ def convert_dict_to_str(dict_to_convert, pair_separator, key_val_separator):
     """
 
     return pair_separator.join(
-        key + key_val_separator + val
+        key + key_val_separator + val.replace(";", ",")
         for (key,val)
         in dict_to_convert.iteritems())
 

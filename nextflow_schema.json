@@ -72,6 +72,12 @@
           "fa_icon": "fas fa-post_processes",
           "description": "Enable Sample Swap check"
         },
+        "standard_vcf": {
+          "type": "boolean",
+          "default": "true",
+          "fa_icon": "fas fa-post_processes",
+          "description": "Produce 4.2 VCF format for vcf results."
+        },
         "skip_multiqc": {
           "type": "boolean",
           "default": "false",

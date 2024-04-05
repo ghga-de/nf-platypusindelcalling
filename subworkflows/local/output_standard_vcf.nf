@@ -4,46 +4,49 @@
 
 params.options = [:]
 
-include { CONVERT_TO_VCF        } from '../../modules/local/convert_to_vcf.nf'   addParams( options: params.options )   
-include { BCFTOOLS_SORT         } from '../../modules/nf-core/modules/bcftools/sort/main'     addParams( options: params.options )          
-include { TABIX_TABIX           } from '../../modules/nf-core/modules/tabix/tabix/main'       addParams( options: params.options )             
-include { BCFTOOLS_REHEADER     } from '../../modules/nf-core/modules/bcftools/reheader/main' addParams( options: params.options )             
+include { CONVERT_TO_VCF        } from '../../modules/local/convert_to_vcf.nf'                 addParams( options: params.options )   
+include { BCFTOOLS_SORT         } from '../../modules/nf-core/modules/bcftools/sort/main'      addParams( options: params.options )          
+include { TABIX_BGZIPTABIX      } from '../../modules/nf-core/modules/tabix/bgziptabix/main'   addParams( options: params.options )             
+include { CREATE_CONTIGHEADER   } from '../../modules/local/create_contigheader.nf'            addParams( options: params.options )             
 
 workflow OUTPUT_STANDARD_VCF {
     take:
     vcf_ch // channel: [val(meta), vcf]
-    config
+    config // channel: [config.json]
     ref    // reference channel [ref.fa, ref.fa.fai]
 
     
     main:
 
     versions=Channel.empty()
+
+    //
+    // CREATE_CONTIGHEADER
+    //
+    CREATE_CONTIGHEADER(
+        ref
+    )
+    
     //
     // MODULE: CONVERT_TO_VCF
     //
     CONVERT_TO_VCF(
-        vcf_ch.map{it -> tuple( it[0], it[1], [])},
+        vcf_ch.combine(CREATE_CONTIGHEADER.out.header),
         config
     )
     versions = versions.mix(CONVERT_TO_VCF.out.versions)
-
-
-    ref.map { it -> tuple([id: it[0].baseName], it[1]) }
-            .set{fai}
-
-    BCFTOOLS_REHEADER(
-        CONVERT_TO_VCF.out.std_vcf.map{it -> tuple( it[0], it[1], [], [])},
-        fai
+    //
+    // MODULE: TABIX_BGZIPTABIX
+    //
+    TABIX_BGZIPTABIX(
+        CONVERT_TO_VCF.out.std_vcf
     )
-
-    TABIX_TABIX(
-        BCFTOOLS_REHEADER.out.vcf
-    )
-    versions = versions.mix(TABIX_TABIX.out.versions)
-
+    versions = versions.mix(TABIX_BGZIPTABIX.out.versions)
+    //
+    // MODULE: BCFTOOLS_SORT
+    //
     BCFTOOLS_SORT(
-        BCFTOOLS_REHEADER.out.vcf.join(TABIX_TABIX.out.tbi)
+        TABIX_BGZIPTABIX.out.gz_tbi
     )
     versions = versions.mix(BCFTOOLS_SORT.out.versions)
 
