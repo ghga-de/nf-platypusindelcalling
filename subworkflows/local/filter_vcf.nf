@@ -65,7 +65,7 @@ workflow FILTER_VCF {
     // MODULE: VISUALIZE
     //
     // RUN: visualize.py : First,checks if there is functional somatic variants to visualize
-    // and then checks the size if smaller than the limit creates a pdf wirk screenshots.
+    // and then checks the size if smaller than the limit creates a pdf screenshots.
     VISUALIZE (
         functional_vars, 
         ref, 

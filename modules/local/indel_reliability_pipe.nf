@@ -19,8 +19,8 @@ process INDEL_RELIABILITY_PIPE {
     tuple path(simpletandemrepeats),path(simpletandemrepeats_i)
 
     output:
-    tuple val(meta), path('*.annotated.vcf.gz'), path('*.annotated.vcf.gz.tbi')   , emit: vcf
-    path  "versions.yml"                                                          , emit: versions
+    tuple val(meta), path('*.reliability.vcf.gz'), path('*.reliability.vcf.gz.tbi')   , emit: vcf
+    path  "versions.yml"                                                              , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -37,10 +37,10 @@ process INDEL_RELIABILITY_PIPE {
                 simpletandemrepeats ? " | annotate_vcf.pl -a - -b ${simpletandemrepeats} --bFileType=bed --columnName='SIMPLE_TANDEMREPEATS' --bAdditionalColumns=4" : ''
                 ].join(' ').trim()
     """
-    zcat < $ch_vcf $pipe > indel_${prefix}.annotated.vcf
+    zcat < $ch_vcf $pipe > indel_${prefix}.reliability.vcf
 
-    bgzip -c indel_${prefix}.annotated.vcf > indel_${prefix}.annotated.vcf.gz
-    tabix indel_${prefix}.annotated.vcf.gz
+    bgzip -c indel_${prefix}.reliability.vcf > indel_${prefix}.reliability.vcf.gz
+    tabix indel_${prefix}.reliability.vcf.gz
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

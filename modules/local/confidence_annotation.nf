@@ -11,8 +11,8 @@ process CONFIDENCE_ANNOTATION {
     val(ref_type)
 
     output:
-    tuple val(meta), path('*.vcf.gz') ,   path('*.vcf.gz.tbi')    , emit: vcf_ann
-    path  "versions.yml"                                          , emit: versions
+    tuple val(meta), path('*.confidence.vcf.gz') ,path('*.confidence.vcf.gz.tbi') , emit: vcf_ann
+    path  "versions.yml"                                                          , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -32,11 +32,11 @@ process CONFIDENCE_ANNOTATION {
         --localControl_WGS_maxMAF=${params.crit_localcontrol_maxmaf} \\
         --localControl_WES_maxMAF=${params.crit_localcontrol_maxmaf} \\
         --1000genome_maxMAF=${params.crit_1kgenomes_maxmaf} \\
-        | tee indel_${prefix}.ann.vcf \\
-        | cut -f 1-11 > indel_${prefix}.conf.vcf
+        | tee indel_${prefix}.confidence.vcf \\
+        | cut -f 1-11 > indel_${prefix}.temp.vcf
 
-    bgzip -c indel_${prefix}.ann.vcf > indel_${prefix}.vcf.gz
-    tabix indel_${prefix}.vcf.gz
+    bgzip -c indel_${prefix}.confidence.vcf > indel_${prefix}.confidence.vcf.gz
+    tabix indel_${prefix}.confidence.vcf.gz
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
