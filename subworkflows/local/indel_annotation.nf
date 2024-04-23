@@ -147,6 +147,7 @@ workflow INDEL_ANNOTATION {
     else{
         println "Skipping deep annotation since runIndelDeepAnnotation is set to false"
     }
+
 emit:
 logs
 ann_vcf_ch

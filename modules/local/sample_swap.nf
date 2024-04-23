@@ -19,17 +19,17 @@ process SAMPLE_SWAP {
     val chrprefix
 
     output:
-    tuple val(meta), path('indel_*.tinda.vcf')                           , emit: vcf  , optional: true
-    tuple val(meta), path('indel_*.swap.json')                           , emit: json , optional: true
-    path  "snvs_*.GTfiltered_raw.vcf"                                    , optional: true
-    path  "snvs_*.GTfiltered_gnomAD.vcf"                                 , optional: true
-    path  "snvs_*.GTfiltered_gnomAD.SomaticIn.vcf"                       , optional: true   
-    path  "snvs_*.GTfiltered_gnomAD.Germline.Rare.vcf"                   , optional: true
-    path  "snvs_*.GTfiltered_gnomAD.Germline.Rare.txt"                   , optional: true
-    path  "snvs_*.GTfiltered_gnomAD.Germline.Rare.Rescue.png"            , optional: true
-    path  "snvs_*.GTfiltered_gnomAD.Germline.Rare.Rescue.txt"            , optional: true
-    path  "indel_*.checkSampleSwap_TiN.log"                              , emit: log
-    path  "versions.yml"                                                 , emit: versions
+    tuple val(meta), path('*.tinda.vcf')                           , emit: vcf  , optional: true
+    tuple val(meta), path('*.swap.json')                           , emit: json , optional: true
+    path  "snvs_*.GTfiltered_raw.vcf"                              , optional: true
+    path  "snvs_*.GTfiltered_gnomAD.vcf"                           , optional: true
+    path  "snvs_*.GTfiltered_gnomAD.SomaticIn.vcf"                 , optional: true   
+    path  "snvs_*.GTfiltered_gnomAD.Germline.Rare.vcf"             , optional: true
+    path  "snvs_*.GTfiltered_gnomAD.Germline.Rare.txt"             , optional: true
+    path  "snvs_*.GTfiltered_gnomAD.Germline.Rare.Rescue.png"      , optional: true
+    path  "snvs_*.GTfiltered_gnomAD.Germline.Rare.Rescue.txt"      , optional: true
+    path  "*.checkSampleSwap_TiN.log"                              , emit: log
+    path  "versions.yml"                                           , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -57,9 +57,9 @@ process SAMPLE_SWAP {
             --sequenceType=${params.seqtype} \\
             --gene_model_bed=$genemodel \\
             --reference=$ref \\
-            --outfile_tindaVCF=indel_${prefix}.tinda.vcf \\
-            --outfile_swapJSON=indel_${prefix}.swap.json \\
-            2>&1 | tee indel_${prefix}.checkSampleSwap_TiN.log
+            --outfile_tindaVCF=smvs_${prefix}.tinda.vcf \\
+            --outfile_swapJSON=smvs_${prefix}.swap.json \\
+            2>&1 | tee smvs_${prefix}.checkSampleSwap_TiN.log
 
         cat <<-END_VERSIONS > versions.yml
         "${task.process}":
@@ -72,7 +72,7 @@ process SAMPLE_SWAP {
     }
     else {
         """
-        touch indel_empty.checkSampleSwap_TiN.log
+        touch smvs_empty.checkSampleSwap_TiN.log
         cat <<-END_VERSIONS > versions.yml
         "${task.process}":
             r-base: \$(echo \$(R --version 2>&1) | sed 's/^.*R version //; s/ .*\$//')

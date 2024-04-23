@@ -40,14 +40,32 @@ workflow FILTER_VCF {
 
     // filter out the lists if no variant exists for visualization
     INDEL_EXTRACTION.out.somatic_functional
-        .filter{meta, somatic_functional -> WorkflowCommons.getNumLinesInFile(somatic_functional) > 0}
+        .filter{meta, somatic_functional -> WorkflowCommons.getNumLinesInFile(somatic_functional) > 1}
         .set{functional_vars}
 
+    INDEL_EXTRACTION.out.somatic_indel
+        .filter{meta, somatic_indel -> WorkflowCommons.getNumLinesInFile(somatic_indel) > 1}
+        .set{somatic_indel_ch}
+
+    INDEL_EXTRACTION.out.somatic_ncrna
+        .filter{meta, somatic_ncrna -> WorkflowCommons.getNumLinesInFile(somatic_ncrna) > 1}
+        .set{somatic_ncrna_ch}
+
+    INDEL_EXTRACTION.out.germline_functional
+        .filter{meta, germline_functional -> WorkflowCommons.getNumLinesInFile(germline_functional) > 1}
+        .set{germline_funct_ch}
+
+    FILTER_BY_CRIT.out.vcf.map{ it -> tuple( it[0], it[1] )}
+                .mix(functional_vars)
+                .mix(somatic_indel_ch)
+                .mix(somatic_ncrna_ch)
+                .mix(germline_funct_ch)
+                .set{convert_snvs}               
     //
     // MODULE: VISUALIZE
     //
     // RUN: visualize.py : First,checks if there is functional somatic variants to visualize
-    // and then checks the size if smaller than the limit creates a pdf wirk screenshots.
+    // and then checks the size if smaller than the limit creates a pdf screenshots.
     VISUALIZE (
         functional_vars, 
         ref, 
@@ -55,20 +73,16 @@ workflow FILTER_VCF {
     )
     versions = versions.mix(VISUALIZE.out.versions)
 
-    // filter out the lists if no variant exists for reporting
-    INDEL_EXTRACTION.out.somatic_indel
-        .filter{meta, somatic_indel -> WorkflowCommons.getNumLinesInFile(somatic_indel) > 1}
-        .set{indel_vars}
-
     //
     // MODULE: INDEL_JSON
     //
     // RUN: indel_json_v1.0.pl : Prints indel stats
     INDEL_JSON(
-        indel_vars
+        somatic_indel_ch
     )
     versions = versions.mix(INDEL_JSON.out.versions)
 
     emit:
+    convert_snvs
     versions
 }

@@ -23,7 +23,7 @@ process ANNOTATION_PIPES {
     tuple path(mirnas_sncrnas),path(mirnas_sncrnas_i)
 
     output:
-    tuple val(meta), path('*.deepanno.vcf.gz'), path('*.deepanno.vcf.gz.tbi') , emit: vcf
+    tuple val(meta), path('*.vcf.gz'), path('*.vcf.gz.tbi') , emit: vcf
     path  "versions.yml"                                                      , emit: versions
 
     when:
@@ -47,9 +47,9 @@ process ANNOTATION_PIPES {
                 mirnas_sncrnas ? " | annotate_vcf.pl -a - -b ${mirnas_sncrnas} --bFileType=bed --columnName='miRNAs_sncRNAs'" : ''
                 ].join(' ').trim() 
     """
-    zcat < $vcf $pipe > ${prefix}.deepanno.vcf
-    bgzip -c ${prefix}.deepanno.vcf > ${prefix}.deepanno.vcf.gz
-    tabix ${prefix}.deepanno.vcf.gz
+    zcat < $vcf $pipe > indel_${prefix}.vcf
+    bgzip -c indel_${prefix}.vcf > indel_${prefix}.vcf.gz
+    tabix indel_${prefix}.vcf.gz
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
