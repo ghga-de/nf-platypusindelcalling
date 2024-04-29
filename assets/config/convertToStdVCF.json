@@ -198,6 +198,11 @@
       "number": "0",
       "type": "Flag",
       "description": "Too many haplotypes are supported by the data in this region."
+    },
+    "MQ": {
+      "number": "0",
+      "type": "Flag",
+      "description": "Bad Root-mean-square mapping quality of covering reads/reads at the position"
     }
   },
 
