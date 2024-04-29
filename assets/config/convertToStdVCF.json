@@ -64,10 +64,10 @@
       "type": "Flag",
       "description": "Strand bias of reads with mutant allele = zero reads on one strand and variant allele frequency below 0.1"
     },
-    "FRQ": {
+    "FREQ": {
       "number": "0",
       "type": "Flag",
-      "description": "variant allele frequency below 0.05"
+      "description": "Variant allele frequency above 0.001 in GnomAD or above 0.001 in local control database"
     },
     "TAR": {
       "number": "0",
