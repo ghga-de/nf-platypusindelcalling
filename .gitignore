@@ -16,3 +16,4 @@ tests/data/
 work/
 .github/CODEOWNERS-tmp
 bin/vcfparser.pyc
+node_modules/*
