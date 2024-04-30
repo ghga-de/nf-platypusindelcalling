@@ -820,6 +820,11 @@
       "type": "Integer",
       "description": "Sequencing Bias Check 2",
       "new_info_id": "SB2"
+    },
+    "MAFCommon": {
+      "number": "1",
+      "type": "String",
+      "description": "Indicates that the variant is common in the gnomAD or local controls."
     }
   }
 }

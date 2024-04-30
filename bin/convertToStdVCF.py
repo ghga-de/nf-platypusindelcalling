@@ -66,10 +66,20 @@ def convert_str_to_dict(str_to_convert, pair_separator, key_val_separator):
     :param key_val_separator: String or character that separates keys from values
     :return: dictionary that was created from the string
     """
-    pairs = str_to_convert.split(pair_separator) 
-    valid_pairs = filter(lambda pair: len(pair.split(key_val_separator)) == 2, pairs)
-    return dict(pair.split(key_val_separator) for pair in valid_pairs)
-
+    valid_pairs = {}
+    
+    if str_to_convert == "MAFcommon":
+        valid_pairs["MAFcommon"] = "true"
+        return valid_pairs
+    
+    pairs = str_to_convert.split(pair_separator)
+    for pair in pairs:
+        key_val = pair.split(key_val_separator)
+        if len(key_val) == 2:
+            key, value = key_val
+            valid_pairs[key] = value
+    
+    return valid_pairs
 
 def convert_dict_to_str(dict_to_convert, pair_separator, key_val_separator):
     """
