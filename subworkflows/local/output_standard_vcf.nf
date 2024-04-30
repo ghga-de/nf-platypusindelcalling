@@ -11,10 +11,9 @@ include { CREATE_CONTIGHEADER   } from '../../modules/local/create_contigheader.
 
 workflow OUTPUT_STANDARD_VCF {
     take:
-    vcf_ch // channel: [val(meta), vcf]
-    config // channel: [config.json]
-    ref    // reference channel [ref.fa, ref.fa.fai]
-
+    vcf_ch    // channel: [val(meta), vcf]
+    config    // channel: [config.json]
+    sample_ch // channel: [val(meta), tumor, tumor_bai, control, control_bai]
     
     main:
 
@@ -24,14 +23,14 @@ workflow OUTPUT_STANDARD_VCF {
     // CREATE_CONTIGHEADER
     //
     CREATE_CONTIGHEADER(
-        ref
+        sample_ch
     )
     
     //
     // MODULE: CONVERT_TO_VCF
     //
     CONVERT_TO_VCF(
-        vcf_ch.combine(CREATE_CONTIGHEADER.out.header),
+        vcf_ch.join(CREATE_CONTIGHEADER.out.header),
         config
     )
     versions = versions.mix(CONVERT_TO_VCF.out.versions)

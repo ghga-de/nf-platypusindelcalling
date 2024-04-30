@@ -316,7 +316,7 @@ workflow PLATYPUSINDELCALLING {
         OUTPUT_STANDARD_VCF(
             ch_stdvcf,
             config,
-            ref
+            sample_ch
         )
         ch_versions = ch_versions.mix(OUTPUT_STANDARD_VCF.out.versions)
     }
