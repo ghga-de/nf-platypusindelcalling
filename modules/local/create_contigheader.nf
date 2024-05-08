@@ -1,5 +1,5 @@
 process CREATE_CONTIGHEADER {
-    tag "$fasta"
+    tag "$meta.id"
     label 'process_single'
 
     conda     (params.enable_conda ? "" : null)
@@ -7,19 +7,22 @@ process CREATE_CONTIGHEADER {
     'docker://kubran/odcf_platypusindelcalling:v1' :'kubran/odcf_platypusindelcalling:v1' }"
 
     input:
-    tuple path(fasta), path(fai)
+    tuple val(meta), path(tumor), path(tumor_bai), path(control),  path(control_bai)
 
     output:
-    path ("*.header")       , emit: header
-    path  "versions.yml"    , emit: versions
+    tuple val(meta), path ("*.header")    , emit: header
+    path  "versions.yml"                  , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
 
     script:
     def args = task.ext.args ?: ''
+
     """
-    awk '{printf("##contig=<ID=%s,length=%d>\\n",\$1,\$2);}' $fai > ${fai}.header
+    samtools view -H $tumor > header.txt
+
+    awk -F '[:\\t ]+' '/^@SQ/ {print "##contig=<ID=" \$3 ",length=" \$5 ">"}' header.txt > ${meta.id}.header 
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
