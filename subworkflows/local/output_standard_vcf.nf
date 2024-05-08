@@ -25,12 +25,13 @@ workflow OUTPUT_STANDARD_VCF {
     CREATE_CONTIGHEADER(
         sample_ch
     )
-    
+    vcf_ch.combine(CREATE_CONTIGHEADER.out.header, by:0)
+            .set{vcf_std}
     //
     // MODULE: CONVERT_TO_VCF
     //
     CONVERT_TO_VCF(
-        vcf_ch.join(CREATE_CONTIGHEADER.out.header),
+        vcf_std,
         config
     )
     versions = versions.mix(CONVERT_TO_VCF.out.versions)
