@@ -26,8 +26,11 @@ process CHECK_IF_CORRUPTED {
 // If there is control (iscontrol=1), isNoControlWorkflow is false
 
     """
+    # Set TMPDIR to the current working directory
+    export TMPDIR=\$PWD
+    ls -l $vcf
     corrupted.sh -i $vcf -c $nocontrol
-    (zcat $vcf | grep '#' ; zcat $vcf | grep -v '#' | sort -V -k1,2 -T .) | bgzip -f > indel_${prefix}.raw.vcf.gz 
+    (zcat $vcf | grep '#' ; zcat $vcf | grep -v '#' | sort -V -k1,2 -T \$TMPDIR) | bgzip -f > indel_${prefix}.raw.vcf.gz 
 
     tabix indel_${prefix}.raw.vcf.gz
     cat <<-END_VERSIONS > versions.yml
