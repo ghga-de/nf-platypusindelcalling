@@ -89,3 +89,13 @@ Initial release of nf-core/platypusindelcalling, created with the [nf-core](http
 ### `Fixed`
 
 - versioning of the pipeline is fixed
+
+## v2.0.2 - [12.11.2024]
+
+### `Fixed`
+
+- add cram/crai files to input list (assets/schema_input.json)
+- add only a warn about the indices does not exists in converttovcf.json (bin/convertToStdVCF.py)
+- change default arg for ENSEMBL VEP (conf/modules.config)
+- set TMPDIR to working dir (modules/local/check_if_corrupted.nf)
+- edit nextflow version to latest (nextflow.config)
