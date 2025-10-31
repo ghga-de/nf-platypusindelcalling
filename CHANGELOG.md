@@ -3,6 +3,12 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v2.0.3 - 31.10.2025
+
+### `Fixed`
+
+- Fixing [issue 45](https://github.com/ghga-de/nf-platypusindelcalling/issues/45), extracting header from BAM doesnt function properly if unusual characters in extra contigs exist (which is the case for hg38 reference with phix). We now expose config header to be given through params.
+
 ## v2.0.0 - 28.05.2024
 
 ### `Added`
