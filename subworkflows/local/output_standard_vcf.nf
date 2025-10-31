@@ -18,15 +18,23 @@ workflow OUTPUT_STANDARD_VCF {
     main:
 
     versions=Channel.empty()
+    vcf_std=Channel.empty()
 
-    //
-    // CREATE_CONTIGHEADER
-    //
-    CREATE_CONTIGHEADER(
-        sample_ch
-    )
-    vcf_ch.combine(CREATE_CONTIGHEADER.out.header, by:0)
-            .set{vcf_std}
+    if (params.header){
+        header = Channel.fromPath(params.header, checkIfExists: true).collect()
+        vcf_std=vcf_ch.combine(header)
+    }else{
+        //
+        // CREATE_CONTIGHEADER
+        //
+        CREATE_CONTIGHEADER(
+            sample_ch
+        )
+        vcf_ch.combine(CREATE_CONTIGHEADER.out.header, by:0)
+                .set{vcf_std}
+
+    }
+
     //
     // MODULE: CONVERT_TO_VCF
     //
