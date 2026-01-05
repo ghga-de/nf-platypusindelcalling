@@ -13,20 +13,6 @@
                 "errorMessage": "Sample name must be provided and cannot contain spaces",
                 "meta": ["id"]
             },
-            "tumorsample": {
-                "type": "string",
-                "pattern": "^\\S+$",
-                "errorMessage": "Tumor Sample Name: tumor or metastasis",
-                "enum": ["tumor", "metastasis"],
-                "meta": ["tumorname"]
-            },
-            "controlsample": {
-                "type": "string",
-                "pattern": "^\\S+$",
-                "errorMessage": "Control Sample Name: control, normal or blood",
-                "enum": ["control", "normal", "blood"],
-                "meta": ["controlname"]
-            },
             "tumor": {
                 "errorMessage": "Tumor alignment file cannot contain spaces, has to be a string, has to exist and must have extension '.bam or .cram'",
                 "type": "string",
