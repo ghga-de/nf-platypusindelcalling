@@ -157,7 +157,8 @@ ch_multiqc_custom_config = params.multiqc_config ? Channel.fromPath(params.multi
 //
 // SUBWORKFLOW: Consisting of a mix of local and nf-core/modules
 //
-include {INPUT_CHECK            } from '../subworkflows/local/input_check'
+include { paramsSummaryMap      } from 'plugin/nf-schema'
+include { samplesheetToList     } from 'plugin/nf-schema'
 include {INDEL_CALLING          } from '../subworkflows/local/indel_calling'
 include {INDEL_ANNOTATION       } from '../subworkflows/local/indel_annotation'
 include {FILTER_VCF             } from '../subworkflows/local/filter_vcf'
@@ -199,14 +200,18 @@ workflow PLATYPUSINDELCALLING {
     // To gather vcfs to be converted standard VCF 4.2 format
     ch_stdvcf = Channel.empty()
 
-    //    
-    // SUBWORKFLOW: Read in samplesheet, validate and stage input files
-    //    
-    INPUT_CHECK (
-        ch_input
-        )
-    sample_ch = INPUT_CHECK.out.ch_sample
-    ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
+    // Check mandatory parameters
+    if (params.input) { ch_input = file(params.input) } else { exit 1, 'Input samplesheet not specified!' }
+
+    // Validate and convert to channel
+    Channel
+        .fromList(samplesheetToList(params.input, "${projectDir}/assets/schema_input.json"))
+        .map { meta, tumor, tumor_index, control, control_index ->    
+            def is_control_present = control ? 1 : 0
+            def new_meta = meta + [ iscontrol: is_control_present ]
+            return [ new_meta, tumor, tumor_index, control, control_index]
+        }
+        .set { sample_ch }
 
     //
     // MODULE: Extract sample name from BAM
@@ -271,6 +276,7 @@ workflow PLATYPUSINDELCALLING {
         
         if (params.runIndelVCFFilter) {
             FILTER_VCF(
+                sample_ch,
                 INDEL_ANNOTATION.out.ann_vcf_ch, 
                 ref, 
                 repeatmasker

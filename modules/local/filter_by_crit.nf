@@ -12,8 +12,8 @@ process FILTER_BY_CRIT {
 
     output:
     tuple val(meta), path('*Filtered.vcf.gz'),  path('*Filtered.vcf.gz.tbi')   , emit: vcf
-    path  "versions.yml"                                                       , emit: versions
     path "*_postFilter_criteria.txt"                                           , optional: true
+    path  "versions.yml"                                                       , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -31,7 +31,7 @@ process FILTER_BY_CRIT {
                         ].join(' ').trim() 
 
 // Filter variants only if there is no control, else do noting
-    if (meta.iscontrol == '1') {
+    if (meta.iscontrol == 1) {
         """
         mv $vcfgz indel_${prefix}_noFiltered.vcf.gz
         tabix indel_${prefix}_noFiltered.vcf.gz

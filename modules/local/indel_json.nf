@@ -21,7 +21,6 @@ process INDEL_JSON {
 
     script:
     def prefix = task.ext.prefix ?: "${meta.id}"
-    def args   = task.ext.args?: ''
 
     """
     indel_json_v1.0.pl $vcf > ${prefix}.indel.json

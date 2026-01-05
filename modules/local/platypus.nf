@@ -23,7 +23,7 @@ process PLATYPUS {
 script:
     def args    = task.ext.args ?: ''
     def prefix  = task.ext.prefix ?: "${meta.id}"
-    def bamlist = meta.iscontrol == '1' ? "${control},${tumor}" : "${tumor}"
+    def bamlist = meta.iscontrol == 1 ? "${control},${tumor}" : "${tumor}"
 
     """
     platypus callVariants \\

@@ -8,7 +8,7 @@ process VISUALIZE {
     'docker://kubran/odcf_platypusindelcalling:v1' :'kubran/odcf_platypusindelcalling:v1' }"
     
     input:
-    tuple val(meta) ,path(vcf)
+    tuple val(meta) ,path(vcf), path(tumor_bam), path(tumor_bai), path(control_bam), path(control_bai)
     tuple path(ref) ,path(ref_fai)
     tuple path(repeatmasker) ,path(repeatmasker_tbi)
 
@@ -22,18 +22,17 @@ process VISUALIZE {
     script:
     def args       = task.ext.args ?: ''
     def prefix     = task.ext.prefix ?: "${meta.id}"
-    def control    = meta.iscontrol == '1' ? 'true': 'false'
+    def iscontrol    = meta.iscontrol == 1 ? "true -c ${control_bam}": "false"
 
     """
     check_variants_size.sh \\
         -i $vcf \\
         -v ${params.max_var_screenshots} \\
-        -c $meta.control_bam \\
-        -t $meta.tumor_bam \\
+        -t $tumor_bam \\
         -r $ref \\
         -w ${params.window_size} \\
         -m $repeatmasker \\
-        -s $control \\
+        -s $iscontrol \\
         -o ${prefix}.indel_somatic_functional_combined.pdf
 
     cat <<-END_VERSIONS > versions.yml

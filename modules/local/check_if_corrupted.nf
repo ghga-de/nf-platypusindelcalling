@@ -21,7 +21,7 @@ process CHECK_IF_CORRUPTED {
     script:
     def args      = task.ext.args?: ''
     def prefix    = task.ext.prefix ?: "${meta.id}"
-    def nocontrol = meta.iscontrol == '1' ? 'false': 'true'
+    def nocontrol = meta.iscontrol == 1 ? 'false': 'true'
     
 // If there is control (iscontrol=1), isNoControlWorkflow is false
 

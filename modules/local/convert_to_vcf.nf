@@ -23,7 +23,7 @@ process CONVERT_TO_VCF {
     def vcf_name = input.getExtension() == "gz" ? input.getBaseName() : input.getName()
     vcf_name = vcf_name.take(vcf_name.size() - 3)
     def header = raw_vcf ? "-r $raw_vcf" : "-r False"
-    def iscontrol = meta.iscontrol == "1" ? "-w True" : '-w False'
+    def iscontrol = meta.iscontrol == 1 ? "-w True" : '-w False'
 
     """
     convertToStdVCF.py -i $input \\

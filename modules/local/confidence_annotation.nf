@@ -8,7 +8,6 @@ process CONFIDENCE_ANNOTATION {
     
     input:
     tuple val(meta), val(tumorname), val(controlname), path(vcfgz), path(vcf_tbi)
-    val(ref_type)
 
     output:
     tuple val(meta), path('*.confidence.vcf.gz') ,path('*.confidence.vcf.gz.tbi') , emit: vcf_ann
@@ -20,9 +19,9 @@ process CONFIDENCE_ANNOTATION {
     script:
     def args       = task.ext.args ?: ''
     def prefix     = task.ext.prefix ?: "${meta.id}"
-    def samples    = meta.iscontrol == "1" ? "--controlColName=$controlname --tumorColName=$tumorname" : "--nocontrol --tumorColName=$tumorname"
-    def ref_spec   = ref_type == "hg38" ? "--refgenome GRCh38 ftp://ftp.sanger.ac.uk/pub/cancer/dockstore/human/GRCh38_hla_decoy_ebv/core_ref_GRCh38_hla_decoy_ebv.tar.gz" : ""
-    
+    def samples    = meta.iscontrol == 1 ? "--controlColName=$controlname --tumorColName=$tumorname" : "--nocontrol --tumorColName=$tumorname"
+    def ref_spec = ( params.genome ? (params.genome == 'hg38' || params.genome == 'GRCh38') : params.fasta.contains('38')) ? "--refgenome GRCh38 ftp://ftp.sanger.ac.uk/pub/cancer/dockstore/human/GRCh38_hla_decoy_ebv/core_ref_GRCh38_hla_decoy_ebv.tar.gz" : ""
+
     """
     confidenceAnnotation_Indels.py --infile=$vcfgz \\
         $samples \\
