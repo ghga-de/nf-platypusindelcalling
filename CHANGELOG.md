@@ -3,6 +3,10 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v2.0.4 - dev
+
+- add nf-schema and fix fasta.contain logic [#44](https://github.com/ghga-de/nf-platypusindelcalling/pull/47) 
+
 ## v2.0.3 - 31.10.2025
 
 ### `Fixed`
