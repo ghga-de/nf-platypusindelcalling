@@ -25,6 +25,7 @@ process VISUALIZE {
     def iscontrol    = meta.iscontrol == 1 ? "true -c ${control_bam}": "false"
 
     """
+    export REF_PATH=':'
     check_variants_size.sh \\
         -i $vcf \\
         -v ${params.max_var_screenshots} \\

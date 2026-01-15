@@ -20,12 +20,13 @@ process PLATYPUS {
     when:
     task.ext.when == null || task.ext.when
 
-script:
+    script:
     def args    = task.ext.args ?: ''
     def prefix  = task.ext.prefix ?: "${meta.id}"
     def bamlist = meta.iscontrol == 1 ? "${control},${tumor}" : "${tumor}"
 
     """
+    export REF_PATH=':'
     platypus callVariants \\
         --nCPU=${task.cpus}\\
         --bamFiles=$bamlist \\
