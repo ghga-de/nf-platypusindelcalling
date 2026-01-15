@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## v2.0.4 - dev
 
 - add nf-schema and fix fasta.contain logic [#44](https://github.com/ghga-de/nf-platypusindelcalling/pull/47) 
+    - fix reference path for htsseq-lib cash to run cram files
 
 ## v2.0.3 - 31.10.2025
 
