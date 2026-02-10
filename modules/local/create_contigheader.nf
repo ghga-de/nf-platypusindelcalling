@@ -8,7 +8,8 @@ process CREATE_CONTIGHEADER {
 
     input:
     tuple val(meta), path(tumor), path(tumor_bai), path(control),  path(control_bai)
-
+    tuple path(fasta), path(fasta_fai)
+    
     output:
     tuple val(meta), path ("*.header")    , emit: header
     path  "versions.yml"                  , emit: versions
@@ -18,9 +19,10 @@ process CREATE_CONTIGHEADER {
 
     script:
     def args = task.ext.args ?: ''
+    def reference_flag = tumor.extension == "cram" ? "-T ${fasta}" : ""
 
     """
-    samtools view -H $tumor > header.txt
+    samtools view ${reference_flag} -H $tumor > header.txt
 
     awk -F '[:\\t ]+' '/^@SQ/ {print "##contig=<ID=" \$3 ",length=" \$5 ">"}' header.txt > ${meta.id}.header 
 
