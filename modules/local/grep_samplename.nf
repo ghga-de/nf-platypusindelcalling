@@ -14,9 +14,7 @@ process GREP_SAMPLENAME {
     tuple val(meta), env(tumorname), env(controlname)   , emit: samplenames
     path "versions.yml"                                 , emit: versions
 
-    script: 
-    def prefix     = task.ext.prefix ?: "${meta.id}"
-    
+    script:     
     if (meta.iscontrol == 1)
     {
         """

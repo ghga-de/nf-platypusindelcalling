@@ -19,7 +19,6 @@ process FILTER_BY_CRIT {
     task.ext.when == null || task.ext.when
 
     script:
-    def args          = task.ext.args ?: ''
     def prefix        = task.ext.prefix ?: "${meta.id}"
     def filter_values = [ (params.exac_file && params.crit_exac_maxmaf) ? "ExAC AF $params.crit_exac_maxmaf+": "",
                         (params.evs_file && params.crit_evs_maxmaf) ? "EVS MAF $params.crit_evs_maxmaf+": "",

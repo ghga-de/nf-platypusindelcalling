@@ -18,7 +18,6 @@ process CREATE_CONTIGHEADER {
     task.ext.when == null || task.ext.when
 
     script:
-    def args = task.ext.args ?: ''
     def reference_flag = tumor.extension == "cram" ? "-T ${fasta}" : ""
 
     """

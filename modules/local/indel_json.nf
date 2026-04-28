@@ -13,8 +13,8 @@ process INDEL_JSON {
     tuple val(meta), path(vcf)
 
     output:
-    path('*.indel.json')                       , emit: json
-    path('versions.yml')                       , emit: versions
+    path('*.indel.json') , emit: json
+    path('versions.yml') , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
