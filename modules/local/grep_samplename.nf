@@ -15,23 +15,21 @@ process GREP_SAMPLENAME {
     path "versions.yml"                                 , emit: versions
 
     script:     
-    if (meta.iscontrol == 1)
-    {
+    if (meta.iscontrol == 1) {
         """
-        controlname=`samtools view -H $control | grep '^@RG' | sed "s/.SM:\([^[:space:]]\).*/\1/" | uniq`
-        tumorname=`samtools view -H $tumor | grep '^@RG' | sed "s/.SM:\([^[:space:]]\).*/\1/" | uniq`
+        controlname=`samtools view -H $control | grep '^@RG' | sed 's/.*SM:\\([^[:space:]]*\\).*/\\1/' | uniq`
+        tumorname=`samtools view -H $tumor | grep '^@RG' | sed 's/.*SM:\\([^[:space:]]*\\).*/\\1/' | uniq`
 
         cat <<-END_VERSIONS > versions.yml
         "${task.process}":
             samtools: \$(echo \$(samtools --version 2>&1) | sed 's/^.*samtools //; s/Using.*\$//')
         END_VERSIONS
-
         """
     }
     else {
         """
         controlname='dummy'
-        tumorname=`samtools view -H $tumor | grep '^@RG' | sed "s/.SM:\([^[:space:]]\).*/\1/" | uniq`
+        tumorname=`samtools view -H $tumor | grep '^@RG' | sed 's/.*SM:\\([^[:space:]]*\\).*/\\1/' | uniq`
         
         cat <<-END_VERSIONS > versions.yml
         "${task.process}":
