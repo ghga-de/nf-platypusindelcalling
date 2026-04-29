@@ -14,6 +14,7 @@ workflow OUTPUT_STANDARD_VCF {
     vcf_ch    // channel: [val(meta), vcf]
     config    // channel: [config.json]
     sample_ch // channel: [val(meta), tumor, tumor_bai, control, control_bai]
+    fasta_ch  // channel: [fasta, fasta_fai]
     
     main:
 
@@ -28,7 +29,8 @@ workflow OUTPUT_STANDARD_VCF {
         // CREATE_CONTIGHEADER
         //
         CREATE_CONTIGHEADER(
-            sample_ch
+            sample_ch,
+            fasta_ch
         )
         vcf_ch.combine(CREATE_CONTIGHEADER.out.header, by:0)
                 .set{vcf_std}

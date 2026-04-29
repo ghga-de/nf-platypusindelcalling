@@ -13,15 +13,14 @@ process INDEL_JSON {
     tuple val(meta), path(vcf)
 
     output:
-    path('*.indel.json')                       , emit: json
-    path('versions.yml')                       , emit: versions
+    path('*.indel.json') , emit: json
+    path('versions.yml') , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
 
     script:
     def prefix = task.ext.prefix ?: "${meta.id}"
-    def args   = task.ext.args?: ''
 
     """
     indel_json_v1.0.pl $vcf > ${prefix}.indel.json
