@@ -1,6 +1,6 @@
 *.code-workspace
-*.pyc
-*.pyo
+bin/*.pyc
+bin/*.pyo
 .*.sw?
 .DS_Store
 .nextflow*
@@ -17,3 +17,10 @@ work/
 .github/CODEOWNERS-tmp
 bin/vcfparser.pyc
 node_modules/*
+conf/aml_*
+conf/test_vep.config
+indel_*
+bin/vcfparser.pyc
+singularity/*
+results_vep/
+assets/samplesheet_v*

@@ -14,27 +14,22 @@ process GREP_SAMPLENAME {
     tuple val(meta), env(tumorname), env(controlname)   , emit: samplenames
     path "versions.yml"                                 , emit: versions
 
-    script: 
-    def args       = task.ext.args ?: ''
-    def prefix     = task.ext.prefix ?: "${meta.id}"
-    
-    if (meta.iscontrol == '1')
-    {
+    script:     
+    if (meta.iscontrol == 1) {
         """
-        controlname=`samtools view -H $meta.control_bam | grep '^@RG' | sed "s/.*SM:\\([^\\t]*\\).*/\\1/g" | uniq`
-        tumorname=`samtools view -H $meta.tumor_bam | grep '^@RG' | sed "s/.*SM:\\([^\\t]*\\).*/\\1/g" | uniq`
+        controlname=`samtools view -H $control | grep '^@RG' | sed 's/.*SM:\\([^[:space:]]*\\).*/\\1/' | uniq`
+        tumorname=`samtools view -H $tumor | grep '^@RG' | sed 's/.*SM:\\([^[:space:]]*\\).*/\\1/' | uniq`
 
         cat <<-END_VERSIONS > versions.yml
         "${task.process}":
             samtools: \$(echo \$(samtools --version 2>&1) | sed 's/^.*samtools //; s/Using.*\$//')
         END_VERSIONS
-
         """
     }
     else {
         """
         controlname='dummy'
-        tumorname=`samtools view -H $meta.tumor_bam | grep '^@RG' | sed "s/.*SM:\\([^\\t]*\\).*/\\1/g" | uniq`
+        tumorname=`samtools view -H $tumor | grep '^@RG' | sed 's/.*SM:\\([^[:space:]]*\\).*/\\1/' | uniq`
         
         cat <<-END_VERSIONS > versions.yml
         "${task.process}":

@@ -24,13 +24,12 @@ process ANNOTATION_PIPES {
 
     output:
     tuple val(meta), path('*.vcf.gz'), path('*.vcf.gz.tbi') , emit: vcf
-    path  "versions.yml"                                                      , emit: versions
+    path  "versions.yml"                                    , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
 
     script:
-    def args   = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
 
     def pipe  = [enchangers ? " | annotate_vcf.pl -a - -b ${enchangers} --bFileType=bed --columnName='Enhancers'" : '',

@@ -35,10 +35,9 @@ process SAMPLE_SWAP {
     task.ext.when == null || task.ext.when
 
     script:
-    def args        = task.ext.args ?: ''
     def prefix      = task.ext.prefix ?: "${meta.id}"
 
-    if (meta.iscontrol == '1'){      
+    if (meta.iscontrol == 1){      
         """
         checkSampleSwap_TiN.pl \\
             --pid=$prefix \\

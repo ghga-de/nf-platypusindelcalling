@@ -278,6 +278,13 @@ def extract_freestanding_columns_into_dict(line_original, col_indices, meta_info
     cols_as_INFO_dict = {}
     for column_name in columns_to_extract:
         if column_name not in col_indices:
+            print("Warning: '{}' not found in column indices.".format(column_name))
+            continue
+
+        column_index = col_indices[column_name]
+
+        if column_index >= len(line_original):
+            print("Warning: Column '{}' index {} is out of bounds in line: {}".format(column_name, column_index, line_original))
             continue
 
         old_column_contents = line_original[col_indices[column_name]]

@@ -21,8 +21,8 @@ workflow INDEL_CALLING {
     //
     // RUN platypus : calls variants
     PLATYPUS (
-    sample_ch, 
-    ref
+        sample_ch, 
+        ref
     )
     vcf_ch = PLATYPUS.out.vcf
     log_ch = PLATYPUS.out.log

@@ -42,10 +42,25 @@ if (params.runTinda){
 }
 
 // If runIndelDeepAnnotation is true; at least one of the annotation files must be provided
-if ((params.runIndelDeepAnnotation) && (!params.enchancer_file && !params.cpgislands_file && !params.tfbscons_file && !params.encode_dnase_file && !params.mirnas_snornas_file && !params.mirna_sncrnas_file && !params.mirbase_file && !params.cosmic_file && !params.mir_targets_file && !params.cgi_mountains_file && !params.phastconselem_file && !params.encode_tfbs_file)) { 
+if (
+    params.runIndelDeepAnnotation && 
+    !params.enchancer_file && 
+    !params.cpgislands_file && 
+    !params.tfbscons_file && 
+    !params.encode_dnase_file && 
+    !params.mirnas_snornas_file && 
+    !params.mirna_sncrnas_file && 
+    !params.mirbase_file && 
+    !params.cosmic_file && 
+    !params.mir_targets_file && 
+    !params.cgi_mountains_file && 
+    !params.phastconselem_file && 
+    !params.encode_tfbs_file
+) { 
     log.error "Please specify at least one annotation file to perform INDEL Deep Annotation"
     exit 1
 }
+
 if (params.annotation_tool.contains("annovar")){
     file(params.annovar_path, checkIfExists: true)
 }
@@ -157,7 +172,8 @@ ch_multiqc_custom_config = params.multiqc_config ? Channel.fromPath(params.multi
 //
 // SUBWORKFLOW: Consisting of a mix of local and nf-core/modules
 //
-include {INPUT_CHECK            } from '../subworkflows/local/input_check'
+include { paramsSummaryMap      } from 'plugin/nf-schema'
+include { samplesheetToList     } from 'plugin/nf-schema'
 include {INDEL_CALLING          } from '../subworkflows/local/indel_calling'
 include {INDEL_ANNOTATION       } from '../subworkflows/local/indel_annotation'
 include {FILTER_VCF             } from '../subworkflows/local/filter_vcf'
@@ -199,14 +215,18 @@ workflow PLATYPUSINDELCALLING {
     // To gather vcfs to be converted standard VCF 4.2 format
     ch_stdvcf = Channel.empty()
 
-    //    
-    // SUBWORKFLOW: Read in samplesheet, validate and stage input files
-    //    
-    INPUT_CHECK (
-        ch_input
-        )
-    sample_ch = INPUT_CHECK.out.ch_sample
-    ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
+    // Check mandatory parameters
+    if (params.input) { ch_input = file(params.input) } else { exit 1, 'Input samplesheet not specified!' }
+
+    // Validate and convert to channel
+    Channel
+        .fromList(samplesheetToList(params.input, "${projectDir}/assets/schema_input.json"))
+        .map { meta, tumor, tumor_index, control, control_index ->    
+            def is_control_present = control ? 1 : 0
+            def new_meta = meta + [ iscontrol: is_control_present ]
+            return [ new_meta, tumor, tumor_index, control, control_index]
+        }
+        .set { sample_ch }
 
     //
     // MODULE: Extract sample name from BAM
@@ -250,9 +270,13 @@ workflow PLATYPUSINDELCALLING {
     if (params.runIndelAnnotation) {
         INDEL_ANNOTATION(
             ch_vcf, 
-            kgenome,dbsnpindel,exac,evs,localcontrolwgs,localcontrolwes,gnomadgenomes,gnomadexomes, 
-            repeatmasker,dacblacklist,dukeexcluded,hiseqdepth,selfchain,mapability,simpletandemrepeats, 
-            enchangers, cpgislands,tfbscons,encode_dnase,mirnas_snornas,cosmic,mirbase,mir_targets,cgi_mountains,phastconselem,encode_tfbs,mirnas_sncrnas, 
+            kgenome,dbsnpindel,exac,evs,localcontrolwgs,
+            localcontrolwes,gnomadgenomes,gnomadexomes, 
+            repeatmasker,dacblacklist,dukeexcluded,hiseqdepth,
+            selfchain,mapability,simpletandemrepeats, 
+            enchangers, cpgislands,tfbscons,encode_dnase,
+            mirnas_snornas,cosmic,mirbase,mir_targets,cgi_mountains,
+            phastconselem,encode_tfbs,mirnas_sncrnas, 
             chr_prefix,
             ref,
             annodb,
@@ -271,6 +295,7 @@ workflow PLATYPUSINDELCALLING {
         
         if (params.runIndelVCFFilter) {
             FILTER_VCF(
+                sample_ch,
                 INDEL_ANNOTATION.out.ann_vcf_ch, 
                 ref, 
                 repeatmasker
@@ -296,7 +321,10 @@ workflow PLATYPUSINDELCALLING {
             ref, 
             chrlength, 
             genemodel, 
-            localcontroltindawgs,localcontroltindawes,gnomadgenomes_tinda,gnomadexomes_tinda, 
+            localcontroltindawgs,
+            localcontroltindawes,
+            gnomadgenomes_tinda,
+            gnomadexomes_tinda, 
             chr_prefix
             )
         ch_versions = ch_versions.mix(SAMPLE_SWAP.out.versions)    
@@ -316,7 +344,8 @@ workflow PLATYPUSINDELCALLING {
         OUTPUT_STANDARD_VCF(
             ch_stdvcf,
             config,
-            sample_ch
+            sample_ch,
+            ref
         )
         ch_versions = ch_versions.mix(OUTPUT_STANDARD_VCF.out.versions)
     }

@@ -11,6 +11,7 @@ include { INDEL_JSON           } from '../../modules/local/indel_json.nf'       
 
 workflow FILTER_VCF {
     take:
+    sample_ch     // channel: [val(meta), path(tumor.bam), path(tumor.bai), path(control.bam), path(control.bai)]
     vcf_ch        // channel: [val(meta), vcf]
     ref           // reference channel [ref.fa, ref.fa.fai]
     repeatmasker  // channel: [file.bed.gz, file.bed.gz.tbi]
@@ -67,7 +68,7 @@ workflow FILTER_VCF {
     // RUN: visualize.py : First,checks if there is functional somatic variants to visualize
     // and then checks the size if smaller than the limit creates a pdf screenshots.
     VISUALIZE (
-        functional_vars, 
+        functional_vars.join(sample_ch), 
         ref, 
         repeatmasker
     )

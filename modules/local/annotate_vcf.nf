@@ -28,7 +28,6 @@ process ANNOTATE_VCF {
     task.ext.when == null || task.ext.when
 
     script:
-    def args        = task.ext.args ?: ''
     def prefix      = task.ext.prefix ?: "${meta.id}"
     def pipe  = [dbsnpindel ? " | annotate_vcf.pl -a - -b ${dbsnpindel} --columnName='DBSNP' --reportMatchType --bAdditionalColumn=2 --reportBFeatCoord --padding=${params.padding} --minOverlapFraction=${params.minoverlapfraction} --maxBorderDistanceSum=${params.maxborderdist} --maxNrOfMatches=${params.maxmatches}" : '',
                 kgenome ? " | annotate_vcf.pl -a - -b ${kgenome} --columnName='1K_GENOMES' --reportMatchType --bAdditionalColumn=2 --reportBFeatCoord --padding=${params.padding} --minOverlapFraction=${params.minoverlapfraction} --maxBorderDistanceSum=${params.maxborderdist} --maxNrOfMatches=${params.maxmatches}" : '',
