@@ -72,6 +72,7 @@ ref            = Channel.fromPath([params.fasta,params.fasta_fai], checkIfExists
 chr_prefix     = Channel.value(params.chr_prefix)
 chrlength      = params.chrom_sizes ? Channel.fromPath(params.chrom_sizes, checkIfExists: true).collect() : Channel.empty()   
 config         = Channel.fromPath("${projectDir}/assets/config/convertToStdVCF.json", checkIfExists: true).collect()
+contigs        = params.contig_file ? Channel.fromPath(params.contig_file, checkIfExists: true).map{it -> ["contigs", it]} : Channel.value([[],[]])
 
 // Input samplesheet
 if (params.input)                { ch_input  = file(params.input) } else { exit 1, 'Input samplesheet not specified!' }
@@ -252,7 +253,8 @@ workflow PLATYPUSINDELCALLING {
     //   
     INDEL_CALLING(
         sample_ch, 
-        ref
+        ref,
+        contigs
     )
     ch_logs         = ch_logs.mix(INDEL_CALLING.out.log_ch)
     ch_versions     = ch_versions.mix(INDEL_CALLING.out.versions)

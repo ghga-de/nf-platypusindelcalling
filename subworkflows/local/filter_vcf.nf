@@ -4,10 +4,10 @@
 
 params.options = [:]
 
-include { FILTER_BY_CRIT       } from '../../modules/local/filter_by_crit.nf'       addParams( options: params.options )
-include { INDEL_EXTRACTION     } from '../../modules/local/indel_extraction.nf'     addParams( options: params.options )
-include { VISUALIZE            } from '../../modules/local/visualize.nf'            addParams( options: params.options )
-include { INDEL_JSON           } from '../../modules/local/indel_json.nf'           addParams( options: params.options )
+include { FILTER_BY_CRIT       } from '../../modules/local/filter_by_crit.nf'
+include { INDEL_EXTRACTION     } from '../../modules/local/indel_extraction.nf'
+include { VISUALIZE            } from '../../modules/local/visualize.nf'
+include { INDEL_JSON           } from '../../modules/local/indel_json.nf'
 
 workflow FILTER_VCF {
     take:
@@ -16,11 +16,9 @@ workflow FILTER_VCF {
     ref           // reference channel [ref.fa, ref.fa.fai]
     repeatmasker  // channel: [file.bed.gz, file.bed.gz.tbi]
 
-
     main:
 
     versions=Channel.empty()
-
     //
     // MODULE: FILTER_BY_CRIT
     //

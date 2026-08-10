@@ -83,6 +83,12 @@
           "default": "false",
           "fa_icon": "fas fa-post_processes",
           "description": "Skip MultiQC"
+        },
+        "runcontigs": {
+          "type": "string",
+          "default": "ALL",
+          "fa_icon": "fas fa-post_processes",
+          "description": "Specify extra contig processing: ALL, ALT_HLA, NONE"
         }
       }
     },
@@ -431,6 +437,14 @@
           "pattern": "^\\S+\\.bed(\\.gz)?$",
           "fa_icon": "fas fa-annotation",
           "description": "UCSC TFBS clusters BED.GZ, should be indexed. Column Name: ENCODE_TFBS"
+        },
+        "contig_file": {
+          "type": "string",
+          "format": "file-path",
+          "mimetype": "text/plain",
+          "pattern": "^\\S+\\.bed$",
+          "fa_icon": "fas fa-annotation",
+          "description": "Contigs file to restrict the analysis to specific contigs. IF not provided, it will be generated according to the input BAM files using runcontig parameter."
         }
       }
     },

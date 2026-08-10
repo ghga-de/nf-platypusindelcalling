@@ -4,14 +4,18 @@
 
 params.options = [:]
  
-include { PLATYPUS          } from '../../modules/local/platypus.nf'                      addParams( options: params.options )
-include { CHECK_IF_CORRUPTED} from '../../modules/local/check_if_corrupted.nf'            addParams( options: params.options )
-include { BCFTOOLS_STATS    } from '../../modules/nf-core/modules/bcftools/stats/main'    addParams( options: params.options )
+include { PLATYPUS           } from '../../modules/local/platypus.nf'
+include { CHECK_IF_CORRUPTED } from '../../modules/local/check_if_corrupted.nf'
+include { BCFTOOLS_STATS     } from '../../modules/nf-core/modules/bcftools/stats/main'
+include { PREPARE_CONTIGS    } from '../../modules/local/prepare_contigs.nf'
+include { FILTER_CONTIGS     } from '../../modules/local/filter_contigs.nf'
+
 
 workflow INDEL_CALLING {
     take:
     sample_ch // channel: [val(meta), tumor, tumor_bai, control, control_bai]
     ref       // reference channel [ref.fa, ref.fa.fai]
+    contigs  // channel: [val(meta), bed]
     
     main:
 
@@ -28,6 +32,32 @@ workflow INDEL_CALLING {
     log_ch = PLATYPUS.out.log
     versions = versions.mix(PLATYPUS.out.versions)
 
+    CHECK_IF_CORRUPTED (
+        vcf_ch
+    )
+    vcf_ch=CHECK_IF_CORRUPTED.out.vcf
+    versions.mix(CHECK_IF_CORRUPTED.out.versions)
+
+    /// filter non-standard contigs optionally
+    if (params.runcontigs != "ALL") {
+        //
+        // MODULE: Prepare contigs file if not provided
+        //
+        PREPARE_CONTIGS(
+            sample_ch,
+            contigs,
+            ref
+            )
+        versions = versions.mix(PREPARE_CONTIGS.out.versions)
+
+        FILTER_CONTIGS(
+            vcf_ch.join(PREPARE_CONTIGS.out.contigs)
+        )
+        vcf_ch=FILTER_CONTIGS.out.filtered_vcf
+        versions = versions.mix(FILTER_CONTIGS.out.versions)
+        
+    }
+
     //
     // MODULE: BCFTOOLS STATS
     //
@@ -40,22 +70,6 @@ workflow INDEL_CALLING {
     )
     versions = versions.mix(BCFTOOLS_STATS.out.versions)
     
-    BCFTOOLS_STATS.out.stats
-                .join(vcf_ch)
-                .filter{meta, stats, vcf -> WorkflowCommons.getNumVariantsFromBCFToolsStats(stats) > 0 }  
-                .set{ch_vcf}
-
-    //
-    // MODULE: CHECK_IF_CORRUPTED
-    //
-    //check if the VCF has the correct amount of columns. 
-    input_ch = ch_vcf.map{it -> tuple( it[0], it[2])}
-    CHECK_IF_CORRUPTED (
-        input_ch
-    )
-    vcf_ch=CHECK_IF_CORRUPTED.out.vcf
-    versions.mix(CHECK_IF_CORRUPTED.out.versions)
-
     emit:
     vcf_ch
     log_ch
