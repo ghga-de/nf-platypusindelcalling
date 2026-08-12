@@ -26,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### `Added`
 
 - assets/config/convertToStdVCF.json and bin/convertToStdVCF.py
+
   - Option to output VCF files (all) in standard format (4.2) is added. Also, TSV formatted confidence annotated/filtrated files are being converted into standard vcf.
 
 - minor changes:
@@ -34,12 +35,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### `Fixed`
 
 - Contig processing is only available for hg38 reference. ALT and/or HLA contigs can be given external in a file.
+
   - Automatic generation of HLA/ALT contigs is now possible through tumor BAM instead of fasta.
 
 - conda links in nf-core modules is fixed.
+
   - NOTE: Conda enviroments are not available for the pipeline. Holding conda environment.yml links the same in default creates error even when enable_conda is false.
 
 - bin/confidenceAnnotation_Indels.py
+
   - flag parsing is generic now.
   - updated to latest version in https://github.com/DKFZ-ODCF/IndelCallingWorkflow/tree/hg38
 
@@ -68,6 +72,7 @@ Initial release of nf-core/platypusindelcalling, created with the [nf-core](http
 ### `Added`
 
 - assets/config/convertToStdVCF.json and bin/convertToStdVCF.py
+
   - Option to output VCF files (all) in standard format (4.2) is added. Also, TSV formatted confidence annotated/filtrated files are being converted into standard VCF.
 
 - MAFCommon tag is added to the INFO column to mark the common/recurrent artefacts.
@@ -78,12 +83,15 @@ Initial release of nf-core/platypusindelcalling, created with the [nf-core](http
 ### `Fixed`
 
 - Contig processing is only available for hg38 reference. ALT and/or HLA contigs can be given external in a file.
+
   - Automatic generation of HLA/ALT contigs is now possible through tumor BAM instead of fasta.
 
 - Conda links in nf-core modules are fixed.
+
   - NOTE: Conda environments are not available for the pipeline. Holding conda environment.yml links the same in default creates an error even when enable_conda is false.
 
 - bin/confidenceAnnotation_Indels.py
+
   - Flag parsing is generic now.
   - Updated to the latest version in https://github.com/DKFZ-ODCF/IndelCallingWorkflow/tree/hg38
 

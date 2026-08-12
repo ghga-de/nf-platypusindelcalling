@@ -220,9 +220,11 @@ If `-profile` is not specified, the pipeline will run locally and expect all sof
 - `docker`
   - A generic configuration profile to be used with [Docker](https://docker.com/)
 - `singularity`
+
   - A generic configuration profile to be used with [Singularity](https://sylabs.io/docs/)
 
 - `test`
+
   - A profile with a complete configuration for automated testing
   - Includes links to test data so needs no other parameters
   - Test only works in dkfz-cluster now
