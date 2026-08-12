@@ -4,6 +4,10 @@
 #
 # Distributed under the MIT License (license terms are at https://github.com/DKFZ-ODCF/IndelCallingWorkflow/LICENSE).
 #
+# Modified: 2026-08-12 @kubranarci
+# Added: Explicit I/O error handling for all file read operations (defined checks on <FH> operators)
+#        to prevent silent data corruption from broken pipes and I/O errors in production environments
+#
 
 use strict;
 use warnings;
@@ -138,16 +142,18 @@ if (!-e "$opts{bfile}.tbi") {
 
 # guess b file chr format ## TODO: this does not work in every case
 my ($b_chr_prefix, $b_chr_suffix);
-open(GUESS, TABIX_BIN . " -l $opts{bfile} | ");
-while (<GUESS>) {
-    chomp;
-    if (/([^\d]*)\d+(.*)/) {
+open(GUESS, TABIX_BIN . " -l $opts{bfile} | ") || die "Cannot open pipe from tabix for $opts{bfile}: $!\n";
+while (my $line = <GUESS>) {
+    chomp($line);
+    if ($line =~ /([^\d]*)(\d+)(.*)/) {
         $b_chr_prefix = $1;
         $b_chr_suffix = $2;
         last;
     }
 }
-close GUESS;
+if (!close GUESS) {
+    die "Error closing pipe from tabix: $!\n";
+}
 $b_chr_prefix = '' if (!defined($b_chr_prefix));
 $b_chr_suffix = '' if (!defined($b_chr_suffix));
 
@@ -157,8 +163,17 @@ my @b_colnames;
 if (BFILETYPE ne 'gff3') {
     # gff3 files have no column names in header
     my $b_header_cmd = TABIX_BIN() . " -h $opts{bfile} $b_chr_prefix" . '1' . $b_chr_suffix . ":0-0 |";
-    open(HEAD, $b_header_cmd);
-    my @b_header = <HEAD>;
+    open(HEAD, $b_header_cmd) || die "Cannot open pipe to read b-file header: $!\n";
+    my @b_header;
+    while (my $line = <HEAD>) {
+        if (!defined $line) {
+            die "Error reading b-file header from $b_header_cmd: $!\n";
+        }
+        push @b_header, $line;
+    }
+    if (!close HEAD) {
+        die "Error closing header read pipe: $!\n";
+    }
 
     #### if I have a multi-line header print out all lines but the last
     #for (my $i=0; $i < @b_header-1; $i++) {
@@ -191,9 +206,13 @@ my $mh;
 my $rs;
 
 my $header;
-while ($header = <A>) {
+while (1) {
+    $header = <A>;
+    if (!defined $header) {
+        die "Unexpected end of a-file reached before column name line: $!\n";
+    }
     last if ($header =~ /^$opts{aColNameLineStart}/i); # that is the line with the column names
-    print $header;                                     # print out every preceeding line
+    print $header || die "Error writing to STDOUT: $!\n";  # print out every preceeding line
     die "Invalid a-file header" if ($header =~ /^[^\#]/);
 }
 
@@ -249,7 +268,11 @@ my $alt;
 my %a_alts;
 
 AFILE_LOOP:
-while ($a_line = <A>) {
+while (1) {
+    $a_line = <A>;
+    if (!defined $a_line) {
+        last;  # reached end of file
+    }
     @matches = ();
     chomp($a_line);
     @a_fields{@a_columns} = split(/\t/, $a_line);

@@ -3,7 +3,7 @@
 # Copyright (c) 2018 German Cancer Research Center (DKFZ).
 #
 # Distributed under the MIT License (license terms are at https://github.com/DKFZ-ODCF/IndelCallingWorkflow).
-#
+
 ###################################################################
 #
 # Author: Naveed Ishaque
@@ -19,6 +19,10 @@
 #
 # v1.1
 # Bugix - the last entry had a comma
+#
+#
+# Modified: 2026-08-12 @kubranarci
+# Added: Explicit I/O error handling for file read operations (supports both plain and gzipped input)
 #
 ###################################################################
 
@@ -71,14 +75,18 @@ my $seen_header=0;
 my $open_statement="<$indel_file";
 $open_statement="zcat $indel_file |" if $indel_file =~ m/gz$/;
 open ($indel_file_handle, "$open_statement") or die "ERROR: cannot open file \"$indel_file\".\n$usage";
-while (<$indel_file_handle>){
-  chomp;
-  if (/^\#\#/){
+while (1) {
+  my $line = <$indel_file_handle>;
+  if (!defined $line) {
+    last;  # reached end of input file
+  }
+  chomp($line);
+  if ($line =~ /^\#\#/){
     # vcf header
   }
-  elsif(/^\#/){
+  elsif($line =~ /^\#/){
     # header line
-    my @header_array = split ("\t", $_);
+    my @header_array = split ("\t", $line);
     @header_colNums{@header_array} = (0..$#header_array);
     $seen_header=1;
   }
@@ -86,7 +94,7 @@ while (<$indel_file_handle>){
     if ($seen_header==0) {
       die "ERROR: no header line for \"$indel_file\".\n$usage";
     }
-    my @indel_line = split("\t", $_);
+    my @indel_line = split("\t", $line);
     # assume no need to check if the format of the indel file
     $numIndels++;
     my $sizeRef=length($indel_line[$header_colNums{$ref}]);
