@@ -1,3 +1,8 @@
+# Cancel any in-progress runs of this workflow for the same ref when a new run starts
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 name: Main
 # This workflow runs the pipeline with the minimal test dataset to check that it completes without any syntax errors
 on:
