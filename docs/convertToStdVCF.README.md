@@ -71,23 +71,23 @@ $ python2 convertToStdVCF.py -i dkfz.vcf -s test_sample
 
 The file `convertToStdVCF.json` specifies how the non-standard columns are converted into attributes.
 
-In this file, entries starting with "__" are considered as comment and ignored by the script.
+In this file, entries starting with "\_\_" are considered as comment and ignored by the script.
 
-Entries ends with "__ctrl" are added from additional INFO column.
+Entries ends with "\_\_ctrl" are added from additional INFO column.
 
 The file contains three sections:
 
-  * "FILTERS": Input columns mappet to key/value fields in the "filters" column.
-  * "FORMAT": Input columns mapped to key/value fields in the "format" column.
-  * "INFO": Input columns mapped to key/value fields in the "info" column.
+- "FILTERS": Input columns mappet to key/value fields in the "filters" column.
+- "FORMAT": Input columns mapped to key/value fields in the "format" column.
+- "INFO": Input columns mapped to key/value fields in the "info" column.
 
 Each entry in "FILTERS" and "FORMAT" sections has the structure
 
 ```json
 "input column name": {
   "number": 0,       # int
-  "type": "str",     # Allowed values: "Flag", "String", "Integer", "Float", 
-  "description": "descriptive text"  
+  "type": "str",     # Allowed values: "Flag", "String", "Integer", "Float",
+  "description": "descriptive text"
 }
 ```
 
@@ -95,10 +95,9 @@ For the "INFO" section, the entries have an additional "new_info_id" field that 
 
 ```json
 "input column name": {
-  "number": 1,  
+  "number": 1,
   "type": "String",
   "description": "some description",
   "new_info_id": "output attribute name"
 }
 ```
-

@@ -1,3 +1,8 @@
+# Cancel any in-progress runs of this workflow for the same ref when a new run starts
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 name: Main
 # This workflow runs the pipeline with the minimal test dataset to check that it completes without any syntax errors
 on:
@@ -14,6 +19,9 @@ on:
 
 jobs:
   test:
+    # Avoid running this job twice when a PR merge causes both a pull_request and a push event.
+    # Skip the push-triggered run for merge commits created by GitHub when merging PRs.
+    if: ${{ !(github.event_name == 'push' && contains(github.event.head_commit.message, 'Merge pull request')) }}
     name: Run workflow tests
     runs-on: ubuntu-latest
     env:

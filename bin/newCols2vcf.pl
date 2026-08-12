@@ -11,6 +11,10 @@
 ### Missing entries in the newcol file are fine
 ### Chromosomal identifiers in the newcol file may be plain numbers while longer identifiers are used in the vcf file e.g. after annovar; use chrPrefix and chrSuffix then
 ### (long chr identifiers in the newcol file and short identifiers in the vcf file are not supported)
+#
+# Modified: 2026-08-12 @kubranarci
+# Added: Explicit I/O error handling for nested file read operations to detect early EOF
+#        and prevent processing inconsistencies between mismatched input files
 
 use strict;
 use warnings;
@@ -85,9 +89,13 @@ open(VCF, "$opts{vcf}") || die "Could not open VCF file $opts{vcf}";
 open(NC, "$opts{newcolfile}") || die "Could not open new column file $opts{newcolfile}";
 
 my $header;
-while ($header = <VCF>) {
+while (1) {
+  $header = <VCF>;
+  if (!defined $header) {
+    die "Error reading from VCF file $opts{vcf} or unexpected EOF before header line: $!\n";
+  }
   last if ($header =~ /^\#CHR/); # that is the line with the column names
-  print $header; # print out every preceeding line
+  print $header || die "Error writing to STDOUT: $!\n"; # print out every preceeding line
 }
 chomp($header);
 my @columns = split(/\t/, $header);
@@ -103,12 +111,20 @@ my %f1_hash;
 
 my ($l1, $l2, $end);
 my @f2_fields;
-NC_LOOP: while ($l2=<NC>) {
+NC_LOOP: while (1) {
+  $l2 = <NC>;
+  if (!defined $l2) {
+    last;  # reached end of new columns file
+  }
   next if ($l2 =~ /^\#/);
-  chomp $l2;
+  chomp($l2);
   @f2_fields = split(/\t/, $l2);
-  while ($l1=<VCF>) {
-    chomp $l1;
+  while (1) {
+    $l1 = <VCF>;
+    if (!defined $l1) {
+      die "Error reading from VCF file: $!\n";
+    }
+    chomp($l1);
     @f1_hash{@ori_columns} = split(/\t/, $l1);
     if (AFILETYPE() eq 'vcf') {
       if ($f1_hash{INFO} =~ /END=(\d+)/) {
@@ -132,8 +148,12 @@ NC_LOOP: while ($l2=<NC>) {
   warn "Line $l2 left over in new column file";
 }
 #when I am here the NC file has ended; write out every remaining line from VCF
-while ($l1=<VCF>) {
-  chomp $l1;
+while (1) {
+  $l1 = <VCF>;
+  if (!defined $l1) {
+    last;  # reached end of VCF file
+  }
+  chomp($l1);
   @f1_hash{@columns} = split(/\t/, $l1);
   @f1_hash{@newcols} = ('.') x @newcols;
   say join "\t", @f1_hash{@columns};
