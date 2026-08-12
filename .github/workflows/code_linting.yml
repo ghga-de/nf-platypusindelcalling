@@ -25,11 +25,11 @@ jobs:
       - name: Install NodeJS
         uses: actions/setup-node@v2
 
-      - name: Install Prettier
-        run: npm install -g prettier
+      - name: Install dependencies
+        run: npm ci
 
-      - name: Run Prettier --check
-        run: prettier --check .
+      - name: Run Prettier --check (repo version)
+        run: npx prettier --check .
 
   EditorConfig:
     runs-on: ubuntu-latest
