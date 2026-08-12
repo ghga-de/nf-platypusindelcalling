@@ -4,11 +4,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## v2.0.5
+
 - Platypus cannot use gzipped fasta file [#50](https://github.com/ghga-de/nf-platypusindelcalling/issues/50)
 - Fixing github actions linting checks
 - Fixing I/O error handling scripts in Perl [#53](https://github.com/ghga-de/nf-platypusindelcalling/pull/53)
 
-## v2.0.4 
+## v2.0.4
 
 - add nf-schema and fix fasta.contain logic [#44](https://github.com/ghga-de/nf-platypusindelcalling/pull/47)
   - fix reference path for htsseq-lib cash to run cram files
