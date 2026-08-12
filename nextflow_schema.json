@@ -594,19 +594,13 @@
           "fa_icon": "fas fa-book",
           "help_text": "If using a reference genome configured in the pipeline using iGenomes, use this parameter to give the ID for the reference. This is then used to build the full paths for all required reference genome files e.g. `--genome GRCh38`. \n\nSee the [nf-core website docs](https://nf-co.re/usage/reference_genomes) for more details."
         },
-        "ref_type": {
-          "type": "string",
-          "description": "Name of reference.",
-          "fa_icon": "fas fa-book",
-          "help_text": "If using a reference genome configured in ODCF cluster, use this parameter to give the ID for the reference.hg 37 or hg19."
-        },
         "fasta": {
           "type": "string",
           "format": "file-path",
           "mimetype": "text/plain",
-          "pattern": "^\\S+\\.fn?a(sta)?(\\.gz)?$",
+          "pattern": "^\\S+\\.fn?a(sta)$",
           "description": "Path to FASTA genome file.",
-          "help_text": "This parameter is *mandatory* if `--ref_type` is not specified.",
+          "help_text": "This parameter is *mandatory* if `--genome` is not specified.",
           "fa_icon": "far fa-file-code"
         },
         "fasta_fai": {
@@ -615,7 +609,7 @@
           "mimetype": "text/plain",
           "pattern": "^\\S+\\.fai?$",
           "description": "Path to FAI genome file.",
-          "help_text": "This parameter is *mandatory* if `--ref_type` is not specified.",
+          "help_text": "This parameter is *mandatory* if `--genome` is not specified.",
           "fa_icon": "far fa-file-code"
         },
         "header": {
