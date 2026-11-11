@@ -11,6 +11,9 @@
 #
 use strict;
 use warnings;
+
+# Issue #43: a write error on STDOUT (e.g. disk full) is only reported when STDOUT is closed
+END { CORE::close(STDOUT) or do { print STDERR "Error writing to STDOUT: $!\n"; $? ||= 1 } }
 use String::Util qw(trim);
 
 if (@ARGV < 5) {
@@ -77,7 +80,7 @@ while (my $line = <FL>) {
     $files++;
     $stem = " | $overlapper -a -";
 }
-close FL;
+close(FL) or die "Error reading $filelist: $!\n";  # issue #43
 $commandlist.=" > $result";
 print STDERR "$files files to overlap with.\n";
 # print STDERR "The command for the overlap pipe is: $commandlist\n";

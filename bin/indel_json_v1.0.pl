@@ -29,6 +29,9 @@
 # Libraries
 use strict;
 
+# Issue #43: a write error on STDOUT (e.g. disk full) is only reported when STDOUT is closed
+END { CORE::close(STDOUT) or do { print STDERR "Error writing to STDOUT: $!\n"; $? ||= 1 } }
+
 # Hardcoded variables
 my $ref="REF";
 my $alt="ALT";
@@ -122,7 +125,7 @@ while (1) {
     # if ($classification eq "frameshift insertion") ...
   }
 }
-close($indel_file_handle);
+close($indel_file_handle) or die "ERROR: reading \"$indel_file\" failed: " . ($! || "exit status " . ($? >> 8)) . "\n";  # issue #43
 
 ###################################################################
 

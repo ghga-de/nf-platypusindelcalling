@@ -10,6 +10,9 @@
 
 use strict;
 use warnings;
+
+# Issue #43: a write error on STDOUT (e.g. disk full) is only reported when STDOUT is closed
+END { CORE::close(STDOUT) or do { print STDERR "Error writing to STDOUT: $!\n"; $? ||= 1 } }
 use v5.10;
 
 my ($chr_prefix, $chr_suffix);
@@ -66,6 +69,8 @@ while (1) {
 
   say join "\t", $fields[0],$fields[1],$end,$fields[3],$alt, $pos_orig, $end_orig;
 }
+# Issue #43: a read error ends the loop like EOF; only close() reports it
+close(STDIN) or die "Error reading input: $!\n";
 
 
 ### End confusion: here end is according to vcf standard (1-based, including)

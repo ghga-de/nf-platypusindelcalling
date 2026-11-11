@@ -11,6 +11,9 @@
 
 use strict;
 use warnings;
+
+# Issue #43: a write error on STDOUT (e.g. disk full) is only reported when STDOUT is closed
+END { CORE::close(STDOUT) or do { print STDERR "Error writing to STDOUT: $!\n"; $? ||= 1 } }
 use v5.10;
 
 (@ARGV >= 2) || die "Usage: processAnnovarOutput.pl <variant_function file> <exonic_variant_function file>";
@@ -59,5 +62,6 @@ while (1) {
     @f1_line = split(/\t/, $line);
     say join "\t", $f1_line[2], $f1_line[7], $f1_line[8], $f1_line[0], $f1_line[1], '.', '.';
 }
-close(F1);
-close(F2);
+# Issue #43: a read error ends a loop like EOF; only close() reports it
+close(F1) or die "Error reading $file1: $!\n";
+close(F2) or die "Error reading $file2: $!\n";

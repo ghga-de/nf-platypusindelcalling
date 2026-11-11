@@ -17,6 +17,9 @@
 
 use strict;
 use warnings;
+
+# Issue #43: a write error on STDOUT (e.g. disk full) is only reported when STDOUT is closed
+END { CORE::close(STDOUT) or do { print STDERR "Error writing to STDOUT: $!\n"; $? ||= 1 } }
 use Getopt::Long;
 
 my $infile;
@@ -63,7 +66,8 @@ while (1) {
     chomp($head);
     last if ($head =~ /^#CHR/);
 }
-close IN;
+# we stop after the header, so zcat may get SIGPIPE; any other failure is an error (issue #43)
+close(IN) or (($? & 127) == 13) or die "Error reading header of $infile: " . ($! || "exit status " . ($? >> 8)) . "\n";
 
 my @head=split("\t", $head);
 my %col;
@@ -119,8 +123,9 @@ while (1) {
 close(IN) or die "Error reading $infile (exit status " . ($? >> 8) . "): $!\n";
 close(SOM) or die "Error writing $somout: $!\n";
 close(COD) or die "Error writing $funcout: $!\n";
+close(NCO) or die "Error writing $ncout: $!\n";
 if (defined $germlineout)
 {
-	close GER;
+	close(GER) or die "Error writing $germlineout: $!\n";
 }
 

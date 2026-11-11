@@ -15,6 +15,9 @@
 # 28.02.2023 sort is modifided "-T . " added. kuebra.narci@dkfz.de
 use strict;
 use warnings;
+
+# Issue #43: a write error on STDOUT (e.g. disk full) is only reported when STDOUT is closed
+END { CORE::close(STDOUT) or do { print STDERR "Error writing to STDOUT: $!\n"; $? ||= 1 } }
 use File::Basename;
 use Getopt::Long;
 use JSON::Create 'create_json';
@@ -212,7 +215,9 @@ while(!eof($IN)) {
   }
 }
 
-close GTraw;
+# Issue #43: a read error or a failed zcat ends the loop like EOF; only close() reports it
+close($IN) or die "Error reading $updated_rawFile: " . ($! || "exit status " . ($? >> 8)) . "\n";
+close(GTraw) or die "Error writing $snvsGT_RawFile: $!\n";
 
 ### Cleaning up MNPs, due to the MNPs escaping in multi-SNVs lines
 #`cat $snvsGT_RawFile | python $split_mnps_script | uniq > $snvsGT_RawFile.temp ; mv -f $snvsGT_RawFile.temp $snvsGT_RawFile`;
@@ -329,9 +334,10 @@ while(!eof(ANN)) {
   }
 }
 
-close GermlineRareFile;
-close SomaticFile;
-close ANN;
+close(GermlineRareFile) or die "Error writing $snvsGT_germlineRare: $!\n";
+close(GermlineRareFileText) or die "Error writing $snvsGT_germlineRare_txt: $!\n";
+close(SomaticFile) or die "Error writing $snvsGT_somatic: $!\n";
+close(ANN) or die "Error reading $snvsGT_gnomADFile: $!\n";
 
 ### Crashing when there is less than 50 germline variants. Write whatever information has been gathered.
 if($json{'germlineSmallVarsInBothRare'} < 50){
@@ -379,7 +385,7 @@ while(!eof(TINDA_rareOutput)) {
     push(@SomaticRescue_control_AF, $gr_ss[4]);
   }
 }
-close TINDA_rareOutput;
+close(TINDA_rareOutput) or die "Error reading $snvsGT_germlineRare_oFile: $!\n";
 
 if($json{'tindaSomaticAfterRescue'} > 0) {
   $json{'tindaSomaticAfterRescueMedianAlleleFreqInControl'} = median(@SomaticRescue_control_AF);
@@ -413,7 +419,7 @@ while(!eof($SOMATIC_FH)) {
     }
   }
 }
-close $SOMATIC_FH;
+close($SOMATIC_FH) or die "Error reading $snvsGT_somatic: $!\n";
 
 ##################
 ## Creating sample swap json file
@@ -439,7 +445,7 @@ else {
 }
 
 print JSON create_json (\%json);
-close JSON;
+close(JSON) or die "Error writing $jsonFile: $!\n";
 
 ######################################
 #### Cleaning up files

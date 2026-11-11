@@ -11,6 +11,9 @@
 
 use strict;
 use warnings;
+
+# Issue #43: a write error on STDOUT (e.g. disk full) is only reported when STDOUT is closed
+END { CORE::close(STDOUT) or do { print STDERR "Error writing to STDOUT: $!\n"; $? ||= 1 } }
 use v5.10;
 
 my %opts;
@@ -151,8 +154,8 @@ while (my $line = <GUESS>) {
         last;
     }
 }
-# not checking close() here: the loop may exit early with 'last', and tabix then gets SIGPIPE
-close GUESS;
+# we stop after the first matching contig, so tabix may get SIGPIPE; any other failure is an error (issue #43)
+close(GUESS) or (($? & 127) == 13) or die "tabix -l failed for $opts{bfile}: " . ($! || "exit status " . ($? >> 8)) . "\n";
 $b_chr_prefix = '' if (!defined($b_chr_prefix));
 $b_chr_suffix = '' if (!defined($b_chr_suffix));
 
@@ -305,7 +308,8 @@ while (1) {
     if ($chr_changed) {
         @b_lines = ();
         $next_b_line = {};
-        close $b_fh if (ref($b_fh));
+        # the previous chromosome may not have been read to the end, so SIGPIPE is expected (issue #43)
+        if (ref($b_fh)) { close($b_fh) or (($? & 127) == 13) or die "tabix failed for $opts{bfile}: " . ($! || "exit status " . ($? >> 8)) . "\n"; }
         open $b_fh, TABIX_BIN . " $opts{bfile} ${b_chr_prefix}${chr}${b_chr_suffix} |" or die "opening b file $opts{bfile} with tabix failed";
         warn "Tabix returned no b-features for chromosome ${b_chr_prefix}${chr}${b_chr_suffix}" if (!ref($b_fh));
         # $b_linectr = 0;
@@ -464,8 +468,9 @@ while (1) {
     }
     say join "\t", @a_fields{@a_columns};
 } # AFILE_LOOP
-close A;
-close $b_fh if (ref($b_fh));
+# Issue #43: a read error ends the loop like EOF; only close() reports it
+close(A) or die "Error reading a-file $opts{afile}: $!\n";
+if (ref($b_fh)) { close($b_fh) or (($? & 127) == 13) or die "tabix failed for $opts{bfile}: " . ($! || "exit status " . ($? >> 8)) . "\n"; }
 
 
 __END__
