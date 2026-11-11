@@ -6,8 +6,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## v2.0.5
 
 - Platypus cannot use gzipped fasta file [#50](https://github.com/ghga-de/nf-platypusindelcalling/issues/50)
+  - `--fasta` accepts `.fa`, `.fna` and `.fasta` (no `.gz`)
 - Fixing github actions linting checks
-- Fixing I/O error handling scripts in Perl [#53](https://github.com/ghga-de/nf-platypusindelcalling/pull/53)
+  - workflows run on `main` (was `master`); Java 17 and Prettier 3.1.0 pinned
+- Fixing I/O error handling in Perl scripts [#53](https://github.com/ghga-de/nf-platypusindelcalling/pull/53)
+  - `indel_extractor_v1.pl` now fails on a truncated or corrupt `.vcf.gz` instead of writing partial output
+  - the general rewrite of the other scripts was reverted (no behaviour change)
+- Removing email options coming from nf-core template
 
 ## v2.0.4
 
