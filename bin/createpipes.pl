@@ -4,11 +4,9 @@
 #
 # Distributed under the MIT License (license terms are at https://github.com/DKFZ-ODCF/COWorkflowsBasePlugin/LICENSE).
 #
+
 # create a command with a bunch of pipes to use ngs2/trunk/tools/annotate_vcf.pl for deepAnnotation
-#
-# Modified: 2026-08-12 @kubranarci
-# Added: Explicit I/O error handling for file reads to prevent silent failures
-#
+
 use strict;
 use warnings;
 use String::Util qw(trim);
@@ -39,17 +37,17 @@ my $type = "";
 
 my $config_start = 0;
 
-while (my $line = <FL>) {
-    $config_start || ($line =~ /^#<PIPE_CONFIG:$pipename\s*$/ ? ($config_start = 1) : next);
-    last if ($line =~ /^#>PIPE_CONFIG/);
+while (<FL>) {
+    $config_start || (/^#<PIPE_CONFIG:$pipename\s*$/ ? ($config_start = 1) : next);
+    last if (/^#>PIPE_CONFIG/);
 
-    if ($line =~ /^#/) {
+    if ($_ =~ /^#/) {
         next;
     }
-    chomp($line);
+    chomp;
     # remove quotation marks necessary for passing parameters with whitespaces through the shell
-    $line =~ tr/"//d;
-    ($column, $file) = $line =~ /([^\s=]+)=(.+)/;
+    $_ =~ tr/"//d;
+    ($column, $file) = /([^\s=]+)=(.+)/;
     $column = trim($column);
     ($file, @options) = split(':', $file);
     ($type) = $file =~ /\.(\w+)\.gz$/;

@@ -4,9 +4,6 @@
 #
 # Distributed under the MIT License (license terms are at https://github.com/DKFZ-ODCF/IndelCallingWorkflow).
 #
-# Modified: 2026-08-12 @kubranarci
-# Added: Explicit I/O error handling for STDIN read operations
-#
 
 use strict;
 use warnings;
@@ -26,13 +23,9 @@ my $end;
 my $alt;
 my ($pos_orig, $end_orig);
 
-while (1) {
-  my $line = <>;
-  if (!defined $line) {
-    last;  # reached end of input
-  }
-  next if ($line =~ /^\#/);
-  @fields = split(/\t/, $line);
+while (<>) {
+  next if (/^\#/);
+  @fields = split(/\t/);
   if (CHR_PFX) {
     $fields[0] =~ s/$chr_prefix//;
   }
