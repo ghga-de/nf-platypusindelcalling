@@ -40,9 +40,6 @@ my $type = "";
 my $config_start = 0;
 
 while (my $line = <FL>) {
-    if (!defined $line) {
-        die "Error reading from configuration file $filelist: $!\n";
-    }
     $config_start || ($line =~ /^#<PIPE_CONFIG:$pipename\s*$/ ? ($config_start = 1) : next);
     last if ($line =~ /^#>PIPE_CONFIG/);
 

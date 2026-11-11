@@ -34,7 +34,6 @@ while (1) {
     while (1) {
         my $f1_line_str = <F1>;
         if (!defined $f1_line_str) {
-            die "Error reading from variant_function file: $!\n" if $!;
             # End of F1 reached, but we still have lines in F2
             say join "\t", $f2_line[3], '.', '.', '.', '.', '.', '.';
             last;

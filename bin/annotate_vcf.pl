@@ -147,13 +147,12 @@ while (my $line = <GUESS>) {
     chomp($line);
     if ($line =~ /([^\d]*)(\d+)(.*)/) {
         $b_chr_prefix = $1;
-        $b_chr_suffix = $2;
+        $b_chr_suffix = $3;
         last;
     }
 }
-if (!close GUESS) {
-    die "Error closing pipe from tabix: $!\n";
-}
+# not checking close() here: the loop may exit early with 'last', and tabix then gets SIGPIPE
+close GUESS;
 $b_chr_prefix = '' if (!defined($b_chr_prefix));
 $b_chr_suffix = '' if (!defined($b_chr_suffix));
 
@@ -166,13 +165,10 @@ if (BFILETYPE ne 'gff3') {
     open(HEAD, $b_header_cmd) || die "Cannot open pipe to read b-file header: $!\n";
     my @b_header;
     while (my $line = <HEAD>) {
-        if (!defined $line) {
-            die "Error reading b-file header from $b_header_cmd: $!\n";
-        }
         push @b_header, $line;
     }
     if (!close HEAD) {
-        die "Error closing header read pipe: $!\n";
+        die "Error reading b-file header with '$b_header_cmd' (exit status " . ($? >> 8) . "): $!\n";
     }
 
     #### if I have a multi-line header print out all lines but the last
@@ -212,7 +208,7 @@ while (1) {
         die "Unexpected end of a-file reached before column name line: $!\n";
     }
     last if ($header =~ /^$opts{aColNameLineStart}/i); # that is the line with the column names
-    print $header || die "Error writing to STDOUT: $!\n";  # print out every preceeding line
+    print $header or die "Error writing to STDOUT: $!\n";  # print out every preceeding line
     die "Invalid a-file header" if ($header =~ /^[^\#]/);
 }
 

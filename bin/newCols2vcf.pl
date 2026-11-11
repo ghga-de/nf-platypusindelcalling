@@ -95,7 +95,7 @@ while (1) {
     die "Error reading from VCF file $opts{vcf} or unexpected EOF before header line: $!\n";
   }
   last if ($header =~ /^\#CHR/); # that is the line with the column names
-  print $header || die "Error writing to STDOUT: $!\n"; # print out every preceeding line
+  print $header or die "Error writing to STDOUT: $!\n"; # print out every preceeding line
 }
 chomp($header);
 my @columns = split(/\t/, $header);
@@ -122,7 +122,7 @@ NC_LOOP: while (1) {
   while (1) {
     $l1 = <VCF>;
     if (!defined $l1) {
-      die "Error reading from VCF file: $!\n";
+      last;  # VCF ended; remaining new-column lines are reported as left over below
     }
     chomp($l1);
     @f1_hash{@ori_columns} = split(/\t/, $l1);
