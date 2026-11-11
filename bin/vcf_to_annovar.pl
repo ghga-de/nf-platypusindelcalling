@@ -4,9 +4,15 @@
 #
 # Distributed under the MIT License (license terms are at https://github.com/DKFZ-ODCF/IndelCallingWorkflow).
 #
+# Modified: 2026-08-12 @kubranarci
+# Added: Explicit I/O error handling for STDIN read operations
+#
 
 use strict;
 use warnings;
+
+# Issue #43: a write error on STDOUT (e.g. disk full) is only reported when STDOUT is closed
+END { CORE::close(STDOUT) or do { print STDERR "Error writing to STDOUT: $!\n"; $? ||= 1 } }
 use v5.10;
 
 my ($chr_prefix, $chr_suffix);
@@ -23,9 +29,13 @@ my $end;
 my $alt;
 my ($pos_orig, $end_orig);
 
-while (<>) {
-  next if (/^\#/);
-  @fields = split(/\t/);
+while (1) {
+  my $line = <>;
+  if (!defined $line) {
+    last;  # reached end of input
+  }
+  next if ($line =~ /^\#/);
+  @fields = split(/\t/, $line);
   if (CHR_PFX) {
     $fields[0] =~ s/$chr_prefix//;
   }
@@ -59,6 +69,8 @@ while (<>) {
 
   say join "\t", $fields[0],$fields[1],$end,$fields[3],$alt, $pos_orig, $end_orig;
 }
+# Issue #43: a read error ends the loop like EOF; only close() reports it
+close(STDIN) or die "Error reading input: $!\n";
 
 
 ### End confusion: here end is according to vcf standard (1-based, including)

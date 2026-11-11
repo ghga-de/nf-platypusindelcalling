@@ -4,9 +4,16 @@
 #
 # Distributed under the MIT License (license terms are at https://github.com/DKFZ-ODCF/IndelCallingWorkflow/LICENSE).
 #
+# Modified: 2026-08-12 @kubranarci
+# Added: Explicit I/O error handling for all file read operations (defined checks on <FH> operators)
+#        to prevent silent data corruption from broken pipes and I/O errors in production environments
+#
 
 use strict;
 use warnings;
+
+# Issue #43: a write error on STDOUT (e.g. disk full) is only reported when STDOUT is closed
+END { CORE::close(STDOUT) or do { print STDERR "Error writing to STDOUT: $!\n"; $? ||= 1 } }
 use v5.10;
 
 my %opts;
@@ -138,16 +145,17 @@ if (!-e "$opts{bfile}.tbi") {
 
 # guess b file chr format ## TODO: this does not work in every case
 my ($b_chr_prefix, $b_chr_suffix);
-open(GUESS, TABIX_BIN . " -l $opts{bfile} | ");
-while (<GUESS>) {
-    chomp;
-    if (/([^\d]*)\d+(.*)/) {
+open(GUESS, TABIX_BIN . " -l $opts{bfile} | ") || die "Cannot open pipe from tabix for $opts{bfile}: $!\n";
+while (my $line = <GUESS>) {
+    chomp($line);
+    if ($line =~ /([^\d]*)(\d+)(.*)/) {
         $b_chr_prefix = $1;
-        $b_chr_suffix = $2;
+        $b_chr_suffix = $3;
         last;
     }
 }
-close GUESS;
+# we stop after the first matching contig, so tabix may get SIGPIPE; any other failure is an error (issue #43)
+close(GUESS) or (($? & 127) == 13) or die "tabix -l failed for $opts{bfile}: " . ($! || "exit status " . ($? >> 8)) . "\n";
 $b_chr_prefix = '' if (!defined($b_chr_prefix));
 $b_chr_suffix = '' if (!defined($b_chr_suffix));
 
@@ -157,8 +165,14 @@ my @b_colnames;
 if (BFILETYPE ne 'gff3') {
     # gff3 files have no column names in header
     my $b_header_cmd = TABIX_BIN() . " -h $opts{bfile} $b_chr_prefix" . '1' . $b_chr_suffix . ":0-0 |";
-    open(HEAD, $b_header_cmd);
-    my @b_header = <HEAD>;
+    open(HEAD, $b_header_cmd) || die "Cannot open pipe to read b-file header: $!\n";
+    my @b_header;
+    while (my $line = <HEAD>) {
+        push @b_header, $line;
+    }
+    if (!close HEAD) {
+        die "Error reading b-file header with '$b_header_cmd' (exit status " . ($? >> 8) . "): $!\n";
+    }
 
     #### if I have a multi-line header print out all lines but the last
     #for (my $i=0; $i < @b_header-1; $i++) {
@@ -191,9 +205,13 @@ my $mh;
 my $rs;
 
 my $header;
-while ($header = <A>) {
+while (1) {
+    $header = <A>;
+    if (!defined $header) {
+        die "Unexpected end of a-file reached before column name line: $!\n";
+    }
     last if ($header =~ /^$opts{aColNameLineStart}/i); # that is the line with the column names
-    print $header;                                     # print out every preceeding line
+    print $header or die "Error writing to STDOUT: $!\n";  # print out every preceeding line
     die "Invalid a-file header" if ($header =~ /^[^\#]/);
 }
 
@@ -249,7 +267,11 @@ my $alt;
 my %a_alts;
 
 AFILE_LOOP:
-while ($a_line = <A>) {
+while (1) {
+    $a_line = <A>;
+    if (!defined $a_line) {
+        last;  # reached end of file
+    }
     @matches = ();
     chomp($a_line);
     @a_fields{@a_columns} = split(/\t/, $a_line);
@@ -286,7 +308,8 @@ while ($a_line = <A>) {
     if ($chr_changed) {
         @b_lines = ();
         $next_b_line = {};
-        close $b_fh if (ref($b_fh));
+        # the previous chromosome may not have been read to the end, so SIGPIPE is expected (issue #43)
+        if (ref($b_fh)) { close($b_fh) or (($? & 127) == 13) or die "tabix failed for $opts{bfile}: " . ($! || "exit status " . ($? >> 8)) . "\n"; }
         open $b_fh, TABIX_BIN . " $opts{bfile} ${b_chr_prefix}${chr}${b_chr_suffix} |" or die "opening b file $opts{bfile} with tabix failed";
         warn "Tabix returned no b-features for chromosome ${b_chr_prefix}${chr}${b_chr_suffix}" if (!ref($b_fh));
         # $b_linectr = 0;
@@ -445,8 +468,9 @@ while ($a_line = <A>) {
     }
     say join "\t", @a_fields{@a_columns};
 } # AFILE_LOOP
-close A;
-close $b_fh if (ref($b_fh));
+# Issue #43: a read error ends the loop like EOF; only close() reports it
+close(A) or die "Error reading a-file $opts{afile}: $!\n";
+if (ref($b_fh)) { close($b_fh) or (($? & 127) == 13) or die "tabix failed for $opts{bfile}: " . ($! || "exit status " . ($? >> 8)) . "\n"; }
 
 
 __END__
