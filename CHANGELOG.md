@@ -5,14 +5,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## v2.0.5
 
-- Platypus cannot use gzipped fasta file [#50](https://github.com/ghga-de/nf-platypusindelcalling/issues/50)
-  - `--fasta` accepts `.fa`, `.fna` and `.fasta` (no `.gz`)
-- Fixing github actions linting checks
-  - workflows run on `main` (was `master`); Java 17 and Prettier 3.1.0 pinned
-- Fixing I/O error handling in Perl scripts [#53](https://github.com/ghga-de/nf-platypusindelcalling/pull/53)
-  - `indel_extractor_v1.pl` now fails on a truncated or corrupt `.vcf.gz` instead of writing partial output
-  - the general rewrite of the other scripts was reverted (no behaviour change)
-- Removing email options coming from nf-core template
+### `Fixed`
+
+- Platypus cannot use a gzipped fasta file [#50](https://github.com/ghga-de/nf-platypusindelcalling/issues/50): `--fasta` accepts `.fa`, `.fna` and `.fasta` (no `.gz`)
+- Error detection in Perl scripts [#53](https://github.com/ghga-de/nf-platypusindelcalling/pull/53) (same fix as [nf-snvcalling#43](https://github.com/ghga-de/nf-snvcalling/issues/43)): read errors are checked after each read loop, failed `zcat`/`tabix` pipes are detected on close and write errors on STDOUT are reported, so a truncated or unreadable input stops the script instead of producing partial output
+
+### `Removed`
+
+- Email options and templates from the nf-core template (including `max_multiqc_email_size` and `assets/sendmail_template.txt`)
+- `ref_type` parameter from the schema
+- Unused Perl script `bin/createpipes.pl` (not called by any module or script)
+
+### `Changed`
+
+- CI: workflows run on `main` (was `master`), Java 17 and Prettier 3.1.0 are pinned, linting fixes; branch protection check uses the correct repository name
 
 ## v2.0.4
 

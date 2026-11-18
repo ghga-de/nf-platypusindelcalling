@@ -351,7 +351,7 @@ workflow PLATYPUSINDELCALLING {
     }
 
 
-    // Info required for completion email and summary
+    // Info required for completion summary
     def multiqc_report = []
     if (!params.skip_multiqc){
         //
