@@ -351,7 +351,7 @@ workflow PLATYPUSINDELCALLING {
     }
 
 
-    // Info required for completion email and summary
+    // Info required for completion summary
     def multiqc_report = []
     if (!params.skip_multiqc){
         //
@@ -393,9 +393,6 @@ workflow PLATYPUSINDELCALLING {
 */
 
 workflow.onComplete {
-    if (params.email || params.email_on_fail) {
-        NfcoreTemplate.email(workflow, params, summary_params, projectDir, log, multiqc_report)
-    }
     NfcoreTemplate.summary(workflow, params, log)
 }
 

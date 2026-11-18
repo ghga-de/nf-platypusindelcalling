@@ -23,7 +23,15 @@
 ###################################################################
 
 # Libraries
+# Modified 2026-08-12 @kubranarci: I/O error detection (issue #43): a read error makes <FH> return undef
+# just like EOF, so each read loop is followed by an explicit ->error check, and closes are checked
+# (failed zcat/tabix pipes only show up in the exit status reported by close)
+
 use strict;
+use IO::Handle;
+
+# Issue #43: a write error on STDOUT (e.g. disk full) is only reported when STDOUT is closed
+END { CORE::close(STDOUT) or do { print STDERR "Error writing to STDOUT: $!\n"; $? ||= 1 } }
 
 # Hardcoded variables
 my $ref="REF";
@@ -114,7 +122,8 @@ while (<$indel_file_handle>){
     # if ($classification eq "frameshift insertion") ...
   }
 }
-close($indel_file_handle);
+die "Error reading \"$indel_file\": $!\n" if $indel_file_handle->error;  # issue #43
+close($indel_file_handle) or die "ERROR: reading \"$indel_file\" failed: " . ($! || "exit status " . ($? >> 8)) . "\n";  # issue #43
 
 ###################################################################
 

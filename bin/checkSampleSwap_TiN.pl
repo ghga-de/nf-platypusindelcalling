@@ -13,8 +13,16 @@
 ############
 
 # 28.02.2023 sort is modifided "-T . " added. kuebra.narci@dkfz.de
+# Modified 2026-08-12 @kubranarci: I/O error detection (issue #43): a read error makes <FH> return undef
+# just like EOF, so each read loop is followed by an explicit ->error check, and closes are checked
+# (failed zcat/tabix pipes only show up in the exit status reported by close)
+
 use strict;
 use warnings;
+use IO::Handle;
+
+# Issue #43: a write error on STDOUT (e.g. disk full) is only reported when STDOUT is closed
+END { CORE::close(STDOUT) or do { print STDERR "Error writing to STDOUT: $!\n"; $? ||= 1 } }
 use File::Basename;
 use Getopt::Long;
 use JSON::Create 'create_json';
@@ -211,8 +219,10 @@ while(!eof($IN)) {
     }
   }
 }
+die "Error reading $updated_rawFile: $!\n" if $IN->error;  # issue #43
 
-close GTraw;
+close($IN) or die "Error reading $updated_rawFile: " . ($! || "exit status " . ($? >> 8)) . "\n";  # issue #43
+close(GTraw) or die "Error writing $snvsGT_RawFile: $!\n";
 
 ### Cleaning up MNPs, due to the MNPs escaping in multi-SNVs lines
 #`cat $snvsGT_RawFile | python $split_mnps_script | uniq > $snvsGT_RawFile.temp ; mv -f $snvsGT_RawFile.temp $snvsGT_RawFile`;
@@ -328,10 +338,12 @@ while(!eof(ANN)) {
     }
   }
 }
+die "Error reading $snvsGT_gnomADFile: $!\n" if (\*ANN)->error;  # issue #43
 
-close GermlineRareFile;
-close SomaticFile;
-close ANN;
+close(GermlineRareFile) or die "Error writing $snvsGT_germlineRare: $!\n";
+close(GermlineRareFileText) or die "Error writing $snvsGT_germlineRare_txt: $!\n";
+close(SomaticFile) or die "Error writing $snvsGT_somatic: $!\n";
+close(ANN) or die "Error reading $snvsGT_gnomADFile: $!\n";
 
 ### Crashing when there is less than 50 germline variants. Write whatever information has been gathered.
 if($json{'germlineSmallVarsInBothRare'} < 50){
@@ -379,7 +391,8 @@ while(!eof(TINDA_rareOutput)) {
     push(@SomaticRescue_control_AF, $gr_ss[4]);
   }
 }
-close TINDA_rareOutput;
+die "Error reading $snvsGT_germlineRare_oFile: $!\n" if (\*TINDA_rareOutput)->error;  # issue #43
+close(TINDA_rareOutput) or die "Error reading $snvsGT_germlineRare_oFile: $!\n";
 
 if($json{'tindaSomaticAfterRescue'} > 0) {
   $json{'tindaSomaticAfterRescueMedianAlleleFreqInControl'} = median(@SomaticRescue_control_AF);
@@ -413,7 +426,8 @@ while(!eof($SOMATIC_FH)) {
     }
   }
 }
-close $SOMATIC_FH;
+die "Error reading $snvsGT_somatic: $!\n" if $SOMATIC_FH->error;  # issue #43
+close($SOMATIC_FH) or die "Error reading $snvsGT_somatic: $!\n";
 
 ##################
 ## Creating sample swap json file
@@ -439,7 +453,7 @@ else {
 }
 
 print JSON create_json (\%json);
-close JSON;
+close(JSON) or die "Error writing $jsonFile: $!\n";
 
 ######################################
 #### Cleaning up files

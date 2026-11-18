@@ -5,8 +5,16 @@
 # Distributed under the MIT License (license terms are at https://github.com/DKFZ-ODCF/IndelCallingWorkflow).
 #
 
+# Modified 2026-08-12 @kubranarci: I/O error detection (issue #43): a read error makes <FH> return undef
+# just like EOF, so each read loop is followed by an explicit ->error check, and closes are checked
+# (failed zcat/tabix pipes only show up in the exit status reported by close)
+
 use strict;
 use warnings;
+use IO::Handle;
+
+# Issue #43: a write error on STDOUT (e.g. disk full) is only reported when STDOUT is closed
+END { CORE::close(STDOUT) or do { print STDERR "Error writing to STDOUT: $!\n"; $? ||= 1 } }
 use v5.10;
 
 my ($chr_prefix, $chr_suffix);
@@ -59,6 +67,7 @@ while (<>) {
 
   say join "\t", $fields[0],$fields[1],$end,$fields[3],$alt, $pos_orig, $end_orig;
 }
+die "Error reading input: $!\n" if (\*STDIN)->error;  # issue #43
 
 
 ### End confusion: here end is according to vcf standard (1-based, including)

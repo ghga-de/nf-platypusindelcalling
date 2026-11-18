@@ -12,8 +12,16 @@
 ### Chromosomal identifiers in the newcol file may be plain numbers while longer identifiers are used in the vcf file e.g. after annovar; use chrPrefix and chrSuffix then
 ### (long chr identifiers in the newcol file and short identifiers in the vcf file are not supported)
 
+# Modified 2026-08-12 @kubranarci: I/O error detection (issue #43): a read error makes <FH> return undef
+# just like EOF, so each read loop is followed by an explicit ->error check, and closes are checked
+# (failed zcat/tabix pipes only show up in the exit status reported by close)
+
 use strict;
 use warnings;
+use IO::Handle;
+
+# Issue #43: a write error on STDOUT (e.g. disk full) is only reported when STDOUT is closed
+END { CORE::close(STDOUT) or do { print STDERR "Error writing to STDOUT: $!\n"; $? ||= 1 } }
 use v5.10;
 
 
@@ -89,6 +97,7 @@ while ($header = <VCF>) {
   last if ($header =~ /^\#CHR/); # that is the line with the column names
   print $header; # print out every preceeding line
 }
+die "Error reading VCF file $opts{vcf}: $!\n" if (\*VCF)->error;  # issue #43
 chomp($header);
 my @columns = split(/\t/, $header);
 my @ori_columns = @columns;
@@ -129,8 +138,10 @@ NC_LOOP: while ($l2=<NC>) {
       # warn "No new column line found for vcf line $l1";
     }
   }
+  die "Error reading VCF file $opts{vcf}: $!\n" if (\*VCF)->error;  # issue #43
   warn "Line $l2 left over in new column file";
 }
+die "Error reading new column file $opts{newcolfile}: $!\n" if (\*NC)->error;  # issue #43
 #when I am here the NC file has ended; write out every remaining line from VCF
 while ($l1=<VCF>) {
   chomp $l1;
@@ -138,5 +149,6 @@ while ($l1=<VCF>) {
   @f1_hash{@newcols} = ('.') x @newcols;
   say join "\t", @f1_hash{@columns};
 }
+die "Error reading VCF file $opts{vcf}: $!\n" if (\*VCF)->error;  # issue #43
 close VCF or die "Could not close VCF file $opts{vcf}";
 close NC or die "Could not close new col file $opts{newcolfile}";
