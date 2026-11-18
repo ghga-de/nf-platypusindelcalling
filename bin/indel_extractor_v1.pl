@@ -3,20 +3,21 @@
 # Copyright (c) 2018 German Cancer Research Center (DKFZ).
 #
 # Distributed under the MIT License (license terms are at https://github.com/DKFZ-ODCF/IndelCallingWorkflow).
-
+#
 # By Ivo Buchhalter
 # Hard coded script to extract indels in the snv pipeline
 # Extracts: somatic indels -> indels_PID_somtatic_indels_conf_?_to_10.vcf
 #           somatic coding indels -> indels_PID_somatic_coding_indels_conf_?_to_10.vcf
 # optionally: germline coding indels -> indels_PID_germline_coding_indels_conf_?_to_10.vcf
-#
-# Modified: 2026-08-12 @kubranarci
-# Added: Explicit I/O error handling for all file read operations and output print statements
-#        to catch and report file read errors instead of silently processing corrupted data
-#
+
+
+# Modified 2026-08-12 @kubranarci: I/O error detection (issue #43): a read error makes <FH> return undef
+# just like EOF, so each read loop is followed by an explicit ->error check, and closes are checked
+# (failed zcat/tabix pipes only show up in the exit status reported by close)
 
 use strict;
 use warnings;
+use IO::Handle;
 
 # Issue #43: a write error on STDOUT (e.g. disk full) is only reported when STDOUT is closed
 END { CORE::close(STDOUT) or do { print STDERR "Error writing to STDOUT: $!\n"; $? ||= 1 } }
@@ -58,15 +59,14 @@ if (defined $germlineout)
 }
 
 my $head;
-while (1) {
-    $head = <IN>;
-    if (!defined $head) {
-        die "Error reading from input file $infile or unexpected EOF before header line: $!\n";
-    }
-    chomp($head);
-    last if ($head =~ /^#CHR/);
+while(<IN>)
+{
+	chomp;
+	$head=$_;
+	last if($_ =~ /^#CHR/);
 }
-# we stop after the header, so zcat may get SIGPIPE; any other failure is an error (issue #43)
+die "Error reading $infile: $!\n" if (\*IN)->error;  # issue #43
+# we stop after the header, so zcat may get SIGPIPE (issue #43)
 close(IN) or (($? & 127) == 13) or die "Error reading header of $infile: " . ($! || "exit status " . ($? >> 8)) . "\n";
 
 my @head=split("\t", $head);
@@ -96,31 +96,23 @@ if($region ne "0"){open(IN, "$tabix $infile -B $region |") or die "Could not ope
 elsif($infile =~ /\.gz$/){open(IN, "zcat $infile |") or die "Could not run zcat on $infile: $!\n";}
 else{open(IN, "<$infile") or die "Could not open the infile: $infile\n";}
 
-while (1) {
-    my $line = <IN>;
-    if (!defined $line) {
-        last;  # reached end of file
-    }
-    chomp($line);
-    next if ($line =~ /^#/);
-    my @line_fields = split("\t", $line);
-    if (defined $germlineout && $line_fields[$col{"REGION_CONFIDENCE"}] >= $minconf && ($line_fields[$col{"CLASSIFICATION"}] eq "germline" || $line_fields[$col{"CLASSIFICATION"}] eq "SNP_support_germline") && ($line_fields[$col{"ANNOVAR_FUNCTION"}] eq "exonic" || $line_fields[$col{"ANNOVAR_FUNCTION"}] =~ /splicing/) && $line_fields[$col{"ANNOVAR_FUNCTION"}] !~ /ncRNA_exonic/)
-    {
-        print GER $line, "\n" or die "Error writing to germline output file: $!\n";
-    }
-    next if ($line_fields[$col{"CONFIDENCE"}] < $minconf);
-    if ($line_fields[$col{"CLASSIFICATION"}] eq "somatic") {
-        print SOM $line, "\n" or die "Error writing to somatic output file: $!\n";
-    }
-    if ($line_fields[$col{"CLASSIFICATION"}] eq "somatic" && $line_fields[$col{"ANNOVAR_FUNCTION"}] !~ /ncRNA/ && ($line_fields[$col{"ANNOVAR_FUNCTION"}] =~ /exonic/ || $line_fields[$col{"ANNOVAR_FUNCTION"}] =~ /splicing/)) {
-        print COD $line, "\n" or die "Error writing to coding output file: $!\n";
-    }
-    if ($line_fields[$col{"CLASSIFICATION"}] eq "somatic" && ($line_fields[$col{"ANNOVAR_FUNCTION"}] =~ /ncRNA_exonic/ || $line_fields[$col{"ANNOVAR_FUNCTION"}] =~ /ncRNA_splicing/)) {
-        print NCO $line, "\n" or die "Error writing to ncRNA output file: $!\n";
-    }
+while(<IN>)
+{
+	chomp;
+	next if($_ =~ /^#/);
+	my @line = split("\t", $_);
+	if (defined $germlineout && $line[$col{"REGION_CONFIDENCE"}] >= $minconf && ($line[$col{"CLASSIFICATION"}] eq "germline" || $line[$col{"CLASSIFICATION"}] eq "SNP_support_germline") && ($line[$col{"ANNOVAR_FUNCTION"}] eq "exonic" || $line[$col{"ANNOVAR_FUNCTION"}] =~ /splicing/) && $line[$col{"ANNOVAR_FUNCTION"}] !~ /ncRNA_exonic/)
+	{
+		print GER $_, "\n";
+	}
+	next if($line[$col{"CONFIDENCE"}] < $minconf);
+	if($line[$col{"CLASSIFICATION"}] eq "somatic"){print SOM $_, "\n";}
+	if($line[$col{"CLASSIFICATION"}] eq "somatic" && $line[$col{"ANNOVAR_FUNCTION"}] !~ /ncRNA/ && ($line[$col{"ANNOVAR_FUNCTION"}] =~ /exonic/ || $line[$col{"ANNOVAR_FUNCTION"}] =~ /splicing/)){print COD $_, "\n";}
+	if($line[$col{"CLASSIFICATION"}] eq "somatic" && ($line[$col{"ANNOVAR_FUNCTION"}] =~ /ncRNA_exonic/ || $line[$col{"ANNOVAR_FUNCTION"}] =~ /ncRNA_splicing/)){print NCO $_, "\n";}
 }
+die "Error reading $infile: $!\n" if (\*IN)->error;  # issue #43
 
-close(IN) or die "Error reading $infile (exit status " . ($? >> 8) . "): $!\n";
+close(IN) or die "Error reading $infile: " . ($! || "exit status " . ($? >> 8)) . "\n";  # issue #43
 close(SOM) or die "Error writing $somout: $!\n";
 close(COD) or die "Error writing $funcout: $!\n";
 close(NCO) or die "Error writing $ncout: $!\n";

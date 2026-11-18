@@ -3,7 +3,7 @@
 # Copyright (c) 2018 German Cancer Research Center (DKFZ).
 #
 # Distributed under the MIT License (license terms are at https://github.com/DKFZ-ODCF/IndelCallingWorkflow).
-
+#
 ###################################################################
 #
 # Author: Naveed Ishaque
@@ -20,14 +20,15 @@
 # v1.1
 # Bugix - the last entry had a comma
 #
-#
-# Modified: 2026-08-12 @kubranarci
-# Added: Explicit I/O error handling for file read operations (supports both plain and gzipped input)
-#
 ###################################################################
 
 # Libraries
+# Modified 2026-08-12 @kubranarci: I/O error detection (issue #43): a read error makes <FH> return undef
+# just like EOF, so each read loop is followed by an explicit ->error check, and closes are checked
+# (failed zcat/tabix pipes only show up in the exit status reported by close)
+
 use strict;
+use IO::Handle;
 
 # Issue #43: a write error on STDOUT (e.g. disk full) is only reported when STDOUT is closed
 END { CORE::close(STDOUT) or do { print STDERR "Error writing to STDOUT: $!\n"; $? ||= 1 } }
@@ -78,18 +79,14 @@ my $seen_header=0;
 my $open_statement="<$indel_file";
 $open_statement="zcat $indel_file |" if $indel_file =~ m/gz$/;
 open ($indel_file_handle, "$open_statement") or die "ERROR: cannot open file \"$indel_file\".\n$usage";
-while (1) {
-  my $line = <$indel_file_handle>;
-  if (!defined $line) {
-    last;  # reached end of input file
-  }
-  chomp($line);
-  if ($line =~ /^\#\#/){
+while (<$indel_file_handle>){
+  chomp;
+  if (/^\#\#/){
     # vcf header
   }
-  elsif($line =~ /^\#/){
+  elsif(/^\#/){
     # header line
-    my @header_array = split ("\t", $line);
+    my @header_array = split ("\t", $_);
     @header_colNums{@header_array} = (0..$#header_array);
     $seen_header=1;
   }
@@ -97,7 +94,7 @@ while (1) {
     if ($seen_header==0) {
       die "ERROR: no header line for \"$indel_file\".\n$usage";
     }
-    my @indel_line = split("\t", $line);
+    my @indel_line = split("\t", $_);
     # assume no need to check if the format of the indel file
     $numIndels++;
     my $sizeRef=length($indel_line[$header_colNums{$ref}]);
@@ -125,6 +122,7 @@ while (1) {
     # if ($classification eq "frameshift insertion") ...
   }
 }
+die "Error reading \"$indel_file\": $!\n" if $indel_file_handle->error;  # issue #43
 close($indel_file_handle) or die "ERROR: reading \"$indel_file\" failed: " . ($! || "exit status " . ($? >> 8)) . "\n";  # issue #43
 
 ###################################################################
